@@ -1,15 +1,15 @@
 ## unlock-monitor
 
-对接 prometheus 使用 grafana 出图
+使用 Grafana 对接 Prometheus，搭建流媒体监控页面。
 
 ### 效果:
 
-![](https://raw.githubusercontent.com/nkeonkeo/MediaUnlockTest/main/monitor/image.png)
+![](https://raw.githubusercontent.com/HsukqiLee/MediaUnlockTest/main/monitor/image.png)
 
 ### 安装: 
 
 ```bash
-bash <(curl -Ls unlock.moe/monitor) -service
+bash <(curl -Ls unlock.icmp.ing/monitor.sh) -service
 ```
 
 ### 使用:
@@ -22,25 +22,27 @@ Usage of unlock-monitor:
         check interval (s) (default 60)
   -service
         setup systemd service
-  -hk
-        Hong Kong
-  -jp
-        Japan
   -mul
         Multination (default true)
+  -hk
+        Hong Kong
+  -tw
+        Taiwan
+  -jp
+        Japan
   -na
         North America
   -sa
         South America
-  -tw
-        Taiwan
+  -eu
+        Europe
   -u    check update
   -v    show version
 ```
 
 ### Prometheus: 
 
-添加 JOB:
+添加 Job:
 
 ```yaml
 - job_name: checkmedia
@@ -65,3 +67,5 @@ Value mappings
 |6|UNEXPECTED|
 |-1|NET ERR|
 |-2|ERROR|
+
+经测试在网络异常（触发原因不明，因为本来应该返回`-1`）时`status`字段可能为`0`，可显示为`Unknown`或`TIMEOUT`等。

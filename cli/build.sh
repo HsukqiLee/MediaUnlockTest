@@ -7,8 +7,7 @@ flags="-w -s"
 # exit
 
 echo "build linux amd64 ..."
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-test_linux_amd64 && ./build/unlock-test_linux_amd64
-
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-test_linux_amd64 #&& ./build/unlock-test_linux_amd64
 
 #exit 0
 
