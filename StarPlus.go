@@ -22,7 +22,7 @@ func SupportStarPlus(loc string) bool {
 
 func StarPlus(c http.Client) Result {
 
-	resp, err := http.Get("https://www.starplus.com/")
+	resp, err := GET(c, "https://www.starplus.com/")
 	if err != nil {
 		return Result{Status: StatusNetworkErr}
 	}

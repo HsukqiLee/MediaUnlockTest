@@ -103,6 +103,7 @@ func (T *TEST) Multination() {
 	T.excute("ChatGPT", mt.ChatGPT)
 	T.excute("Wikipedia", mt.WikipediaEditable)
 	T.excute("Reddit", mt.Reddit)
+	T.excute("TikTok", mt.TikTok)
 }
 
 func (T *TEST) HongKong() {
@@ -111,7 +112,7 @@ func (T *TEST) HongKong() {
 	T.excute("Viu.TV", mt.ViuTV)
 	T.excute("MyTVSuper", mt.MyTvSuper)
 	T.excute("HBO GO Aisa", mt.HboGoAisa)
-	T.excute("BiliBili HK/Macau", mt.BilibiliHKMC)
+	T.excute("BiliBili HK/MO", mt.BilibiliHKMC)
 }
 
 func (T *TEST) Taiwan() {
@@ -197,5 +198,5 @@ func (T *TEST) Europe() {
     //R = append(R, &result{Name: "Europe", Divider: true})
     T.excute("BBC iPlayer", mt.BBCiPlayer)
     T.excute("Rakuten TV", mt.RakutenTV)
-    //excute("Sky Show Time", m.SkyShowTime, c)
+    T.excute("Setanta Sports", m.SetantaSports)
 }

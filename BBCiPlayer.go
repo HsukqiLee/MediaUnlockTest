@@ -7,7 +7,7 @@ import (
 )
 
 func BBCiPlayer(c http.Client) Result {
-    resp, err := http.Get("https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/bbc_one_london/format/json/jsfunc/JS_callbacks0")
+    resp, err := GET(c, "https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/bbc_one_london/format/json/jsfunc/JS_callbacks0")
     
 	if err != nil {
 		return Result{Status: StatusNetworkErr}

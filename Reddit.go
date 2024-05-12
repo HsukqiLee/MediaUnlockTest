@@ -7,7 +7,7 @@ import (
 )
 
 func Reddit(c http.Client) Result {
-	resp, err := http.Get("https://www.reddit.com/")
+	resp, err := GET(c, "https://www.reddit.com/")
 	if err != nil {
 		return Result{Status: StatusNetworkErr}
 	}

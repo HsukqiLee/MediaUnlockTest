@@ -31,7 +31,7 @@ func bilibili(c http.Client, url string) Result {
 	return Result{Status: StatusUnexpected, Info: "unknown"}
 }
 
-func BilibiliHKMC(c http.Client) Result {
+func BilibiliHKMO(c http.Client) Result {
 	return bilibili(c, "https://api.bilibili.com/pgc/player/web/playurl?avid=473502608&cid=845838026&qn=0&type=&otype=json&ep_id=678506&fourk=1&fnver=0&fnval=16&module=bangumi")
 }
 
