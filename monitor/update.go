@@ -12,12 +12,12 @@ import (
 )
 
 var (
-	Version   = "1.0"
+	Version   = "1.2"
 	buildTime string
 )
 
 func checkUpdate() {
-	resp, err := http.Get("https://unlock.moe/monitor/latest/version")
+	resp, err := http.Get("https://unlock.icmp.ing/monitor/latest/version")
 	if err != nil {
 		return
 	}
@@ -43,7 +43,7 @@ func checkUpdate() {
 	}
 	defer out.Close()
 	log.Println("下载unlock-monitor中 ...")
-	url := "https://unlock.moe/monitor/latest/unlock-monitor_" + runtime.GOOS + "_" + runtime.GOARCH
+	url := "https://unlock.icmp.ing/monitor/latest/unlock-monitor_" + runtime.GOOS + "_" + runtime.GOARCH
 	resp, err = http.Get(url)
 	if err != nil {
 		log.Fatal("[ERR] 下载unlock-monitor时出错:", err)

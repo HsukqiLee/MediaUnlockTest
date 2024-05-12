@@ -7,7 +7,7 @@ import (
 )
 
 func WikipediaEditable(c http.Client) Result {
-	resp, err := http.Get("https://zh.wikipedia.org/w/index.php?title=Wikipedia%3A%E6%B2%99%E7%9B%92&action=edit")
+	resp, err := GET(c, "https://zh.wikipedia.org/w/index.php?title=Wikipedia%3A%E6%B2%99%E7%9B%92&action=edit")
 	if err != nil {
 		return Result{Status: StatusNetworkErr}
 	}

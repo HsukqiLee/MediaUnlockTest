@@ -5,7 +5,7 @@ import (
 )
 
 func DirecTVGO(c http.Client) Result {
-	resp, err := http.Get("https://www.directvgo.com/registrarse")
+	resp, err := GET(c, "https://www.directvgo.com/registrarse")
 	if err != nil {
 		return Result{Status: StatusNetworkErr}
 	}

@@ -163,6 +163,7 @@ func Multination(c http.Client) {
 	excute("ChatGPT", m.ChatGPT, c)
 	excute("Wikipedia", m.WikipediaEditable, c)
 	excute("Reddit", m.Reddit, c)
+	excute("TikTok", m.TikTok, c)
 }
 
 func HongKong(c http.Client) {
@@ -171,7 +172,7 @@ func HongKong(c http.Client) {
 	excute("Viu.TV", m.ViuTV, c)
 	excute("MyTVSuper", m.MyTvSuper, c)
 	excute("HBO GO Aisa", m.HboGoAisa, c)
-	excute("BiliBili Hongkong/Macau Only", m.BilibiliHKMC, c)
+	excute("BiliBili HongKong/Macau Only", m.BilibiliHKMO, c)
 }
 
 func Taiwan(c http.Client) {
@@ -252,13 +253,14 @@ func SouthAmerica(c http.Client) {
     R = append(R, &result{Name: "South America", Divider: true})
     excute("Star Plus", m.StarPlus, c)
     excute("DirecTV GO", m.DirecTVGO, c)
+    excute("Setanta Sports", m.SetantaSports, c)
 }
 
 func Europe(c http.Client) {
     R = append(R, &result{Name: "Europe", Divider: true})
     excute("BBC iPlayer", m.BBCiPlayer, c)
     excute("Rakuten TV", m.RakutenTV, c)
-    //excute("Sky Show Time", m.SkyShowTime, c)
+    excute("Setanta Sports", m.SetantaSports, c)
 }
 
 func Ipv6Multination() {
@@ -273,6 +275,7 @@ func Ipv6Multination() {
 	excute("Youtube CDN", m.YoutubeCDN, c)
 	excute("Wikipedia", m.WikipediaEditable, c)
 	excute("Reddit", m.Reddit, c)
+	excute("TikTok", m.TikTok, c)
 }
 
 func GetIpv4Info() {
@@ -377,7 +380,7 @@ func (d *Downloader) Read(p []byte) (n int, err error) {
 }
 
 func checkUpdate() {
-	resp, err := http.Get("https://unlock.moe/latest/version")
+	resp, err := http.Get("https://unlock.icmp.ing/test/latest/version")
 	if err != nil {
 		return
 	}
@@ -403,7 +406,7 @@ func checkUpdate() {
 	}
 	defer out.Close()
 	log.Println("下载unlock-test中 ...")
-	url := "https://unlock.moe/latest/unlock-test_" + runtime.GOOS + "_" + runtime.GOARCH
+	url := "https://unlock.icmp.ing/test/latest/unlock-test_" + runtime.GOOS + "_" + runtime.GOARCH
 	resp, err = http.Get(url)
 	if err != nil {
 		log.Fatal("[ERR] 下载unlock-test时出错:", err)
@@ -448,7 +451,7 @@ func showCounts() {
 }
 
 func showAd() {
-	resp, err := http.Get("https://unlock.moe/ad")
+	resp, err := http.Get("https://unlock.icmp.ing/ad.txt")
 	if err != nil {
 		return
 	}
@@ -536,8 +539,8 @@ func main() {
 		return
 	}
 
-	fmt.Println("项目地址: " + FontSkyBlue + "https://github.com/nkeonkeo/MediaUnlockTest" + FontSuffix)
-	fmt.Println("使用方式: " + FontYellow + "curl -Ls unlock.moe | sh" + FontSuffix)
+	fmt.Println("项目地址: " + FontSkyBlue + "https://github.com/HsukqiLee/MediaUnlockTest" + FontSuffix)
+	fmt.Println("使用方式: " + FontYellow + "bash <(curl -Ls unlock.icmp.ing/test.sh)" + FontSuffix)
 	fmt.Println()
 
 	GetIpv4Info()
