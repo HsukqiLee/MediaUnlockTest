@@ -24,7 +24,7 @@ jobs:
           mkdir build
           bash build.sh
       
-      - name: Upload CLI build
+      - name: Upload Tester build
         run: |
           cd cli/build
           for file in *; do
