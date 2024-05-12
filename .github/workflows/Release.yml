@@ -7,55 +7,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        include:
-          - goos: linux
-            goarch: amd64
-          - goos: linux
-            goarch: arm64
-          - goos: darwin
-            goarch: amd64
-          - goos: darwin
-            goarch: arm64
-          - goos: linux
-            goarch: 386
-          - goos: windows
-            goarch: 386
-          - goos: freebsd
-            goarch: 386
-          - goos: openbsd
-            goarch: 386
-          - goos: netbsd
-            goarch: 386
-          - goos: linux
-            goarch: arm7
-          - goos: linux
-            goarch: arm6
-          - goos: linux
-            goarch: arm5
-          - goos: linux
-            goarch: mips
-          - goos: linux
-            goarch: mipsle
-          - goos: linux
-            goarch: mips_softfloat
-          - goos: linux
-            goarch: mipsle_softfloat
-          - goos: linux
-            goarch: mips64
-          - goos: linux
-            goarch: mips64le
-          - goos: linux
-            goarch: mips64_softfloat
-          - goos: linux
-            goarch: mips64le_softfloat
-          - goos: linux
-            goarch: ppc64
-          - goos: linux
-            goarch: ppc64le
-            
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -72,23 +24,18 @@ jobs:
           mkdir build
           bash build.sh
       
-      - name: Upload Tester binary to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./cli/build/unlock-test_${{ matrix.goos }}_${{ matrix.goarch }}
-          asset_name: unlock-test_${{ matrix.goos }}_${{ matrix.goarch }}
-          asset_content_type: application/octet-stream
-          
-      - name: Upload Monitor binary to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./monitor/build/unlock-monitor_${{ matrix.goos }}_${{ matrix.goarch }}
-          asset_name: unlock-monitor_${{ matrix.goos }}_${{ matrix.goarch }}
-          asset_content_type: application/octet-stream
-
+      - name: Upload CLI build
+        run: |
+          cd cli/build
+          for file in *; do
+            echo "Uploading $file"
+            curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
+          done
+      
+      - name: Upload Monitor build
+        run: |
+          cd monitor/build
+          for file in *; do
+            echo "Uploading $file"
+            curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
+          done
