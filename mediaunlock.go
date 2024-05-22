@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"syscall"
+	"context"
 	"time"
 )
 
@@ -39,17 +39,19 @@ var Dialer = &net.Dialer{
 	KeepAlive: 30 * time.Second,
 	// Resolver:  &net.Resolver{},
 }
+
 var ClientProxy = http.ProxyFromEnvironment
+
+func UseLastResponse(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+
+var defaultCipherSuites = []uint16{0xc02f, 0xc030, 0xc02b, 0xc02c, 0xcca8, 0xcca9, 0xc013, 0xc009, 0xc014, 0xc00a, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a}
+
 var Ipv4Transport = &http.Transport{
 	Proxy: ClientProxy,
-	DialContext: (&net.Dialer{
-		Timeout: 30 * time.Second, KeepAlive: 30 * time.Second,
-		Control: func(network, address string, c syscall.RawConn) error {
-			if network == "ipv4" {
-				return errors.New("force ipv6")
-			}
-			return nil
-		}}).DialContext,
+	DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+        // 强制使用IPv4
+        return Dialer.DialContext(ctx, "tcp4", addr)
+    },
 	// ForceAttemptHTTP2:     true,
 	MaxIdleConns:          100,
 	IdleConnTimeout:       90 * time.Second,
@@ -58,24 +60,23 @@ var Ipv4Transport = &http.Transport{
 	TLSClientConfig:       tlsConfig,
 }
 
-func UseLastResponse(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 
-var defaultCipherSuites = []uint16{0xc02f, 0xc030, 0xc02b, 0xc02c, 0xcca8, 0xcca9, 0xc013, 0xc009, 0xc014, 0xc00a, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a}
 var Ipv4HttpClient = http.Client{
 	Timeout:       30 * time.Second,
 	CheckRedirect: UseLastResponse,
 	Transport:     Ipv4Transport,
 }
+var Ipv4CheckClient = http.Client{
+	Timeout:       3 * time.Second,
+	CheckRedirect: UseLastResponse,
+	Transport:     Ipv4Transport,
+}
 var Ipv6Transport = &http.Transport{
 	Proxy: ClientProxy,
-	DialContext: (&net.Dialer{
-		Timeout: 30 * time.Second, KeepAlive: 30 * time.Second,
-		Control: func(network, address string, c syscall.RawConn) error {
-			if network == "ipv6" {
-				return errors.New("force ipv4")
-			}
-			return nil
-		}}).DialContext,
+	DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+        // 强制使用IPv4
+        return Dialer.DialContext(ctx, "tcp6", addr)
+    },
 	// ForceAttemptHTTP2:     true,
 	MaxIdleConns:          100,
 	IdleConnTimeout:       90 * time.Second,
@@ -83,8 +84,15 @@ var Ipv6Transport = &http.Transport{
 	ExpectContinueTimeout: 1 * time.Second,
 	TLSClientConfig:       tlsConfig,
 }
+
 var Ipv6HttpClient = http.Client{
 	Timeout:       30 * time.Second,
+	CheckRedirect: UseLastResponse,
+	Transport:     Ipv6Transport,
+}
+
+var Ipv6CheckClient = http.Client{
+	Timeout:       3 * time.Second,
 	CheckRedirect: UseLastResponse,
 	Transport:     Ipv6Transport,
 }

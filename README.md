@@ -71,3 +71,7 @@ import "https://github.com/HsukqiLee/MediaUnlockTest"
 本项目基于 [MediaUnlockTest](https://github.com/nkeonkeo/MediaUnlockTest) 二次开发，提供更丰富的测试项目。
 
 Made with ❤️ By **Hsukqi Lee**.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=HsukqiLee/MediaUnlockTest&type=Date)](https://star-history.com/#HsukqiLee/MediaUnlockTest&Date)
