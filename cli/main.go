@@ -274,12 +274,10 @@ func Ipv6Multination() {
 	excute("Youtube", m.YoutubeRegion, c)
 	excute("Youtube CDN", m.YoutubeCDN, c)
 	excute("Wikipedia", m.WikipediaEditable, c)
-	excute("Reddit", m.Reddit, c)
-	excute("TikTok", m.TikTok, c)
 }
 
 func GetIpv4Info() {
-	resp, err := m.Ipv4HttpClient.Get("https://www.cloudflare.com/cdn-cgi/trace")
+	resp, err := m.Ipv4CheckClient.Get("https://www.cloudflare.com/cdn-cgi/trace")
 	if err != nil {
 		IPV4 = false
 		log.Println(err)
@@ -299,7 +297,7 @@ func GetIpv4Info() {
 	fmt.Println("Your IPV4 address:", FontSkyBlue, s[:i], FontSuffix)
 }
 func GetIpv6Info() {
-	resp, err := m.Ipv6HttpClient.Get("https://www.cloudflare.com/cdn-cgi/trace")
+	resp, err := m.Ipv6CheckClient.Get("https://www.cloudflare.com/cdn-cgi/trace")
 	if err != nil {
 		IPV6 = false
 		fmt.Println("No IPv6 support")
