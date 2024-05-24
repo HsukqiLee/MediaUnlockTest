@@ -15,6 +15,7 @@ var (
 	NA  bool
 	SA  bool
 	EU  bool
+	OCEA bool
 )
 
 type TEST struct {
@@ -53,6 +54,9 @@ func (T *TEST) Check() bool {
 	}
 	if EU {
 		T.Europe()
+	}
+	if OCEA {
+		T.Oceania()
 	}
 
 	ch := make(chan struct{})
@@ -104,6 +108,7 @@ func (T *TEST) Multination() {
 	T.excute("Wikipedia", mt.WikipediaEditable)
 	T.excute("Reddit", mt.Reddit)
 	T.excute("TikTok", mt.TikTok)
+	T.excute("Bing", mt.Bing)
 }
 
 func (T *TEST) HongKong() {
@@ -199,4 +204,8 @@ func (T *TEST) Europe() {
     T.excute("BBC iPlayer", mt.BBCiPlayer)
     T.excute("Rakuten TV", mt.RakutenTV)
     T.excute("Setanta Sports", mt.SetantaSports)
+}
+
+func (T *TEST) Oceania() {
+    
 }

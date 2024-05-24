@@ -36,6 +36,8 @@ Usage of unlock-monitor:
         South America
   -eu
         Europe
+  -ocea
+        Oceania
   -u    check update
   -v    show version
 ```

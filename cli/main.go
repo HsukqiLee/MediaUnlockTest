@@ -25,7 +25,7 @@ import (
 
 var IPV4 = true
 var IPV6 = true
-var M, TW, HK, JP, NA, SA, EU bool
+var M, TW, HK, JP, NA, SA, EU, OCEA bool
 var Force bool
 
 type result struct {
@@ -70,35 +70,45 @@ func ShowResult(r m.Result) (s string) {
 			s += " (Region: " + strings.ToUpper(r.Region) + ")"
 		}
 		s += FontSuffix
-	} else if r.Status == m.StatusNetworkErr {
+		return s
+	}
+	if r.Status == m.StatusNetworkErr {
 		return FontRed + "NO" + FontSuffix + FontYellow + " (Network Err)" + FontSuffix
-	} else if r.Status == m.StatusRestricted {
+	}
+	if r.Status == m.StatusRestricted {
 		if r.Info != "" {
 			return FontYellow + "Restricted" + " (" + r.Info + ")" + FontSuffix
-		} else {
-			return FontYellow + "Restricted" + FontSuffix
 		}
-	} else if r.Status == m.StatusErr {
+		return FontYellow + "Restricted" + FontSuffix
+	}
+	if r.Status == m.StatusErr {
 		s = FontYellow + "ERR"
 		if r.Err != nil {
 			s += ": " + r.Err.Error() + ""
 		}
 		s += FontSuffix
 		return s
-	} else if r.Status == m.StatusNo {
+	}
+	if r.Status == m.StatusNo {
 		if r.Info != "" {
 			return FontRed + "NO" + FontSuffix + FontYellow + " (" + r.Info + ")" + FontSuffix
-		} else {
-			return FontRed + "NO" + FontSuffix
 		}
-	} else if r.Status == m.StatusBanned {
+		if r.Region != "" {
+			return FontRed + "NO (Region: " + strings.ToUpper(r.Region) + ")" + FontSuffix
+		}
+		return FontRed + "NO" + FontSuffix
+	}
+	if r.Status == m.StatusBanned {
 		if r.Info != "" {
 			return FontRed + "BAN" + FontSuffix + FontYellow + " (" + r.Info + ")" + FontSuffix
-		} else {
-			return FontRed + "BAN" + FontSuffix
 		}
-	} else if r.Status == m.StatusUnexpected {
-		return FontYellow + "Unexpected" + FontSuffix
+		return FontRed + "BAN" + FontSuffix
+	}
+	if r.Status == m.StatusUnexpected {
+		return FontPurple + "Unexpected" + FontSuffix
+	}
+	if r.Status == m.StatusFailed {
+		return FontBlue + "Failed" + FontSuffix
 	}
 	return
 }
@@ -164,6 +174,7 @@ func Multination(c http.Client) {
 	excute("Wikipedia", m.WikipediaEditable, c)
 	excute("Reddit", m.Reddit, c)
 	excute("TikTok", m.TikTok, c)
+	excute("Bing", m.Bing, c)
 }
 
 func HongKong(c http.Client) {
@@ -253,7 +264,6 @@ func SouthAmerica(c http.Client) {
     R = append(R, &result{Name: "South America", Divider: true})
     excute("Star Plus", m.StarPlus, c)
     excute("DirecTV GO", m.DirecTVGO, c)
-    excute("Setanta Sports", m.SetantaSports, c)
 }
 
 func Europe(c http.Client) {
@@ -261,6 +271,10 @@ func Europe(c http.Client) {
     excute("BBC iPlayer", m.BBCiPlayer, c)
     excute("Rakuten TV", m.RakutenTV, c)
     excute("Setanta Sports", m.SetantaSports, c)
+}
+
+func Oceania(c http.Client) {
+    
 }
 
 func Ipv6Multination() {
@@ -274,10 +288,14 @@ func Ipv6Multination() {
 	excute("Youtube", m.YoutubeRegion, c)
 	excute("Youtube CDN", m.YoutubeCDN, c)
 	excute("Wikipedia", m.WikipediaEditable, c)
+	excute("Bing", m.Bing, c)
 }
 
 func GetIpv4Info() {
-	resp, err := m.Ipv4CheckClient.Get("https://www.cloudflare.com/cdn-cgi/trace")
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
+	resp, err := m.Ipv4HttpClient.Do(req)
 	if err != nil {
 		IPV4 = false
 		log.Println(err)
@@ -297,7 +315,10 @@ func GetIpv4Info() {
 	fmt.Println("Your IPV4 address:", FontSkyBlue, s[:i], FontSuffix)
 }
 func GetIpv6Info() {
-	resp, err := m.Ipv6CheckClient.Get("https://www.cloudflare.com/cdn-cgi/trace")
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
+	resp, err := m.Ipv6HttpClient.Do(req)
 	if err != nil {
 		IPV6 = false
 		fmt.Println("No IPv6 support")
@@ -324,6 +345,7 @@ func ReadSelect() {
 	fmt.Println("[4]: 北美平台")
 	fmt.Println("[5]: 南美平台")
 	fmt.Println("[6]: 欧洲平台")
+	fmt.Println("[7]: 大洋洲平台")
 	fmt.Print("请输入对应数字,空格分隔(回车确认): ")
 	r := bufio.NewReader(os.Stdin)
 	l, _, err := r.ReadLine()
@@ -347,8 +369,10 @@ func ReadSelect() {
 		    SA = true
 		case "6":
 		    EU = true
+		case "7":
+		    OCEA = true
 		default:
-			M, TW, HK, JP, NA, SA, EU = true, true, true, true, true, true, true
+			M, TW, HK, JP, NA, SA, EU, OCEA = true, true, true, true, true, true, true, true
 		}
 	}
 }

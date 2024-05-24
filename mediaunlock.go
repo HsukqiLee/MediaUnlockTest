@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	Version          = "1.3"
+	Version          = "1.3.4"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
@@ -66,11 +66,7 @@ var Ipv4HttpClient = http.Client{
 	CheckRedirect: UseLastResponse,
 	Transport:     Ipv4Transport,
 }
-var Ipv4CheckClient = http.Client{
-	Timeout:       3 * time.Second,
-	CheckRedirect: UseLastResponse,
-	Transport:     Ipv4Transport,
-}
+
 var Ipv6Transport = &http.Transport{
 	Proxy: ClientProxy,
 	DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -91,11 +87,6 @@ var Ipv6HttpClient = http.Client{
 	Transport:     Ipv6Transport,
 }
 
-var Ipv6CheckClient = http.Client{
-	Timeout:       3 * time.Second,
-	CheckRedirect: UseLastResponse,
-	Transport:     Ipv6Transport,
-}
 
 var AutoHttpClient = NewAutoHttpClient()
 
