@@ -207,5 +207,13 @@ func (T *TEST) Europe() {
 }
 
 func (T *TEST) Oceania() {
-    
+    //R = append(R, &result{Name: "Oceania", Divider: true})
+    T.excute("Stan", mt.Stan)
+    T.excute("Binge", mt.Binge)
+    T.excute("7Plus", mt.SevenPlus)
+    T.excute("Channel 9", mt.Channel9)
+    T.excute("10 Play", mt.Channel10)
+    T.excute("ABC iView", mt.ABCiView)
+    T.excute("Optus Sports", mt.OptusSports)
+    T.excute("SBS on Demand", mt.SBSonDemand)
 }

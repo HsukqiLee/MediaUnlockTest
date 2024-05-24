@@ -274,7 +274,15 @@ func Europe(c http.Client) {
 }
 
 func Oceania(c http.Client) {
-    
+    R = append(R, &result{Name: "Oceania", Divider: true})
+    excute("Stan", m.Stan, c)
+    excute("Binge", m.Binge, c)
+    excute("7Plus", m.SevenPlus, c)
+    excute("Channel 9", m.Channel9, c)
+    excute("10 Play", m.Channel10, c)
+    excute("ABC iView", m.ABCiView, c)
+    excute("Optus Sports", m.OptusSports, c)
+    excute("SBS on Demand", m.SBSonDemand, c)
 }
 
 func Ipv6Multination() {
@@ -595,6 +603,9 @@ func main() {
 		if EU {
 			Europe(client)
 		}
+		if OCEA {
+			Oceania(client)
+		}
 	}
 	if IPV6 {
 		if Force {
@@ -619,6 +630,9 @@ func main() {
 	    	if EU {
 	    		Europe(m.Ipv6HttpClient)
 	    	}
+	    	if OCEA {
+			    Oceania(m.Ipv6HttpClient)
+		    }
 		} else {
 			Ipv6Multination()
 		}
