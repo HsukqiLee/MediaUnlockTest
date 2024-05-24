@@ -24,6 +24,7 @@ func main() {
 	flag.BoolVar(&NA, "na", false, "North America")
 	flag.BoolVar(&SA, "sa", false, "South America")
 	flag.BoolVar(&EU, "eu", false, "Europe")
+	flag.BoolVar(&OCEA, "ocea", false, "Oceania")
 
 	flag.BoolVar(&service, "service", false, "setup systemd service")
 	flag.BoolVar(&update, "u", false, "check update")
