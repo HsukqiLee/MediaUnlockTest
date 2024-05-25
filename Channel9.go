@@ -16,7 +16,7 @@ func Channel9(c http.Client) Result {
 		return Result{Status: StatusNo}
 	}
 	
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == 302  {
 		return Result{Status: StatusOK}
 	}
 
