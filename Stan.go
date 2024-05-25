@@ -28,9 +28,9 @@ func Stan(c http.Client) Result {
 		return Result{Status: StatusNo, Info: "VPN Detected"}
 	}
 	
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == 400 {
 		return Result{Status: StatusOK}
 	}
-
+    
 	return Result{Status: StatusUnexpected}
 }
