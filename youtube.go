@@ -9,7 +9,7 @@ import (
 )
 
 func YoutubeRegion(c http.Client) Result {
-	resp, err := GET(c, "https://www.youtube.com/premium")
+	resp, err := GET(c, "https://www.youtube.com/premium", H{"Cookie", "YSC=BiCUU3-5Gdk; CONSENT=YES+cb.20220301-11-p0.en+FX+700; GPS=1; VISITOR_INFO1_LIVE=4VwPMkB7W5A; SOCS=CAISOAgDEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjQwNTIxLjA3X3AxGgV6aC1DTiACGgYIgNTEsgY; PREF=f7=4000&tz=Asia.Shanghai&f4=4000000; _gcl_au=1.1.1809531354.1646633279"})
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
