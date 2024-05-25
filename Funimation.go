@@ -5,7 +5,7 @@ import (
 )
 
 func Funimation(c http.Client) Result {
-	resp, err := GET(c, "https://www.funimation.com")
+	resp, err := GET(c, "https://www.crunchyroll.com/")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

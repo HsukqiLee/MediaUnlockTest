@@ -10,7 +10,14 @@ import (
 func Epix(c http.Client) Result {
 	url := "https://api.epix.com/v2/sessions"
 	resp, err := PostJson(c, url,
-		`{"device":{"guid":"e2add88e-2d92-4392-9724-326c2336013b","format":"console","os":"web","app_version":"1.0.2","model":"browser","manufacturer":"google"},"apikey":"f07debfcdf0f442bab197b517a5126ec","oauth":{"token":null}}`,
+		`{"device":{"guid":"7a0baaaf-384c-45cd-a21d-310ca5d3002a","format":"console","os":"web","display_width":1865,"display_height":942,"app_version":"1.0.2","model":"browser","manufacturer":"google"},"apikey":"53e208a9bbaee479903f43b39d7301f7"}`,
+		H{"connection", "keep-alive"},
+		H{"traceparent", "00-000000000000000015b7efdb572b7bf2-4aefaea90903bd1f-01"},
+		H{"x-datadog-sampling-priority", "1"},
+		H{"x-datadog-trace-id", "1564983120873880562"},
+		H{"x-datadog-parent-id", "5399726519264460063"},
+		H{"origin", "https://www.mgmplus.com"},
+		H{"referer", "https://www.mgmplus.com/"},
 	)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -60,9 +67,9 @@ func Epix(c http.Client) Result {
 	}
 	switch res2.Movie.Entitlements.Status {
 	case "PROXY_DETECTED":
-		return Result{Status: StatusNo}
+		return Result{Status: StatusNo, Info: "Proxy Detected"}
 	case "GEO_BLOCKED":
-		return Result{Status: StatusNo}
+		return Result{Status: StatusNo, Info: "Unavailable"}
 	case "NOT_SUBSCRIBED":
 		return Result{Status: StatusOK}
 	}

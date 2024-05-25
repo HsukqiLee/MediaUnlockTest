@@ -162,7 +162,7 @@ func Multination(c http.Client) {
 	excute("Disney+", m.DisneyPlus, c)
 	excute("Netflix", m.NetflixRegion, c)
 	excute("Netflix CDN", m.NetflixCDN, c)
-	excute("Youtube", m.YoutubeRegion, c)
+	excute("Youtube Premium", m.YoutubeRegion, c)
 	excute("Youtube CDN", m.YoutubeCDN, c)
 	excute("Amazon Prime Video", m.PrimeVideo, c)
 	excute("TVBAnywhere+", m.TVBAnywhere, c)
@@ -227,6 +227,7 @@ func Japan(c http.Client) {
 
 func NorthAmerica(c http.Client) {
 	R = append(R, &result{Name: "North America", Divider: true})
+	R = append(R, &result{Name: "US", Divider: true})
 	excute("FOX", m.Fox, c)
 	excute("Hulu", m.Hulu, c)
 	excute("NFL+", m.NFLPlus, c)
@@ -248,7 +249,7 @@ func NorthAmerica(c http.Client) {
 	excute("Acorn TV", m.AcornTV, c)
 	excute("SHOWTIME", m.SHOWTIME, c)
 	excute("encoreTVB", m.EncoreTVB, c)
-	excute("Funimation", m.Funimation, c)
+	//excute("Funimation", m.Funimation, c)
 	excute("Discovery+", m.DiscoveryPlus, c)
 	excute("Paramount+", m.ParamountPlus, c)
 	excute("Peacock TV", m.PeacockTV, c)
@@ -504,6 +505,7 @@ func main() {
 	showVersion := false
 	update := false
 	nf := false
+	test := false
 	Iface := ""
 	DnsServers := ""
 	httpProxy := ""
@@ -515,6 +517,7 @@ func main() {
 	flag.StringVar(&DnsServers, "dns-servers", "", "specify dns servers")
 	flag.StringVar(&httpProxy, "http-proxy", "", "http proxy")
 	flag.BoolVar(&nf, "nf", false, "netflix")
+	flag.BoolVar(&test, "test", false, "test")
 	flag.Parse()
 	if showVersion {
 		fmt.Println(m.Version)
@@ -566,6 +569,11 @@ func main() {
 
 	if nf {
 		fmt.Println("Netflix", ShowResult(m.NetflixRegion(m.AutoHttpClient)))
+		return
+	}
+	
+	if test {
+		fmt.Println("Funimation", ShowResult(m.Funimation(m.AutoHttpClient)))
 		return
 	}
 

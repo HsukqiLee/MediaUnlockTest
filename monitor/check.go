@@ -181,7 +181,7 @@ func (T *TEST) NorthAmerica() {
 	T.excute("Acorn TV", mt.AcornTV)
 	T.excute("SHOWTIME", mt.SHOWTIME)
 	T.excute("encoreTVB", mt.EncoreTVB)
-	T.excute("Funimation", mt.Funimation)
+	//T.excute("Funimation", mt.Funimation)
 	T.excute("Discovery+", mt.DiscoveryPlus)
 	T.excute("Paramount+", mt.ParamountPlus)
 	T.excute("Peacock TV", mt.PeacockTV)
