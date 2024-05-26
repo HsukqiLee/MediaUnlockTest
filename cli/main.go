@@ -223,6 +223,7 @@ func Japan(c http.Client) {
 	excute("Princess Connect Re:Dive Japan", m.PCRJP, c)
 	excute("World Flipper Japan", m.WFJP, c)
 	excute("Project Sekai: Colorful Stage", m.PJSK, c)
+	excute("Rakuten TV JP", m.RakutenTV_JP, c)
 }
 
 func NorthAmerica(c http.Client) {
@@ -269,9 +270,29 @@ func SouthAmerica(c http.Client) {
 
 func Europe(c http.Client) {
     R = append(R, &result{Name: "Europe", Divider: true})
-    excute("BBC iPlayer", m.BBCiPlayer, c)
-    excute("Rakuten TV", m.RakutenTV, c)
+    excute("Rakuten TV EU", m.RakutenTV_EU, c)
     excute("Setanta Sports", m.SetantaSports, c)
+    R = append(R, &result{Name: "GB", Divider: true})
+    excute("BBC iPlayer", m.BBCiPlayer, c)
+    excute("Channel 4", m.Channel4, c)
+    excute("Channel 5", m.Channel5, c)
+    excute("Sky Go", m.SkyGo, c)
+    excute("ITVX", m.ITVX, c)
+    R = append(R, &result{Name: "IT", Divider: true})
+    excute("Rai Play", m.RaiPlay, c)
+    R = append(R, &result{Name: "FR/DE", Divider: true})
+    excute("Canal Plus", m.CanalPlus, c)
+    excute("ZDF", m.ZDF, c)
+    excute("Joyn", m.Joyn, c)
+    excute("Molotov", m.Molotov, c)
+    R = append(R, &result{Name: "NL", Divider: true})
+    excute("NPO Start Plus", m.NPOStartPlus, c)
+    excute("Video Land", m.VideoLand, c)
+    excute("NLZIET", m.NLZIET, c)
+    R = append(R, &result{Name: "ES", Divider: true})
+    excute("Movistar Plus+", m.MoviStarPlus, c)
+    R = append(R, &result{Name: "RU", Divider: true})
+    excute("Amediateka", m.Amediateka, c)
 }
 
 func Oceania(c http.Client) {
@@ -573,7 +594,7 @@ func main() {
 	}
 	
 	if test {
-		fmt.Println("Funimation", ShowResult(m.Funimation(m.AutoHttpClient)))
+		fmt.Println("VideoLand", ShowResult(m.VideoLand(m.Ipv4HttpClient)))
 		return
 	}
 
