@@ -157,6 +157,7 @@ func (T *TEST) Japan() {
 	T.excute("Princess Connect Re:Dive Japan", mt.PCRJP)
 	T.excute("World Flipper Japan", mt.WFJP)
 	T.excute("Project Sekai: Colorful Stage", mt.PJSK)
+	T.excute("Rakuten TV", mt.RakutenTV_JP)
 }
 
 func (T *TEST) NorthAmerica() {
@@ -202,8 +203,22 @@ func (T *TEST) SouthAmerica() {
 func (T *TEST) Europe() {
     //R = append(R, &result{Name: "Europe", Divider: true})
     T.excute("BBC iPlayer", mt.BBCiPlayer)
-    T.excute("Rakuten TV", mt.RakutenTV)
+    T.excute("Rakuten TV", mt.RakutenTV_EU)
     T.excute("Setanta Sports", mt.SetantaSports)
+    T.excute("Rai Play", mt.RaiPlay)
+    T.excute("NPO Start Plus", mt.NPOStartPlus)
+    T.excute("Video Land", mt.VideoLand)
+    T.excute("NLZIET", mt.NLZIET)
+    T.excute("Movistar Plus+", mt.MoviStarPlus)
+    T.excute("Amediateka", mt.Amediateka)
+    T.excute("ZDF", mt.ZDF)
+    T.excute("Joyn", mt.Joyn)
+    T.excute("Molotov", mt.Molotov)
+    T.excute("Channel 5", mt.Channel5)
+    T.excute("Canal Plus", mt.CanalPlus)
+    T.excute("Channel 4", mt.Channel4)
+    T.excute("Sky Go", mt.SkyGo)
+    T.excute("ITVX", mt.ITVX)
 }
 
 func (T *TEST) Oceania() {
