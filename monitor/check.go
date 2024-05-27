@@ -15,6 +15,7 @@ var (
 	NA  bool
 	SA  bool
 	EU  bool
+	AF bool
 	OCEA bool
 )
 
@@ -54,6 +55,9 @@ func (T *TEST) Check() bool {
 	}
 	if EU {
 		T.Europe()
+	}
+	if AF {
+		T.Africa()
 	}
 	if OCEA {
 		T.Oceania()
@@ -100,7 +104,7 @@ func (T *TEST) Multination() {
 	T.excute("Youtube CDN", mt.YoutubeCDN)
 	T.excute("Amazon Prime Video", mt.PrimeVideo)
 	T.excute("TVBAnywhere+", mt.TVBAnywhere)
-	T.excute("iQyi", mt.IqRegion)
+	T.excute("iQiYi", mt.IQiYi)
 	T.excute("Viu.com", mt.ViuCom)
 	T.excute("Spotify", mt.Spotify)
 	T.excute("Steam", mt.Steam)
@@ -109,6 +113,7 @@ func (T *TEST) Multination() {
 	T.excute("Reddit", mt.Reddit)
 	T.excute("TikTok", mt.TikTok)
 	T.excute("Bing", mt.Bing)
+	T.excute("Instagram Audio", mt.Instagram)
 }
 
 func (T *TEST) HongKong() {
@@ -219,6 +224,12 @@ func (T *TEST) Europe() {
     T.excute("Channel 4", mt.Channel4)
     T.excute("Sky Go", mt.SkyGo)
     T.excute("ITVX", mt.ITVX)
+}
+
+func (T *TEST) Africa() {
+    //R = append(R, &result{Name: "Europe", Divider: true})
+    T.excute("DSTV", mt.DSTV)
+    T.excute("Showmax", mt.Showmax)
 }
 
 func (T *TEST) Oceania() {
