@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func IqRegion(c http.Client) Result {
+func IQiYi(c http.Client) Result {
 	resp, err := GET(c, "https://www.iq.com")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
