@@ -19,6 +19,11 @@ func Paravi(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
+	
+	if resp.StatusCode == 403 {
+		return Result{Status: StatusNo}
+	}
+	
 	var res struct {
 		Error struct {
 			Type string
@@ -27,11 +32,9 @@ func Paravi(c http.Client) Result {
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
-	if res.Error.Type == "Forbidden" {
-		return Result{Status: StatusNo}
-	}
+	
 	if res.Error.Type == "Unauthorized" {
 		return Result{Status: StatusOK}
 	}
-	return Result{Status: StatusOK}
+	return Result{Status: StatusUnexpected}
 }

@@ -47,6 +47,7 @@ func Joyn(c http.Client) Result {
     var res2b struct {
         Token string `json:"entitlement_token"`
     }
+    
 	if err := json.Unmarshal(b2, &res2a); err != nil {
 	    if err := json.Unmarshal(b2, &res2b); err != nil {
 	       return Result{Status: StatusFailed, Err: err}
