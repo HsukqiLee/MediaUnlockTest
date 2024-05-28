@@ -384,7 +384,7 @@ func ReadSelect() {
 	fmt.Println("[4]: 北美平台")
 	fmt.Println("[5]: 南美平台")
 	fmt.Println("[6]: 欧洲平台")
-	fmt.Println("[7]: 欧洲平台")
+	fmt.Println("[7]: 非洲平台")
 	fmt.Println("[8]: 大洋洲平台")
 	fmt.Print("请输入对应数字,空格分隔(回车确认): ")
 	r := bufio.NewReader(os.Stdin)
@@ -606,7 +606,7 @@ func main() {
 	}
 	
 	if test {
-		fmt.Println("dtvgo", ShowResult(m.DirecTVGO(m.Ipv4HttpClient)))
+		fmt.Println("SlingTV", ShowResult(m.SlingTV(m.Ipv4HttpClient)))
 		return
 	}
 

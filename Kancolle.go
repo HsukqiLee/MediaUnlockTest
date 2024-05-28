@@ -11,11 +11,13 @@ func Kancolle(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case 200:
+	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
-	case 403:
+	}
+	
+	if resp.StatusCode == 403 || resp.StatusCode == 302 {
 		return Result{Status: StatusNo}
 	}
+	
 	return Result{Status: StatusUnexpected}
 }

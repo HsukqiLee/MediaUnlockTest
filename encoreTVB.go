@@ -19,18 +19,27 @@ func EncoreTVB(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	var res struct {
+	
+	var res1 struct {
 		ErrorSubcode string `json:"error_subcode"`
 		AccountId    string `json:"account_id"`
 	}
-	if err := json.Unmarshal(b, &res); err != nil {
-		return Result{Status: StatusFailed, Err: err}
+	var res2 []struct {
+	    ErrorSubcode string `json:"error_subcode"`
+		ClientGeo    string `json:"client_geo"`
 	}
-	if res.ErrorSubcode == "CLIENT_GEO" {
-		return Result{Status: StatusNo}
+	if err := json.Unmarshal(b, &res1); err != nil {
+	    if err := json.Unmarshal(b, &res2); err != nil {
+		    return Result{Status: StatusFailed, Err: err}
+	    }
+	    if res2[0].ErrorSubcode == "CLIENT_GEO" {
+		    return Result{Status: StatusNo, Region: res2[0].ClientGeo}
+	    }
+	    return Result{Status: StatusFailed, Err: err}
 	}
-	if res.AccountId != "0" {
-		return Result{Status: StatusOK}
+	
+	if res1.AccountId != "0" {
+		return Result{Status: StatusOK, Region: "us"}
 	}
-	return Result{Status: StatusFailed}
+	return Result{Status: StatusUnexpected}
 }

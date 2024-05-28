@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	Version          = "1.3.9"
+	Version          = "1.3.10"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
