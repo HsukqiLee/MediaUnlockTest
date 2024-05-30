@@ -36,6 +36,8 @@ Usage of unlock-monitor:
         South America
   -eu
         Europe
+  -af
+        Africa
   -ocea
         Oceania
   -u    check update

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"context"
 	"time"
+	
+	utls "github.com/refraction-networking/utls"
 )
 
 var (
@@ -79,7 +81,9 @@ var Ipv6Transport = &http.Transport{
 	TLSHandshakeTimeout:   30 * time.Second,
 	ExpectContinueTimeout: 1 * time.Second,
 	TLSClientConfig:       tlsConfig,
+	MaxResponseHeaderBytes: 262144,
 }
+
 
 var Ipv6HttpClient = http.Client{
 	Timeout:       30 * time.Second,
@@ -99,6 +103,7 @@ var AutoTransport = &http.Transport{
 	TLSHandshakeTimeout:   30 * time.Second,
 	ExpectContinueTimeout: 1 * time.Second,
 	TLSClientConfig:       tlsConfig,
+	MaxResponseHeaderBytes: 262144,
 }
 
 func NewAutoHttpClient() http.Client {
@@ -109,8 +114,18 @@ func NewAutoHttpClient() http.Client {
 	}
 }
 
-var tlsConfig = &tls.Config{
+/*var tlsConfig = &tls.Config{
 	CipherSuites: append(defaultCipherSuites[8:], defaultCipherSuites[:8]...),
+}*/
+
+var c, _ = utls.UTLSIdToSpec(utls.HelloChrome_Auto)
+
+var tlsConfig = &tls.Config{
+	InsecureSkipVerify: true,
+	MinVersion:         c.TLSVersMin,
+	MaxVersion:         c.TLSVersMax,
+	CipherSuites:       c.CipherSuites,
+	ClientSessionCache: tls.NewLRUClientSessionCache(32),
 }
 
 type H [2]string

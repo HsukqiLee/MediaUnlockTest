@@ -20,13 +20,13 @@ func Reddit(c http.Client) Result {
 		return Result{Status: StatusFailed}
 	}
 	
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == 200 || resp.StatusCode == 302 {
 		return Result{Status: StatusOK}
 	}
 	
 	if resp.StatusCode == 403 && strings.Contains(bodyString, "blocked") {
 		return Result{Status: StatusNo}
 	}
-
+	
 	return Result{Status: StatusUnexpected}
 }

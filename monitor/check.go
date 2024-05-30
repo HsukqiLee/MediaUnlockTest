@@ -114,6 +114,7 @@ func (T *TEST) Multination() {
 	T.excute("TikTok", mt.TikTok)
 	T.excute("Bing", mt.Bing)
 	T.excute("Instagram Audio", mt.Instagram)
+	T.excute("SonyLiv", mt.SonyLiv)
 }
 
 func (T *TEST) HongKong() {
@@ -163,6 +164,7 @@ func (T *TEST) Japan() {
 	T.excute("World Flipper Japan", mt.WFJP)
 	T.excute("Project Sekai: Colorful Stage", mt.PJSK)
 	T.excute("Rakuten TV", mt.RakutenTV_JP)
+	T.excute("Wowow", mt.Wowow)
 }
 
 func (T *TEST) NorthAmerica() {
