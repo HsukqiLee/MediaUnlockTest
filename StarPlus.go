@@ -37,6 +37,10 @@ func StarPlus(c http.Client) Result {
 		return Result{Status: StatusBanned}
 	}
 	
+	if resp.StatusCode == 302 && resp.Header.Get("Location") == "https://www.preview.starplus.com/unavailable" {
+		return Result{Status: StatusNo}
+	}
+	
 	if resp.StatusCode == 200 {
 	    re := regexp.MustCompile(`Region:\s+([A-Za-z]{2})`)
         matches := re.FindStringSubmatch(string(body))

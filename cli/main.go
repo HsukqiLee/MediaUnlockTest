@@ -176,6 +176,7 @@ func Multination(c http.Client) {
 	excute("TikTok", m.TikTok, c)
 	excute("Bing", m.Bing, c)
 	excute("Instagram Audio", m.Instagram, c)
+	excute("SonyLiv", m.SonyLiv, c)
 }
 
 func HongKong(c http.Client) {
@@ -225,6 +226,7 @@ func Japan(c http.Client) {
 	excute("World Flipper Japan", m.WFJP, c)
 	excute("Project Sekai: Colorful Stage", m.PJSK, c)
 	excute("Rakuten TV JP", m.RakutenTV_JP, c)
+	excute("Wowow", m.Wowow, c)
 }
 
 func NorthAmerica(c http.Client) {
@@ -606,7 +608,7 @@ func main() {
 	}
 	
 	if test {
-		fmt.Println("SlingTV", ShowResult(m.SlingTV(m.Ipv4HttpClient)))
+	    fmt.Println("sonyliv", ShowResult(m.SonyLiv(m.Ipv4HttpClient)))
 		return
 	}
 
