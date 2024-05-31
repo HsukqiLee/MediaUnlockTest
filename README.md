@@ -16,7 +16,7 @@ bash <(curl -Ls unlock.icmp.ing/test.sh)
 
 Windows PowerShell：
 
-```bash
+```ps
 irm https://unlock.icmp.ing/test.ps1) | iex
 ```
 
