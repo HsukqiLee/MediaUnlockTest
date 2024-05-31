@@ -7,10 +7,6 @@ flags="-w -s -X 'update.buildTime=$(date '+%Y-%m-%d %H:%M:%S')'"
 
 echo "build linux amd64 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_amd64
-
-echo "build linux arm64 ..."
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_arm64
-
 echo "build darwin amd64 ..."
 CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_darwin_amd64
 echo "build windows amd64 ..."
@@ -21,8 +17,15 @@ echo "build openbsd amd64 ..."
 CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_openbsd_amd64
 echo "build netbsd amd64 ..."
 CGO_ENABLED=0 GOOS=netbsd GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_netbsd_amd64
+
+
+echo "build linux arm64 ..."
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_arm64
 echo "build darwin arm64 ..."
 CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_darwin_arm64
+echo "build windows arm64 ..."
+CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_windows_arm64.exe
+
 
 echo "build linux 386 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_386
@@ -35,12 +38,14 @@ CGO_ENABLED=0 GOOS=openbsd GOARCH=386 go build -ldflags="$flags" $tp -o build/un
 echo "build netbsd 386 ..."
 CGO_ENABLED=0 GOOS=netbsd GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-monitor_netbsd_386
 
+
 echo "build linux amd7 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_arm7
 echo "build linux amd6 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_arm6
 echo "build linux amd5 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=5 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_arm5
+
 
 echo "build linux mips ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_mips
@@ -58,6 +63,7 @@ echo "build linux mips64_softfloat  ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=mips64 GOMIPS=softfloat go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_mips64_softfloat
 echo "build linux mips64le_softfloat  ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=mips64le GOMIPS=softfloat go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_mips64le_softfloat
+
 
 echo "build linux ppc64  ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=ppc64 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_ppc64

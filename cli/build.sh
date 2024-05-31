@@ -8,12 +8,6 @@ flags="-w -s"
 
 echo "build linux amd64 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-test_linux_amd64
-
-# exit 0
-
-echo "build linux arm64 ..."
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-test_linux_arm64
-
 echo "build darwin amd64 ..."
 CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-test_darwin_amd64
 echo "build windows amd64 ..."
@@ -24,8 +18,15 @@ echo "build openbsd amd64 ..."
 CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-test_openbsd_amd64
 echo "build netbsd amd64 ..."
 CGO_ENABLED=0 GOOS=netbsd GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-test_netbsd_amd64
+
+
+echo "build linux arm64 ..."
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-test_linux_arm64
 echo "build darwin arm64 ..."
 CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-test_darwin_arm64
+echo "build windows arm64 ..."
+CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-test_windows_arm64.exe
+
 
 echo "build linux 386 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-test_linux_386
@@ -45,6 +46,7 @@ CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="$flags" $tp -o bu
 echo "build linux amd5 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=5 go build -ldflags="$flags" $tp -o build/unlock-test_linux_arm5
 
+
 echo "build linux mips ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -ldflags="$flags" $tp -o build/unlock-test_linux_mips
 echo "build linux mipsle ..."
@@ -61,6 +63,7 @@ echo "build linux mips64_softfloat  ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=mips64 GOMIPS=softfloat go build -ldflags="$flags" $tp -o build/unlock-test_linux_mips64_softfloat
 echo "build linux mips64le_softfloat  ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=mips64le GOMIPS=softfloat go build -ldflags="$flags" $tp -o build/unlock-test_linux_mips64le_softfloat
+
 
 echo "build linux ppc64  ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=ppc64 go build -ldflags="$flags" $tp -o build/unlock-test_linux_ppc64

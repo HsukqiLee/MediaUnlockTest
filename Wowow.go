@@ -1,6 +1,7 @@
 package mediaunlocktest
 
 import (
+    //"fmt"
     "time"
     "regexp"
     "strings"
@@ -9,7 +10,7 @@ import (
     "io/ioutil"
     "crypto/md5"
     "encoding/hex"
-    "encoding/json"
+    //"encoding/json"
 )
 
 func md5Sum(text string) string {
@@ -35,33 +36,38 @@ func extractWowowMetaID(body string) string {
 
 func Wowow(c http.Client) Result {
     timestamp := time.Now().UnixNano()/int64(time.Millisecond)
-    resp1, err := GET(c, "https://www.wowow.co.jp/drama/original/json/lineup.json?_=" + strconv.FormatInt(timestamp, 10),
-        H{"Accept", "application/json, text/javascript, */*; q=0.01"},
-        H{"Referer", "https://www.wowow.co.jp/drama/original/"},
-        H{"X-Requested-With", "XMLHttpRequest"},
-    )
-    if err != nil {
-        return Result{Status: StatusNetworkErr}
-    }
-    defer resp1.Body.Close()
+    //resp1, err := GET(c, "https://www.wowow.co.jp/drama/original/json/lineup.jsonf?_=" + strconv.FormatInt(timestamp, 10),
+    //    H{"Accept", "application/json, text/javascript, */*; q=0.01"},
+    //    H{"Referer", "https://www.wowow.co.jp/drama/original/"},
+    //    H{"X-Requested-With", "XMLHttpRequest"},
+    //)
+    //if err != nil {
+    //    return Result{Status: StatusNetworkErr}
+    //}
+    //defer resp1.Body.Close()
 
-    body1, err := ioutil.ReadAll(resp1.Body)
-    if err != nil {
-        return Result{Status: StatusNetworkErr, Err: err}
-    }
+    //body1, err := ioutil.ReadAll(resp1.Body)
+    //if err != nil {
+    //    return Result{Status: StatusNetworkErr, Err: err}
+    //}
+    
+    //fmt.Printf(string(body1))
 
-    var res1 []struct {
-        DramaLink string `json:"link"`
-    }
-    if err := json.Unmarshal(body1, &res1); err != nil {
-		return Result{Status: StatusFailed, Err: err}
-	}
+    //var res1 []struct {
+    //    DramaLink string `json:"link"`
+    //}
+    //if err := json.Unmarshal(body1, &res1); err != nil {
+	//	return Result{Status: StatusFailed, Err: err}
+	//}
 
-    resp2, err := GET(c, res1[1].DramaLink)
+    //resp2, err := GET(c, res1[1].DramaLink)
+    resp2, err := GET(c, "https://www.wowow.co.jp/drama/original/yukai/")
     if err != nil {
         return Result{Status: StatusNetworkErr}
     }
     defer resp2.Body.Close()
+    
+    
 
     body2, err := ioutil.ReadAll(resp2.Body)
     if err != nil {
