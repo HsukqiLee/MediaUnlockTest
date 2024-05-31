@@ -30,13 +30,15 @@ Usage of unlock-monitor:
         Taiwan
   -jp
         Japan
+  -kr
+        Korea
   -na
         North America
   -sa
         South America
   -eu
         Europe
-  -afc
+  -afr
         Africa
   -ocea
         Oceania
