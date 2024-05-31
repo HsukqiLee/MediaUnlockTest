@@ -21,9 +21,11 @@ func main() {
 	flag.BoolVar(&HK, "hk", false, "Hong Kong")
 	flag.BoolVar(&TW, "tw", false, "Taiwan")
 	flag.BoolVar(&JP, "jp", false, "Japan")
+	flag.BoolVar(&KR, "kr", false, "Korea")
 	flag.BoolVar(&NA, "na", false, "North America")
 	flag.BoolVar(&SA, "sa", false, "South America")
 	flag.BoolVar(&EU, "eu", false, "Europe")
+	flag.BoolVar(&AFR, "afr", false, "Africa")
 	flag.BoolVar(&OCEA, "ocea", false, "Oceania")
 
 	flag.BoolVar(&service, "service", false, "setup systemd service")

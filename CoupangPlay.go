@@ -1,0 +1,27 @@
+package mediaunlocktest
+
+import (
+	"net/http"
+)
+
+func CoupangPlay(c http.Client) Result {
+	resp, err := GET(c, "https://www.coupangplay.com/")
+	if err != nil {
+		return Result{Status: StatusNetworkErr}
+	}
+	defer resp.Body.Close()
+    
+    if err != nil {
+		return Result{Status: StatusNetworkErr}
+	}
+	
+	if resp.StatusCode == 302 && resp.Header.Get("Location") == "https://www.coupangplay.com/not-available" {
+		return Result{Status: StatusNo}
+	}
+	
+	if resp.StatusCode == 200 {
+		return Result{Status: StatusOK}
+	}
+	
+	return Result{Status: StatusUnexpected}
+}

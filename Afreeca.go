@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func Reddit(c http.Client) Result {
-	resp, err := GET(c, "https://www.reddit.com/")
+func Afreeca(c http.Client) Result {
+	resp, err := GET(c, "https://vod.afreecatv.com/player/97464151")
 	if err != nil {
 		return Result{Status: StatusNetworkErr}
 	}
@@ -19,13 +19,13 @@ func Reddit(c http.Client) Result {
     if err != nil {
 		return Result{Status: StatusNetworkErr}
 	}
-	
-	if resp.StatusCode == 200 || resp.StatusCode == 302 {
-		return Result{Status: StatusOK}
+
+	if strings.Contains(bodyString, "document.location.href='https://vod.afreecatv.com'") {
+		return Result{Status: StatusNo}
 	}
 	
-	if resp.StatusCode == 403 && strings.Contains(bodyString, "blocked") {
-		return Result{Status: StatusNo}
+	if resp.StatusCode == 200 {
+		return Result{Status: StatusOK}
 	}
 	
 	return Result{Status: StatusUnexpected}

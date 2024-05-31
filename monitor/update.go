@@ -36,7 +36,20 @@ func checkUpdate() {
 	OS, ARCH := runtime.GOOS, runtime.GOARCH
 	fmt.Println("OS:", OS)
 	fmt.Println("ARCH:", ARCH)
-	out, err := os.Create("/usr/bin/unlock-monitor_new")
+	
+	targetDir := "/usr/bin/"
+	switch OS {
+	case "darwin":
+		targetDir = "/usr/local/bin/"
+	case "windows":
+		programFiles := os.Getenv("ProgramFiles")
+		if programFiles == "" {
+			programFiles = "C:\\Program Files"
+		}
+		targetDir = programFiles + "\\MediaUnlockTest\\"
+	}
+	
+	out, err := os.Create(targetDir+"unlock-monitor_new")
 	if err != nil {
 		log.Fatal("[ERR] 创建文件出错:", err)
 		return
@@ -57,15 +70,18 @@ func checkUpdate() {
 	if _, err := io.Copy(out, downloader); err != nil {
 		log.Fatal("[ERR] 下载unlock-monitor时出错:", err)
 	}
-	if os.Chmod("/usr/bin/unlock-monitor_new", 0777) != nil {
+	if OS != "windows" && os.Chmod(targetDir+"unlock-monitor_new", 0777) != nil {
 		log.Fatal("[ERR] 更改unlock-monitor后端权限出错:", err)
 	}
-	if _, err := os.Stat("/usr/bin/unlock-monitor"); err == nil {
-		if os.Remove("/usr/bin/unlock-monitor") != nil {
+	if _, err := os.Stat(targetDir+"unlock-monitor"); err == nil {
+		if os.Remove(targetDir+"unlock-monitor") != nil {
 			log.Fatal("[ERR] 删除unlock-monitor旧版本时出错:", err.Error())
 		}
 	}
-	if os.Rename("/usr/bin/unlock-monitor_new", "/usr/bin/unlock-monitor") != nil {
+	if os.Rename(targetDir+"unlock-monitor_new", targetDir+"unlock-monitor") != nil {
+		log.Fatal("[ERR] 更新unlock-monitor后端时出错:", err)
+	}
+	if OS == "windows" && os.Rename(targetDir+"unlock-monitor", targetDir+"unlock-monitor.exe") != nil {
 		log.Fatal("[ERR] 更新unlock-monitor后端时出错:", err)
 	}
 	log.Println("[OK] unlock-monitor后端更新成功")

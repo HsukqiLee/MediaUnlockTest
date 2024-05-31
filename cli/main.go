@@ -25,7 +25,7 @@ import (
 
 var IPV4 = true
 var IPV6 = true
-var M, TW, HK, JP, NA, SA, EU, AF, OCEA bool
+var M, TW, HK, JP, KR, NA, SA, EU, AFR, OCEA bool
 var Force bool
 
 type result struct {
@@ -63,6 +63,19 @@ var (
 	FontSuffix  = "\033[0m"
 )
 
+func InitColor() {
+	if runtime.GOOS == "windows" {
+		FontRed = ""
+		FontGreen = ""
+		FontYellow = ""
+		FontBlue = ""
+		FontPurple = ""
+		FontSkyBlue = ""
+		FontWhite = ""
+		FontSuffix = ""
+	}
+}
+
 func ShowResult(r m.Result) (s string) {
 	if r.Status == m.StatusOK {
 		s = FontGreen + "YES"
@@ -82,7 +95,7 @@ func ShowResult(r m.Result) (s string) {
 		return FontYellow + "Restricted" + FontSuffix
 	}
 	if r.Status == m.StatusErr {
-		s = FontYellow + "ERR"
+		s = FontYellow + "Error"
 		if r.Err != nil {
 			s += ": " + r.Err.Error() + ""
 		}
@@ -100,15 +113,15 @@ func ShowResult(r m.Result) (s string) {
 	}
 	if r.Status == m.StatusBanned {
 		if r.Info != "" {
-			return FontRed + "BAN" + FontSuffix + FontYellow + " (" + r.Info + ")" + FontSuffix
+			return FontRed + "Banned" + FontSuffix + FontYellow + " (" + r.Info + ")" + FontSuffix
 		}
-		return FontRed + "BAN" + FontSuffix
+		return FontRed + "Banned" + FontSuffix
 	}
 	if r.Status == m.StatusUnexpected {
 		return FontPurple + "Unexpected" + FontSuffix
 	}
 	if r.Status == m.StatusFailed {
-		return FontBlue + "Failed" + FontSuffix
+		return "Failed"
 	}
 	return
 }
@@ -229,6 +242,18 @@ func Japan(c http.Client) {
 	excute("Wowow", m.Wowow, c)
 }
 
+func Korea(c http.Client) {
+	R = append(R, &result{Name: "Korea", Divider: true})
+	excute("Wavve", m.Wavve, c)
+	excute("Tving", m.Tving, c)
+	excute("Watcha", m.Watcha, c)
+	excute("Coupang Play", m.CoupangPlay, c)
+	excute("SpotvNow", m.SpotvNow, c)
+	excute("NaverTV", m.NaverTV, c)
+	excute("Afreeca", m.Afreeca, c)
+	excute("KBS", m.KBS, c)
+}
+
 func NorthAmerica(c http.Client) {
 	R = append(R, &result{Name: "North America", Divider: true})
 	R = append(R, &result{Name: "US", Divider: true})
@@ -275,6 +300,7 @@ func Europe(c http.Client) {
     R = append(R, &result{Name: "Europe", Divider: true})
     excute("Rakuten TV EU", m.RakutenTV_EU, c)
     excute("Setanta Sports", m.SetantaSports, c)
+    excute("Sky Show Time", m.SkyShowTime, c)
     R = append(R, &result{Name: "GB", Divider: true})
     excute("BBC iPlayer", m.BBCiPlayer, c)
     excute("Channel 4", m.Channel4, c)
@@ -316,6 +342,9 @@ func Oceania(c http.Client) {
     excute("Optus Sports", m.OptusSports, c)
     excute("SBS on Demand", m.SBSonDemand, c)
     R = append(R, &result{Name: "NZ", Divider: true})
+    excute("Neon TV", m.NeonTV, c)
+    excute("Three Now", m.ThreeNow, c)
+    excute("Maori TV", m.MaoriTV, c)
 }
 
 func Ipv6Multination() {
@@ -383,11 +412,12 @@ func ReadSelect() {
 	fmt.Println("[1]: 台湾平台")
 	fmt.Println("[2]: 香港平台")
 	fmt.Println("[3]: 日本平台")
-	fmt.Println("[4]: 北美平台")
-	fmt.Println("[5]: 南美平台")
-	fmt.Println("[6]: 欧洲平台")
-	fmt.Println("[7]: 非洲平台")
-	fmt.Println("[8]: 大洋洲平台")
+	fmt.Println("[4]: 韩国平台")
+	fmt.Println("[5]: 北美平台")
+	fmt.Println("[6]: 南美平台")
+	fmt.Println("[7]: 欧洲平台")
+	fmt.Println("[8]: 非洲平台")
+	fmt.Println("[9]: 大洋洲平台")
 	fmt.Print("请输入对应数字,空格分隔(回车确认): ")
 	r := bufio.NewReader(os.Stdin)
 	l, _, err := r.ReadLine()
@@ -406,17 +436,19 @@ func ReadSelect() {
 		case "3":
 			JP = true
 		case "4":
-			NA = true
+			KR = true
 		case "5":
-		    SA = true
+			NA = true
 		case "6":
-		    EU = true
+		    SA = true
 		case "7":
-		    AF = true
+		    EU = true
 		case "8":
+		    AFR = true
+		case "9":
 		    OCEA = true
 		default:
-			M, TW, HK, JP, NA, SA, EU, AF, OCEA = true, true, true, true, true, true, true, true, true
+			M, TW, HK, JP, KR, NA, SA, EU, AFR, OCEA = true, true, true, true, true, true, true, true, true, true
 		}
 	}
 }
@@ -465,7 +497,20 @@ func checkUpdate() {
 	OS, ARCH := runtime.GOOS, runtime.GOARCH
 	fmt.Println("OS:", OS)
 	fmt.Println("ARCH:", ARCH)
-	out, err := os.Create("/usr/bin/unlock-test_new")
+	
+	targetDir := "/usr/bin/"
+	switch OS {
+	case "darwin":
+		targetDir = "/usr/local/bin/"
+	case "windows":
+		programFiles := os.Getenv("ProgramFiles")
+		if programFiles == "" {
+			programFiles = "C:\\Program Files"
+		}
+		targetDir = programFiles + "\\MediaUnlockTest\\"
+	}
+	
+	out, err := os.Create(targetDir+"unlock-test_new")
 	if err != nil {
 		log.Fatal("[ERR] 创建文件出错:", err)
 		return
@@ -486,19 +531,23 @@ func checkUpdate() {
 	if _, err := io.Copy(out, downloader); err != nil {
 		log.Fatal("[ERR] 下载unlock-test时出错:", err)
 	}
-	if os.Chmod("/usr/bin/unlock-test_new", 0777) != nil {
+	if OS != "windows" && os.Chmod(targetDir+"unlock-test_new", 0777) != nil {
 		log.Fatal("[ERR] 更改unlock-test后端权限出错:", err)
 	}
-	if _, err := os.Stat("/usr/bin/unlock-test"); err == nil {
-		if err := os.Remove("/usr/bin/unlock-test"); err != nil {
+	if _, err := os.Stat(targetDir+"unlock-test"); err == nil {
+		if err := os.Remove(targetDir+"unlock-test"); err != nil {
 			log.Fatal("[ERR] 删除unlock-test旧版本时出错:", err.Error())
 		}
 	}
-	if os.Rename("/usr/bin/unlock-test_new", "/usr/bin/unlock-test") != nil {
+	if os.Rename(targetDir+"unlock-test_new", targetDir+"unlock-test") != nil {
+		log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
+	}
+	if OS == "windows" && os.Rename(targetDir+"unlock-test", targetDir+"unlock-test.exe") != nil {
 		log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
 	}
 	log.Println("[OK] unlock-test后端更新成功")
 }
+
 
 func showCounts() {
 	resp, err := http.Get("https://unlock.moe/count.php")
@@ -554,6 +603,7 @@ func main() {
 	flag.BoolVar(&nf, "nf", false, "netflix")
 	flag.BoolVar(&test, "test", false, "test")
 	flag.Parse()
+	InitColor()
 	if showVersion {
 		fmt.Println(m.Version)
 		return
@@ -608,7 +658,7 @@ func main() {
 	}
 	
 	if test {
-	    fmt.Println("sonyliv", ShowResult(m.SonyLiv(m.Ipv4HttpClient)))
+	    fmt.Println("wowow", ShowResult(m.Wowow(m.Ipv4HttpClient)))
 		return
 	}
 
@@ -637,6 +687,9 @@ func main() {
 		if JP {
 			Japan(client)
 		}
+		if KR {
+			Korea(client)
+		}
 		if NA {
 			NorthAmerica(client)
 		}
@@ -646,7 +699,7 @@ func main() {
 		if EU {
 			Europe(client)
 		}
-		if AF {
+		if AFR {
 			Africa(client)
 		}
 		if OCEA {
@@ -667,6 +720,9 @@ func main() {
 			if JP {
 				Japan(m.Ipv6HttpClient)
 			}
+			if KR {
+				Korea(m.Ipv6HttpClient)
+			}
 			if NA {
 				NorthAmerica(m.Ipv6HttpClient)
 			}
@@ -676,7 +732,7 @@ func main() {
 	    	if EU {
 	    		Europe(m.Ipv6HttpClient)
 	    	}
-	    	if AF {
+	    	if AFR {
 	    		Africa(m.Ipv6HttpClient)
 	    	}
 	    	if OCEA {

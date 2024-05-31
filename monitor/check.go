@@ -8,14 +8,15 @@ import (
 )
 
 var (
-	MUL bool
-	HK  bool
-	TW  bool
-	JP  bool
-	NA  bool
-	SA  bool
-	EU  bool
-	AF bool
+	MUL  bool
+	HK   bool
+	TW   bool
+	JP   bool
+	KR   bool
+	NA   bool
+	SA   bool
+	EU   bool
+	AFR  bool
 	OCEA bool
 )
 
@@ -47,6 +48,9 @@ func (T *TEST) Check() bool {
 	if JP {
 		T.Japan()
 	}
+	if KR {
+		T.Korea()
+	}
 	if NA {
 		T.NorthAmerica()
 	}
@@ -56,7 +60,7 @@ func (T *TEST) Check() bool {
 	if EU {
 		T.Europe()
 	}
-	if AF {
+	if AFR {
 		T.Africa()
 	}
 	if OCEA {
@@ -167,6 +171,18 @@ func (T *TEST) Japan() {
 	T.excute("Wowow", mt.Wowow)
 }
 
+func (T *TEST) Korea() {
+	// R = append(R, &result{Name: "Korea", Divider: true})
+	T.excute("Wavve", mt.Wavve)
+	T.excute("Tving", mt.Tving)
+	T.excute("Watcha", mt.Watcha)
+	T.excute("Coupang Play", mt.CoupangPlay)
+	T.excute("SpotvNow", mt.SpotvNow)
+	T.excute("NaverTV", mt.NaverTV)
+	T.excute("Afreeca", mt.Afreeca)
+	T.excute("KBS", mt.KBS)
+}
+
 func (T *TEST) NorthAmerica() {
 	// R = append(R, &result{Name: "North America", Divider: true})
 	T.excute("FOX", mt.Fox)
@@ -212,6 +228,7 @@ func (T *TEST) Europe() {
     T.excute("BBC iPlayer", mt.BBCiPlayer)
     T.excute("Rakuten TV", mt.RakutenTV_EU)
     T.excute("Setanta Sports", mt.SetantaSports)
+    T.excute("Sky Show Time", mt.SkyShowTime)
     T.excute("Rai Play", mt.RaiPlay)
     T.excute("NPO Start Plus", mt.NPOStartPlus)
     T.excute("Video Land", mt.VideoLand)
@@ -244,4 +261,7 @@ func (T *TEST) Oceania() {
     T.excute("ABC iView", mt.ABCiView)
     T.excute("Optus Sports", mt.OptusSports)
     T.excute("SBS on Demand", mt.SBSonDemand)
+    T.excute("Neon TV", mt.NeonTV)
+    T.excute("Three Now", mt.ThreeNow)
+    T.excute("Maori TV", mt.MaoriTV)
 }
