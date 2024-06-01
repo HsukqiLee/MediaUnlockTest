@@ -11,9 +11,11 @@ import (
 )
 
 func main() {
-	var service bool
-	var update bool
-	var version bool
+	var service    bool
+	var uninstall  bool
+	var update     bool
+	var autoUpdate bool
+	var version    bool
 	flag.Uint64Var(&Interval, "interval", 60, "check interval (s)")
 	flag.StringVar(&Listen, "listen", ":9101", "listen address")
 	flag.StringVar(&Node, "node", "", "node")
@@ -29,7 +31,9 @@ func main() {
 	flag.BoolVar(&OCEA, "ocea", false, "Oceania")
 
 	flag.BoolVar(&service, "service", false, "setup systemd service")
+	flag.BoolVar(&uninstall, "uninstall", false, "uninstall systemd service")
 	flag.BoolVar(&update, "u", false, "check update")
+	flag.BoolVar(&autoUpdate, "auto", false, "set auto update")
 	flag.BoolVar(&version, "v", false, "show version")
 
 	flag.Parse()
@@ -43,7 +47,11 @@ func main() {
 		return
 	}
 	if service {
-		Service()
+		InstallService()
+		return
+	}
+	if autoUpdate {
+		AutoUpdateService()
 		return
 	}
 	go recordMetrics()
