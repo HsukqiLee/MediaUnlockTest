@@ -37,7 +37,7 @@ func StarPlus(c http.Client) Result {
 		return Result{Status: StatusBanned}
 	}
 	
-	if resp.StatusCode == 302 && resp.Header.Get("Location") == "https://www.preview.starplus.com/unavailable" {
+	if resp.StatusCode == 302 && (resp.Header.Get("Location") == "https://www.preview.starplus.com/unavailable" || resp.Header.Get("Location") == "https://www.starplus.com/welcome/unavailable") {
 		return Result{Status: StatusNo}
 	}
 	
@@ -53,5 +53,5 @@ func StarPlus(c http.Client) Result {
 		return Result{Status: StatusUnexpected}
 	}
 
-	return Result{Status: StatusFailed}
+	return Result{Status: StatusUnexpected}
 }

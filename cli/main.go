@@ -19,8 +19,11 @@ import (
 	"time"
 
 	m "MediaUnlockTest"
-
+	
+	selfUpdate "github.com/inconshreveable/go-update"
+	"github.com/fatih/color"
 	pb "github.com/schollz/progressbar/v3"
+	
 )
 
 var IPV4 = true
@@ -53,81 +56,68 @@ func excute(Name string, F func(client http.Client) m.Result, client http.Client
 }
 
 var (
-	FontRed     = "\033[31m"
-	FontGreen   = "\033[32m"
-	FontYellow  = "\033[33m"
-	FontBlue    = "\033[34m"
-	FontPurple  = "\033[35m"
-	FontSkyBlue = "\033[36m"
-	FontWhite   = "\033[37m"
-	FontSuffix  = "\033[0m"
+	Red    = color.New(color.FgRed).SprintFunc()
+	Green  = color.New(color.FgGreen).SprintFunc()
+	Yellow = color.New(color.FgYellow).SprintFunc()
+	Blue   = color.New(color.FgBlue).SprintFunc()
+	Purple = color.New(color.FgMagenta).SprintFunc()
+	SkyBlue   = color.New(color.FgCyan).SprintFunc()
+	White   = color.New(color.FgWhite).SprintFunc()
 )
 
-func InitColor() {
-	if runtime.GOOS == "windows" {
-		FontRed = ""
-		FontGreen = ""
-		FontYellow = ""
-		FontBlue = ""
-		FontPurple = ""
-		FontSkyBlue = ""
-		FontWhite = ""
-		FontSuffix = ""
-	}
-}
-
 func ShowResult(r m.Result) (s string) {
-	if r.Status == m.StatusOK {
-		s = FontGreen + "YES"
+	switch r.Status {
+	case m.StatusOK:
+		s =Green("YES")
 		if r.Region != "" {
-			s += " (Region: " + strings.ToUpper(r.Region) + ")"
+			s += Green(" (Region: " + strings.ToUpper(r.Region) + ")")
 		}
-		s += FontSuffix
 		return s
-	}
-	if r.Status == m.StatusNetworkErr {
-		return FontRed + "NO" + FontSuffix + FontYellow + " (Network Err)" + FontSuffix
-	}
-	if r.Status == m.StatusRestricted {
+
+	case m.StatusNetworkErr:
+		return Red("NO") + Yellow(" (Network Err)")
+
+	case m.StatusRestricted:
 		if r.Info != "" {
-			return FontYellow + "Restricted" + " (" + r.Info + ")" + FontSuffix
+			return Yellow("Restricted (" + r.Info + ")")
 		}
-		return FontYellow + "Restricted" + FontSuffix
-	}
-	if r.Status == m.StatusErr {
-		s = FontYellow + "Error"
+		return Yellow("Restricted")
+
+	case m.StatusErr:
+		s = Yellow("Error")
 		if r.Err != nil {
-			s += ": " + r.Err.Error() + ""
+			s += ": " + r.Err.Error()
 		}
-		s += FontSuffix
 		return s
-	}
-	if r.Status == m.StatusNo {
+
+	case m.StatusNo:
 		if r.Info != "" {
-			return FontRed + "NO" + FontSuffix + FontYellow + " (" + r.Info + ")" + FontSuffix
+			return Red("NO") + Yellow(" (" + r.Info + ")")
 		}
 		if r.Region != "" {
-			return FontRed + "NO (Region: " + strings.ToUpper(r.Region) + ")" + FontSuffix
+			return Red("NO (Region: " + strings.ToUpper(r.Region) + ")")
 		}
-		return FontRed + "NO" + FontSuffix
-	}
-	if r.Status == m.StatusBanned {
+		return Red("NO")
+
+	case m.StatusBanned:
 		if r.Info != "" {
-			return FontRed + "Banned" + FontSuffix + FontYellow + " (" + r.Info + ")" + FontSuffix
+			return Red("Banned") + Yellow(" (" + r.Info + ")")
 		}
-		return FontRed + "Banned" + FontSuffix
+		return Red("Banned")
+
+	case m.StatusUnexpected:
+		return Purple("Unexpected")
+
+	case m.StatusFailed:
+		return Blue("Failed")
+
+	default:
+		return
 	}
-	if r.Status == m.StatusUnexpected {
-		return FontPurple + "Unexpected" + FontSuffix
-	}
-	if r.Status == m.StatusFailed {
-		return "Failed"
-	}
-	return
 }
 
 func ShowR() {
-	fmt.Println("测试时间: ", FontYellow+time.Now().Format("2006-01-02 15:04:05")+FontSuffix)
+	fmt.Println("测试时间: ", Yellow(time.Now().Format("2006-01-02 15:04:05")))
 	NameLength := 25
 	for _, r := range R {
 		if len(r.Name) > NameLength {
@@ -147,7 +137,7 @@ func ShowR() {
 		} else {
 			result := ShowResult(r.Value)
 			if r.Value.Status == m.StatusOK && strings.HasSuffix(r.Name, "CDN") {
-				result = FontSkyBlue + r.Value.Region + FontSuffix
+				result = SkyBlue(r.Value.Region)
 			}
 			fmt.Printf("%-"+strconv.Itoa(NameLength)+"s %s\n", r.Name, result)
 		}
@@ -382,7 +372,7 @@ func GetIpv4Info() {
 	i := strings.Index(s, "ip=")
 	s = s[i+3:]
 	i = strings.Index(s, "\n")
-	fmt.Println("Your IPV4 address:", FontSkyBlue, s[:i], FontSuffix)
+	fmt.Println("Your IPV4 address:", SkyBlue(s[:i]))
 }
 func GetIpv6Info() {
     ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -403,7 +393,7 @@ func GetIpv6Info() {
 	i := strings.Index(s, "ip=")
 	s = s[i+3:]
 	i = strings.Index(s, "\n")
-	fmt.Println("Your IPV6 address:", FontSkyBlue, s[:i], FontSuffix)
+	fmt.Println("Your IPV6 address:", SkyBlue(s[:i]))
 }
 
 func ReadSelect() {
@@ -453,39 +443,17 @@ func ReadSelect() {
 	}
 }
 
-type Downloader struct {
-	io.Reader
-	Total   uint64
-	Current uint64
-	Pb      *pb.ProgressBar
-	done    bool
-}
-
-func (d *Downloader) Read(p []byte) (n int, err error) {
-	n, err = d.Reader.Read(p)
-	d.Current += uint64(n)
-	if d.done {
-		return
-	}
-	d.Pb.Add(n)
-	// fmt.Printf("\r正在下载，进度：%.2f%% [%s/%s]", float64(d.Current*10000/d.Total)/100, humanize.Bytes(d.Current), humanize.Bytes(d.Total))
-	if d.Current == d.Total {
-		d.done = true
-		d.Pb.Describe("unlock-test下载完成")
-		d.Pb.Finish()
-	}
-	return
-}
-
 func checkUpdate() {
 	resp, err := http.Get("https://unlock.icmp.ing/test/latest/version")
 	if err != nil {
+		log.Println("[ERR] 获取版本信息时出错:", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Println("[ERR] 读取版本信息时出错:", err)
 		return
 	}
 	version := string(b)
@@ -493,59 +461,43 @@ func checkUpdate() {
 		fmt.Println("已经是最新版本")
 		return
 	}
-	fmt.Println("检测到新版本", version)
+	fmt.Println("检测到新版本：", version)
+
 	OS, ARCH := runtime.GOOS, runtime.GOARCH
 	fmt.Println("OS:", OS)
 	fmt.Println("ARCH:", ARCH)
-	
-	targetDir := "/usr/bin/"
-	switch OS {
-	case "darwin":
-		targetDir = "/usr/local/bin/"
-	case "windows":
-		programFiles := os.Getenv("ProgramFiles")
-		if programFiles == "" {
-			programFiles = "C:\\Program Files"
-		}
-		targetDir = programFiles + "\\MediaUnlockTest\\"
+
+	url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
+    if OS == "windows" {
+	    url += ".exe"
 	}
 	
-	out, err := os.Create(targetDir+"unlock-test_new")
-	if err != nil {
-		log.Fatal("[ERR] 创建文件出错:", err)
-		return
-	}
-	defer out.Close()
-	log.Println("下载unlock-test中 ...")
-	url := "https://unlock.icmp.ing/test/latest/unlock-test_" + runtime.GOOS + "_" + runtime.GOARCH
 	resp, err = http.Get(url)
 	if err != nil {
 		log.Fatal("[ERR] 下载unlock-test时出错:", err)
+		return
 	}
 	defer resp.Body.Close()
-	downloader := &Downloader{
-		Reader: resp.Body,
-		Total:  uint64(resp.ContentLength),
-		Pb:     pb.DefaultBytes(resp.ContentLength, "下载进度"),
+	
+	bar := pb.DefaultBytes(
+		resp.ContentLength,
+		"下载进度",
+	)
+
+	body := io.TeeReader(resp.Body, bar)
+
+	if resp.StatusCode != http.StatusOK {
+		log.Fatal("[ERR] 下载unlock-test时出错: 非预期的状态码", resp.StatusCode)
+		return
 	}
-	if _, err := io.Copy(out, downloader); err != nil {
-		log.Fatal("[ERR] 下载unlock-test时出错:", err)
+
+	err = selfUpdate.Apply(body, selfUpdate.Options{})
+	if err != nil {
+		log.Fatal("[ERR] 更新unlock-test时出错:", err)
+		return
 	}
-	if OS != "windows" && os.Chmod(targetDir+"unlock-test_new", 0777) != nil {
-		log.Fatal("[ERR] 更改unlock-test后端权限出错:", err)
-	}
-	if _, err := os.Stat(targetDir+"unlock-test"); err == nil {
-		if err := os.Remove(targetDir+"unlock-test"); err != nil {
-			log.Fatal("[ERR] 删除unlock-test旧版本时出错:", err.Error())
-		}
-	}
-	if os.Rename(targetDir+"unlock-test_new", targetDir+"unlock-test") != nil {
-		log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
-	}
-	if OS == "windows" && os.Rename(targetDir+"unlock-test", targetDir+"unlock-test.exe") != nil {
-		log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
-	}
-	log.Println("[OK] unlock-test后端更新成功")
+
+	fmt.Println("[OK] unlock-test后端更新成功")
 }
 
 
@@ -562,7 +514,7 @@ func showCounts() {
 	}
 	s := strings.Split(string(b), " ")
 	d, m, t := s[0], s[1], s[3]
-	fmt.Printf("当天运行共%s次, 本月运行共%s次, 共计运行%s次\n", FontSkyBlue+d+FontSuffix, FontYellow+m+FontSuffix, FontGreen+t+FontSuffix)
+	fmt.Printf("当天运行共%s次, 本月运行共%s次, 共计运行%s次\n", SkyBlue(d), Yellow(m), Green(t))
 }
 
 func showAd() {
@@ -603,7 +555,6 @@ func main() {
 	flag.BoolVar(&nf, "nf", false, "netflix")
 	flag.BoolVar(&test, "test", false, "test")
 	flag.Parse()
-	InitColor()
 	if showVersion {
 		fmt.Println(m.Version)
 		return
@@ -662,8 +613,8 @@ func main() {
 		return
 	}
 
-	fmt.Println("项目地址: " + FontSkyBlue + "https://github.com/HsukqiLee/MediaUnlockTest" + FontSuffix)
-	fmt.Println("使用方式: " + FontYellow + "bash <(curl -Ls unlock.icmp.ing/test.sh)" + FontSuffix)
+	fmt.Println("项目地址: " + SkyBlue("https://github.com/HsukqiLee/MediaUnlockTest"))
+	fmt.Println("使用方式: " + Yellow("bash <(curl -Ls unlock.icmp.ing/test.sh)"))
 	fmt.Println()
 
 	GetIpv4Info()

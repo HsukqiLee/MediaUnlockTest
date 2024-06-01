@@ -13,6 +13,10 @@ func Wavve(c http.Client) Result {
 
 	
 	if resp.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
+	
+	if resp.StatusCode == 550 {
 		return Result{Status: StatusNo}
 	}
 	
