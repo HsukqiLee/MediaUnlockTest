@@ -20,8 +20,17 @@ Usage of unlock-monitor:
         listen address (default ":9101")
   -interval int
         check interval (s) (default 60)
+     or update interval (s) (default 86400)
+        
   -service
-        setup systemd service
+        install monitor systemd service
+  -auto
+        install auto update systemd service
+        use "-interval" to specific update check interval
+  -uninstall
+        uninstall monitor systemd service
+        remove auto update service
+        
   -mul
         Multination (default true)
   -hk
