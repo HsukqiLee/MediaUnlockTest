@@ -8,23 +8,42 @@ jobs:
   release:
     runs-on: ubuntu-latest
     
+    env:
+      NDK_VERSION: "r21e"
+      API_LEVEL: "21"
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Tester
+      - name: Download Android NDK
+        run: |
+          mkdir -p $HOME/android-ndk
+          wget https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux-x86_64.zip
+          unzip -q android-ndk-$NDK_VERSION-linux-x86_64.zip -d $HOME/android-ndk
+          mv $HOME/android-ndk/android-ndk-$NDK_VERSION $HOME/android-ndk/ndk
+        shell: bash
+
+      - name: Set up NDK environment
+        run: |
+          echo "NDK_ROOT=$HOME/android-ndk/ndk" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/android-ndk/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_ENV
+        shell: bash
+
+
+      - name: Build unlock-test binaries
         run: |
           cd cli
           mkdir build
           bash build.sh
 
-      - name: Build Monitor
+      - name: Build unlock-monitor binaries
         run: |
           cd monitor
           mkdir build
           bash build.sh
       
-      - name: Upload Tester build
+      - name: Upload unlock-test binaries
         run: |
           cd cli/build
           for file in *; do
@@ -32,7 +51,7 @@ jobs:
             curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
           done
       
-      - name: Upload Monitor build
+      - name: Upload unlock-monitor binaries
         run: |
           cd monitor/build
           for file in *; do
