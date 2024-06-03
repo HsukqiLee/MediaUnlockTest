@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
 	"log"
 	"net/http"
 	"os/exec"
 	"runtime"
+	"strings"
 	
 	selfUpdate "github.com/inconshreveable/go-update"
 	pb "github.com/schollz/progressbar/v3"
