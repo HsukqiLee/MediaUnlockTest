@@ -17,7 +17,7 @@ bash <(curl -Ls unlock.icmp.ing/test.sh)
 Windows PowerShell：
 
 ```bash
-irm https://unlock.icmp.ing/test.ps1) | iex
+irm https://unlock.icmp.ing/test.ps1 | iex
 ```
 
 The following command line parameter examples are based on Linux.

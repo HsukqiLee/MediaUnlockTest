@@ -14,10 +14,10 @@ Linux / macOS：
 bash <(curl -Ls unlock.icmp.ing/test.sh)
 ```
 
-Windows PowerShell：
+Windows PowerShell（需要以管理员身份启动）：
 
 ```ps
-irm https://unlock.icmp.ing/test.ps1) | iex
+irm https://unlock.icmp.ing/test.ps1 | iex
 ```
 
 以下命令行参数的示例都以 Linux 为例。
