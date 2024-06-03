@@ -57,6 +57,10 @@ func checkUpdate() {
 	OS, ARCH := runtime.GOOS, runtime.GOARCH
 	fmt.Println("OS:", OS)
 	fmt.Println("ARCH:", ARCH)
+	
+	if OS == "linux" && strings.Contains(os.Getenv("PREFIX"), "com.termux") {
+	    OS = "android"
+	}
 
 	url := "https://unlock.icmp.ing/monitor/latest/unlock-monitor_" + OS + "_" + ARCH
 	if OS == "windows" {
