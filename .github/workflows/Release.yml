@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      NDK_VERSION: "r21e"
+      NDK_VERSION: "r26d"
       API_LEVEL: "21"
     
     steps:
