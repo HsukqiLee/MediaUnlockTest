@@ -9,17 +9,17 @@ API_LEVEL="21"
 # exit
 
 echo "build android 386 ..."
-CGO_ENABLED=1 GOOS=android GOARCH=386 CC=i686-linux-android$API_LEVEL-clang CXX=i686-linux-android$API_LEVEL-clang++ go build -ldflags="$flags" $tp -o build/unlock-monitor_android_386
+CGO_ENABLED=1 GOOS=android GOARCH=386 CC=i686-linux-android$API_LEVEL-clang CXX=i686-linux-android$API_LEVEL-clang++ go build -tags netcgo -ldflags="$flags" $tp -o build/unlock-monitor_android_386
 echo "build android amd64 ..."
-CGO_ENABLED=1 GOOS=android GOARCH=amd64 CC=x86_64-linux-android$API_LEVEL-clang CXX=x86_64-linux-android$API_LEVEL-clang++ go build -ldflags="$flags" $tp -o build/unlock-monitor_android_amd64
+CGO_ENABLED=1 GOOS=android GOARCH=amd64 CC=x86_64-linux-android$API_LEVEL-clang CXX=x86_64-linux-android$API_LEVEL-clang++ go build -tags netcgo -ldflags="$flags" $tp -o build/unlock-monitor_android_amd64
 echo "build android arm7 ..."
-CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 CC=armv7a-linux-androideabi$API_LEVEL-clang CXX=armv7a-linux-androideabi$API_LEVEL-clang++ go build -ldflags="$flags" $tp -o build/unlock-monitor_android_arm7
+CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 CC=armv7a-linux-androideabi$API_LEVEL-clang CXX=armv7a-linux-androideabi$API_LEVEL-clang++ go build -tags netcgo -ldflags="$flags" $tp -o build/unlock-monitor_android_arm7
 echo "build android arm6 ..."
-CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=6 CC=armv7a-linux-androideabi$API_LEVEL-clang CXX=armv7a-linux-androideabi$API_LEVEL-clang++ go build -ldflags="$flags" $tp -o build/unlock-monitor_android_arm6
+CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=6 CC=armv7a-linux-androideabi$API_LEVEL-clang CXX=armv7a-linux-androideabi$API_LEVEL-clang++ go build -tags netcgo -ldflags="$flags" $tp -o build/unlock-monitor_android_arm6
 echo "build android arm5 ..."
-CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=5 CC=armv7a-linux-androideabi$API_LEVEL-clang CXX=armv7a-linux-androideabi$API_LEVEL-clang++ go build -ldflags="$flags" $tp -o build/unlock-monitor_android_arm5
+CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=5 CC=armv7a-linux-androideabi$API_LEVEL-clang CXX=armv7a-linux-androideabi$API_LEVEL-clang++ go build -tags netcgo -ldflags="$flags" $tp -o build/unlock-monitor_android_arm5
 echo "build android arm64 ..."
-CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_android_arm64
+CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=aarch64-linux-android$API_LEVEL-clang CXX=aarch64-linux-android$API_LEVEL-clang++ go build -tags netcgo -ldflags="$flags" $tp -o build/unlock-monitor_android_arm64
 
 echo "build darwin amd64 ..."
 CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_darwin_amd64
