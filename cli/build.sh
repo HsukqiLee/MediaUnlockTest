@@ -4,7 +4,7 @@ tp="-gcflags=-trimpath="$GOPATH" -asmflags=-trimpath="$GOPATH
 #flags="-w -s -X 'main.buildTime=$(date '+%Y-%m-%d %H:%M:%S')'"
 flags="-w -s"
 
-NDK_VERSION="r21e"  # 你可以根据需要更改 NDK 版本
+NDK_VERSION="r26d"
 API_LEVEL="21"
 
 # exit
