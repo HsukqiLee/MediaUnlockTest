@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func HboGoAisa(c http.Client) Result {
+func HboGoAsia(c http.Client) Result {
 	resp, err := GET(c, "https://api2.hbogoasia.com/v1/geog?lang=undefined&version=0&bundleId=www.hbogoasia.com")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}

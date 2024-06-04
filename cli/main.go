@@ -187,7 +187,7 @@ func HongKong(c http.Client) {
 	excute("Now E", m.NowE, c)
 	excute("Viu.TV", m.ViuTV, c)
 	excute("MyTVSuper", m.MyTvSuper, c)
-	excute("HBO GO Aisa", m.HboGoAisa, c)
+	excute("HBO GO Asia", m.HboGoAsia, c)
 	excute("BiliBili HongKong/Macau Only", m.BilibiliHKMO, c)
 }
 
@@ -201,7 +201,7 @@ func Taiwan(c http.Client) {
 	excute("Hami Video", m.HamiVideo, c)
 	excute("CatchPlay+", m.Catchplay, c)
 	excute("Bahamut Anime", m.BahamutAnime, c)
-	excute("HBO GO Aisa", m.HboGoAisa, c)
+	excute("HBO GO Asia", m.HboGoAsia, c)
 	excute("Bilibili Taiwan Only", m.BilibiliTW, c)
 }
 
@@ -443,6 +443,29 @@ func ReadSelect() {
 	}
 }
 
+type Downloader struct {
+	io.Reader
+	Total   uint64
+	Current uint64
+	Pb      *pb.ProgressBar
+	done    bool
+}
+
+func (d *Downloader) Read(p []byte) (n int, err error) {
+	n, err = d.Reader.Read(p)
+	d.Current += uint64(n)
+	if d.done {
+		return
+	}
+	d.Pb.Add(n)
+	if d.Current == d.Total {
+		d.done = true
+		d.Pb.Describe("unlock-test下载完成")
+		d.Pb.Finish()
+	}
+	return
+}
+
 func checkUpdate() {
 	resp, err := http.Get("https://unlock.icmp.ing/test/latest/version")
 	if err != nil {
@@ -467,38 +490,70 @@ func checkUpdate() {
 	fmt.Println("OS:", OS)
 	fmt.Println("ARCH:", ARCH)
 	
-	if OS == "linux" && strings.Contains(os.Getenv("PREFIX"), "com.termux") {
-	    OS = "android"
-	}
-
-	url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
-    if OS == "windows" {
-	    url += ".exe"
-	}
+	if OS == "android" && strings.Contains(os.Getenv("PREFIX"), "com.termux") {
+	    target_path := os.Getenv("PREFIX") + "/bin"
+	    out, err := os.Create(target_path + "/unlock-test_new")
+	    if err != nil {
+	    	log.Fatal("[ERR] 创建文件出错:", err)
+	    	return
+	    }
+	    defer out.Close()
+	    log.Println("下载unlock-test中 ...")
+    	url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
+	    resp, err = http.Get(url)
+	    if err != nil {
+	    	log.Fatal("[ERR] 下载unlock-test时出错:", err)
+	    }
+	    defer resp.Body.Close()
+	    downloader := &Downloader{
+	    	Reader: resp.Body,
+	    	Total:  uint64(resp.ContentLength),
+	    	Pb:     pb.DefaultBytes(resp.ContentLength, "下载进度"),
+    	}
+	    if _, err := io.Copy(out, downloader); err != nil {
+	    	log.Fatal("[ERR] 下载unlock-test时出错:", err)
+	    }
+	    if os.Chmod(target_path + "/unlock-test_new", 0777) != nil {
+	    	log.Fatal("[ERR] 更改unlock-test后端权限出错:", err)
+	    }
+	    if _, err := os.Stat(target_path + "/unlock-test"); err == nil {
+	    	if err := os.Remove(target_path + "/unlock-test"); err != nil {
+	    		log.Fatal("[ERR] 删除unlock-test旧版本时出错:", err.Error())
+	    	}
+	    }
+	    if os.Rename(target_path + "/unlock-test_new", target_path + "/unlock-test") != nil {
+	    	log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
+	    }
+	} else {
+	    url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
+        if OS == "windows" {
+	        url += ".exe"
+	    }
 	
-	resp, err = http.Get(url)
-	if err != nil {
-		log.Fatal("[ERR] 下载unlock-test时出错:", err)
-		return
-	}
-	defer resp.Body.Close()
-	
-	bar := pb.DefaultBytes(
-		resp.ContentLength,
-		"下载进度",
-	)
+	    resp, err = http.Get(url)
+	    if err != nil {
+	    	log.Fatal("[ERR] 下载unlock-test时出错:", err)
+	    	return
+	    }
+	    defer resp.Body.Close()
+	    
+	    bar := pb.DefaultBytes(
+	    	resp.ContentLength,
+	    	"下载进度",
+	    )
+    
+	    body := io.TeeReader(resp.Body, bar)
+    
+	    if resp.StatusCode != http.StatusOK {
+	    	log.Fatal("[ERR] 下载unlock-test时出错: 非预期的状态码", resp.StatusCode)
+	    	return
+    	}
 
-	body := io.TeeReader(resp.Body, bar)
-
-	if resp.StatusCode != http.StatusOK {
-		log.Fatal("[ERR] 下载unlock-test时出错: 非预期的状态码", resp.StatusCode)
-		return
-	}
-
-	err = selfUpdate.Apply(body, selfUpdate.Options{})
-	if err != nil {
-		log.Fatal("[ERR] 更新unlock-test时出错:", err)
-		return
+	    err = selfUpdate.Apply(body, selfUpdate.Options{})
+	    if err != nil {
+	    	log.Fatal("[ERR] 更新unlock-test时出错:", err)
+	    	return
+	    }
 	}
 
 	fmt.Println("[OK] unlock-test后端更新成功")
