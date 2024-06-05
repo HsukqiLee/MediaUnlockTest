@@ -19,8 +19,8 @@ jobs:
       - name: Download Android NDK
         run: |
           mkdir -p $HOME/android-ndk
-          wget https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux-x86_64.zip
-          unzip -q android-ndk-$NDK_VERSION-linux-x86_64.zip -d $HOME/android-ndk
+          wget https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux.zip
+          unzip -q android-ndk-$NDK_VERSION-linux.zip -d $HOME/android-ndk
           mv $HOME/android-ndk/android-ndk-$NDK_VERSION $HOME/android-ndk/ndk
         shell: bash
 
@@ -48,7 +48,7 @@ jobs:
           cd cli/build
           for file in *; do
             echo "Uploading $file"
-            curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
+            curl -s --fail --retry 3 --retry-delay 0 -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
           done
       
       - name: Upload unlock-monitor binaries
@@ -56,5 +56,5 @@ jobs:
           cd monitor/build
           for file in *; do
             echo "Uploading $file"
-            curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
+            curl -s --fail --retry 3 --retry-delay 0 -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
           done

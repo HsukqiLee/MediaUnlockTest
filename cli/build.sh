@@ -4,9 +4,6 @@ tp="-gcflags=-trimpath="$GOPATH" -asmflags=-trimpath="$GOPATH
 #flags="-w -s -X 'main.buildTime=$(date '+%Y-%m-%d %H:%M:%S')'"
 flags="-w -s"
 
-NDK_VERSION="r26d"
-API_LEVEL="21"
-
 # exit
 
 echo "build android 386 ..."
