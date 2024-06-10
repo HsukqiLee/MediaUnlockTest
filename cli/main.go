@@ -479,16 +479,32 @@ func checkUpdate() {
 		log.Println("[ERR] 读取版本信息时出错:", err)
 		return
 	}
-	version := string(b)
+	
+	parts := strings.Split(string(b), "-")
+	if len(parts) != 2 {
+		log.Println("[ERR] 版本号格式错误:", err)
+		return
+	}
+	version := parts[0]
+	
 	if version == m.Version {
 		fmt.Println("已经是最新版本")
 		return
 	}
-	fmt.Println("检测到新版本：", version)
+
+	timestampInt, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil {
+		log.Println("[ERR] 版本号时间戳错误:", err)
+		return
+	}
+	timestamp := time.Unix(timestampInt, 0)
+
+	fmt.Println("最新版本：", version)
+	fmt.Println("发布时间：", timestamp.Format("2006-01-02 15:04:05"))
 
 	OS, ARCH := runtime.GOOS, runtime.GOARCH
-	fmt.Println("OS:", OS)
-	fmt.Println("ARCH:", ARCH)
+	fmt.Println("运行系统：", OS)
+	fmt.Println("运行架构：", ARCH)
 	
 	if OS == "android" && strings.Contains(os.Getenv("PREFIX"), "com.termux") {
 	    target_path := os.Getenv("PREFIX") + "/bin"
