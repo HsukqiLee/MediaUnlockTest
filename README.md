@@ -8,16 +8,18 @@
 
 ## 解锁检测
 
-Linux / macOS：
+Linux / macOS / Android Termux：
+
+（分别需要 /usr/bin、/usr/local/bin、$PREFIX/bin 目录的读写权限）
 
 ```bash
-bash <(curl -Ls unlock.icmp.ing/test.sh)
+bash <(curl -Ls unlock.icmp.ing/scripts/test.sh)
 ```
 
 Windows PowerShell（需要以管理员身份启动）：
 
 ```ps
-irm https://unlock.icmp.ing/test.ps1 | iex
+irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 ```
 
 以下命令行参数的示例都以 Linux 为例。
@@ -46,9 +48,7 @@ bash <(curl -Ls unlock.icmp.ing/test.sh) -m 6
 
 使用 Prometheus 和 Grafana 搭建流媒体解锁监控，效果： [ICMPing](https://icmp.ing/service)。
 
-~~图文教程有空再写，暂时鸽了~~
-
-[README](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/monitor/readme.md)
+[使用文档](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/monitor/readme.md)
 
 ## 任务清单
 

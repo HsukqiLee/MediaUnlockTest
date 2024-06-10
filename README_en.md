@@ -8,16 +8,18 @@ Fixed some bugs, provides more test items than the original version!
 
 ## Unlock Test
 
-Linux / macOS:
+Linux / macOS / Android Termux:
+
+(requires read and write permissions for the /usr/bin, /usr/local/bin, and $PREFIX/bin directories respectively)
 
 ```bash
-bash <(curl -Ls unlock.icmp.ing/test.sh)
+bash <(curl -Ls unlock.icmp.ing/scripts/test.sh)
 ```
 
 Windows PowerShell：
 
-```bash
-irm https://unlock.icmp.ing/test.ps1 | iex
+```ps
+irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 ```
 
 The following command line parameter examples are based on Linux.
@@ -44,9 +46,8 @@ Other args:
 
 ## Unlock Monitor
 
-Usage Prometheus and Grafana build streaming media unlock monitoring, effect: [ICMPing](https://icmp.ing/service).
+Usage Prometheus and Grafana build streaming media unlock monitoring, demo: [ICMPing](https://icmp.ing/service).
 
-~~I will write the graphic tutorial when I have time, I will postpone it for now~~
 
 [README](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/monitor/readme.md)
 
