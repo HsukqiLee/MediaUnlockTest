@@ -22,7 +22,7 @@ func bilibili(c http.Client, url string) Result {
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
-	if res.Code == -10403 {
+	if res.Code == -10403 || res.Code == 10004001 {
 		return Result{Status: StatusNo}
 	}
 	if res.Code == 0 {
@@ -37,4 +37,20 @@ func BilibiliHKMO(c http.Client) Result {
 
 func BilibiliTW(c http.Client) Result {
 	return bilibili(c, "https://api.bilibili.com/pgc/player/web/playurl?avid=50762638&cid=100279344&qn=0&type=&otype=json&ep_id=268176&fourk=1&fnver=0&fnval=16&module=bangumi")
+}
+
+func BilibiliSEA(c http.Client) Result {
+	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=347666")
+}
+
+func BilibiliTH(c http.Client) Result {
+	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=10077726")
+}
+
+func BilibiliID(c http.Client) Result {
+	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=11130043")
+}
+
+func BilibiliVN(c http.Client) Result {
+	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=11405745")
 }

@@ -23,7 +23,11 @@ func Watcha(c http.Client) Result {
 	}
 	
 	if resp.StatusCode == 200  {
-		return Result{Status: StatusOK}
+		return Result{Status: StatusOK, Region: "kr"}
+	}
+	
+	if resp.StatusCode == 302 && resp.Header.Get("Location") == "/ja-JP/" {
+		return Result{Status: StatusOK, Region: "jp"}
 	}
 
 	return Result{Status: StatusUnexpected}

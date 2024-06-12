@@ -8,12 +8,15 @@ import (
 	"strings"
 	"context"
 	"time"
+	"crypto/md5"
+	"encoding/hex"
 	
 	utls "github.com/refraction-networking/utls"
+	"github.com/google/uuid"
 )
 
 var (
-	Version          = "1.4.4"
+	Version          = "1.4.5"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
@@ -248,4 +251,13 @@ func PostForm(c http.Client, url string, data string, headers ...H) (*http.Respo
 	}
 
 	return cdo(c, req)
+}
+
+func genUUID() string {
+	return uuid.New().String()
+}
+
+func md5Sum(text string) string {
+   hash := md5.Sum([]byte(text))
+   return hex.EncodeToString(hash[:])
 }

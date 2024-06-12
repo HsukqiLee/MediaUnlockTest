@@ -63,6 +63,10 @@ Usage of build/unlock-monitor_linux_amd64:
         install service
   -uninstall
         uninstall service
+  -start
+        start service
+  -stop
+        stop service
   -auto-update
         set auto update
   -update-interval uint
