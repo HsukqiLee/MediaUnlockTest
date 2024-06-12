@@ -58,15 +58,18 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func main() {
-	var install bool
+    var install bool
 	var uninstall bool
+	var start bool
+	var stop bool
 	var update bool
 	var version bool
-
+	
+	
 	flag.Uint64Var(&Interval, "interval", 60, "check interval (s)")
 	flag.Uint64Var(&UpdateInterval, "update-interval", 0, "update check interval (s)")
 	flag.StringVar(&Listen, "listen", ":9101", "listen address")
-	flag.StringVar(&Node, "node", "", "node")
+	flag.StringVar(&Node, "node", "", "Prometheus node field")
 	flag.BoolVar(&MUL, "mul", true, "Mutation")
 	flag.BoolVar(&HK, "hk", false, "Hong Kong")
 	flag.BoolVar(&TW, "tw", false, "Taiwan")
@@ -76,12 +79,15 @@ func main() {
 	flag.BoolVar(&SA, "sa", false, "South America")
 	flag.BoolVar(&EU, "eu", false, "Europe")
 	flag.BoolVar(&AFR, "afr", false, "Africa")
+	flag.BoolVar(&SEA, "sea", false, "South East Asia")
 	flag.BoolVar(&OCEA, "ocea", false, "Oceania")
 	flag.BoolVar(&update, "u", false, "check update")
 	flag.BoolVar(&version, "v", false, "show version")
 	flag.BoolVar(&AutoUpdate, "auto-update", false, "set auto update")
 	flag.BoolVar(&install, "install", false, "install service")
 	flag.BoolVar(&uninstall, "uninstall", false, "uninstall service")
+	flag.BoolVar(&start, "start", false, "start service")
+	flag.BoolVar(&stop, "stop", false, "stop service")
 
 	flag.Parse()
 
@@ -122,6 +128,16 @@ func main() {
 
 	if uninstall {
 	    uninstallService(s)
+	    return
+	}
+	
+	if start {
+	    startService(s)
+	    return
+	}
+
+	if stop {
+	    stopService(s)
 	    return
 	}
 

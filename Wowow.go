@@ -1,22 +1,13 @@
 package mediaunlocktest
 
 import (
-    //"fmt"
     "time"
     "regexp"
     "strings"
     "strconv"
     "net/http"
     "io/ioutil"
-    "crypto/md5"
-    "encoding/hex"
-    //"encoding/json"
 )
-
-func md5Sum(text string) string {
-   hash := md5.Sum([]byte(text))
-   return hex.EncodeToString(hash[:])
-}
 
 func extractWowowContentURL(body string) string {
     re := regexp.MustCompile(`https://wod.wowow.co.jp/content/\d+`)

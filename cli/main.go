@@ -28,7 +28,7 @@ import (
 
 var IPV4 = true
 var IPV6 = true
-var M, TW, HK, JP, KR, NA, SA, EU, AFR, OCEA bool
+var M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA bool
 var Force bool
 
 type result struct {
@@ -86,7 +86,7 @@ func ShowResult(r m.Result) (s string) {
 	case m.StatusErr:
 		s = Yellow("Error")
 		if r.Err != nil {
-			s += ": " + r.Err.Error()
+			s += Yellow(": " + r.Err.Error())
 		}
 		return s
 
@@ -179,7 +179,6 @@ func Multination(c http.Client) {
 	excute("TikTok", m.TikTok, c)
 	excute("Bing", m.Bing, c)
 	excute("Instagram Audio", m.Instagram, c)
-	excute("SonyLiv", m.SonyLiv, c)
 }
 
 func HongKong(c http.Client) {
@@ -189,6 +188,7 @@ func HongKong(c http.Client) {
 	excute("MyTVSuper", m.MyTvSuper, c)
 	excute("HBO GO Asia", m.HboGoAsia, c)
 	excute("BiliBili HongKong/Macau Only", m.BilibiliHKMO, c)
+	excute("SonyLiv", m.SonyLiv, c)
 }
 
 func Taiwan(c http.Client) {
@@ -203,6 +203,7 @@ func Taiwan(c http.Client) {
 	excute("Bahamut Anime", m.BahamutAnime, c)
 	excute("HBO GO Asia", m.HboGoAsia, c)
 	excute("Bilibili Taiwan Only", m.BilibiliTW, c)
+	excute("SonyLiv", m.SonyLiv, c)
 }
 
 func Japan(c http.Client) {
@@ -230,6 +231,11 @@ func Japan(c http.Client) {
 	excute("Project Sekai: Colorful Stage", m.PJSK, c)
 	excute("Rakuten TV JP", m.RakutenTV_JP, c)
 	excute("Wowow", m.Wowow, c)
+	excute("Watcha", m.Watcha, c)
+	excute("TVer", m.TVer, c)
+	excute("Lemino", m.Lemino, c)
+	excute("D Anime Store", m.DAnimeStore, c)
+	excute("Mora", m.Mora, c)
 }
 
 func Korea(c http.Client) {
@@ -268,13 +274,13 @@ func NorthAmerica(c http.Client) {
 	excute("Acorn TV", m.AcornTV, c)
 	excute("SHOWTIME", m.SHOWTIME, c)
 	excute("encoreTVB", m.EncoreTVB, c)
-	//excute("Funimation", m.Funimation, c)
 	excute("Discovery+", m.DiscoveryPlus, c)
 	excute("Paramount+", m.ParamountPlus, c)
 	excute("Peacock TV", m.PeacockTV, c)
 	excute("Popcornflix", m.Popcornflix, c)
 	excute("Crunchyroll", m.Crunchyroll, c)
-	excute("Direct Stream", m.DirectvStream, c)
+	excute("DirecTV Stream", m.DirectvStream, c)
+	excute("SonyLiv", m.SonyLiv, c)
 	R = append(R, &result{Name: "CA", Divider: true})
 	excute("CBC Gem", m.CBCGem, c)
 	excute("Crave", m.Crave, c)
@@ -284,6 +290,7 @@ func SouthAmerica(c http.Client) {
     R = append(R, &result{Name: "South America", Divider: true})
     excute("Star Plus", m.StarPlus, c)
     excute("DirecTV GO", m.DirecTVGO, c)
+    excute("HBO Max", m.HBOMax, c)
 }
 
 func Europe(c http.Client) {
@@ -291,6 +298,8 @@ func Europe(c http.Client) {
     excute("Rakuten TV EU", m.RakutenTV_EU, c)
     excute("Setanta Sports", m.SetantaSports, c)
     excute("Sky Show Time", m.SkyShowTime, c)
+    excute("HBO Max", m.HBOMax, c)
+    excute("SonyLiv", m.SonyLiv, c)
     R = append(R, &result{Name: "GB", Divider: true})
     excute("BBC iPlayer", m.BBCiPlayer, c)
     excute("Channel 4", m.Channel4, c)
@@ -310,6 +319,8 @@ func Europe(c http.Client) {
     excute("NLZIET", m.NLZIET, c)
     R = append(R, &result{Name: "ES", Divider: true})
     excute("Movistar Plus+", m.MoviStarPlus, c)
+    R = append(R, &result{Name: "RO", Divider: true})
+    excute("Eurosport RO", m.EurosportRO, c)
     R = append(R, &result{Name: "RU", Divider: true})
     excute("Amediateka", m.Amediateka, c)
 }
@@ -320,21 +331,45 @@ func Africa(c http.Client) {
     excute("Showmax", m.Showmax, c)
 }
 
+func SouthEastAsia(c http.Client) {
+    R = append(R, &result{Name: "South East Asia", Divider: true})
+    excute("Bilibili SouthEastAsia Only", m.BilibiliSEA, c)
+    excute("SonyLiv", m.SonyLiv, c)
+    R = append(R, &result{Name: "SG", Divider: true})
+    excute("MeWatch", m.MeWatch, c)
+    R = append(R, &result{Name: "TH", Divider: true})
+    excute("Bilibili Thailand Only", m.BilibiliTW, c)
+    excute("AIS Play", m.AISPlay, c)
+    excute("TrueID", m.TrueID, c)
+    R = append(R, &result{Name: "ID", Divider: true})
+    excute("Bilibili Indonesia Only", m.BilibiliID, c)
+    R = append(R, &result{Name: "VN", Divider: true})
+    excute("Bilibili Vietnam Only", m.BilibiliVN, c)
+}
+
 func Oceania(c http.Client) {
     R = append(R, &result{Name: "Oceania", Divider: true})
+    excute("NBA TV", m.NBA_TV, c)
+    excute("Acorn TV", m.AcornTV, c)
+    excute("BritBox", m.BritBox, c)
+    excute("Paramount+", m.ParamountPlus, c)
+    excute("SonyLiv", m.SonyLiv, c)
     R = append(R, &result{Name: "AU", Divider: true})
     excute("Stan", m.Stan, c)
     excute("Binge", m.Binge, c)
+    excute("Doc Play", m.DocPlay, c)
     excute("7Plus", m.SevenPlus, c)
     excute("Channel 9", m.Channel9, c)
     excute("10 Play", m.Channel10, c)
     excute("ABC iView", m.ABCiView, c)
     excute("Optus Sports", m.OptusSports, c)
     excute("SBS on Demand", m.SBSonDemand, c)
+    excute("Kayo Sports", m.KayoSports, c)
     R = append(R, &result{Name: "NZ", Divider: true})
     excute("Neon TV", m.NeonTV, c)
     excute("Three Now", m.ThreeNow, c)
     excute("Maori TV", m.MaoriTV, c)
+    excute("Sky Go NZ", m.SkyGo_NZ, c)
 }
 
 func Ipv6Multination() {
@@ -398,17 +433,18 @@ func GetIpv6Info() {
 
 func ReadSelect() {
 	fmt.Println("请选择检测项目,直接按回车将进行全部检测: ")
-	fmt.Println("[0]: 跨国平台")
-	fmt.Println("[1]: 台湾平台")
-	fmt.Println("[2]: 香港平台")
-	fmt.Println("[3]: 日本平台")
-	fmt.Println("[4]: 韩国平台")
-	fmt.Println("[5]: 北美平台")
-	fmt.Println("[6]: 南美平台")
-	fmt.Println("[7]: 欧洲平台")
-	fmt.Println("[8]: 非洲平台")
-	fmt.Println("[9]: 大洋洲平台")
-	fmt.Print("请输入对应数字,空格分隔(回车确认): ")
+	fmt.Println("[0] :   跨国平台")
+	fmt.Println("[1] :   台湾平台")
+	fmt.Println("[2] :   香港平台")
+	fmt.Println("[3] :   日本平台")
+	fmt.Println("[4] :   韩国平台")
+	fmt.Println("[5] :   北美平台")
+	fmt.Println("[6] :   南美平台")
+	fmt.Println("[7] :   欧洲平台")
+	fmt.Println("[8] :   非洲平台")
+	fmt.Println("[9] : 东南亚平台")
+	fmt.Println("[10]: 大洋洲平台")
+	fmt.Print("请输入对应数字，空格分隔（回车确认）: ")
 	r := bufio.NewReader(os.Stdin)
 	l, _, err := r.ReadLine()
 	if err != nil {
@@ -436,9 +472,11 @@ func ReadSelect() {
 		case "8":
 		    AFR = true
 		case "9":
+		    SEA = true
+		case "10":
 		    OCEA = true
 		default:
-			M, TW, HK, JP, KR, NA, SA, EU, AFR, OCEA = true, true, true, true, true, true, true, true, true, true
+			M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA = true, true, true, true, true, true, true, true, true, true, true
 		}
 	}
 }
@@ -684,7 +722,7 @@ func main() {
 	}
 	
 	if test {
-	    fmt.Println("wowow", ShowResult(m.Wowow(m.Ipv4HttpClient)))
+	    fmt.Println("EurosportRO", ShowResult(m.EurosportRO(m.Ipv4HttpClient)))
 		return
 	}
 
@@ -728,6 +766,9 @@ func main() {
 		if AFR {
 			Africa(client)
 		}
+		if SEA {
+			SouthEastAsia(client)
+		}
 		if OCEA {
 			Oceania(client)
 		}
@@ -761,6 +802,9 @@ func main() {
 	    	if AFR {
 	    		Africa(m.Ipv6HttpClient)
 	    	}
+	    	if SEA {
+			    SouthEastAsia(m.Ipv6HttpClient)
+		    }
 	    	if OCEA {
 			    Oceania(m.Ipv6HttpClient)
 		    }

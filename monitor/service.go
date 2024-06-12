@@ -21,7 +21,7 @@ func restartService(s service.Service) error {
 }
 
 func installService(s service.Service) {
-    if serviceExists(s){
+    if serviceExists(s) {
 	    uninstallService(s)
 	}
 	if err := service.Control(s, "install"); err != nil {
@@ -44,6 +44,28 @@ func uninstallService(s service.Service) {
 		log.Fatal("[ERR] 卸载unlock-monitor服务失败", err)
 	} else {
 		log.Println("[OK] 卸载unlock-monitor服务成功")
+	}
+	return
+}
+
+func startService(s service.Service) {
+    if !serviceExists(s) {
+        log.Println("[ERR] unlock-monitor服务不存在")
+    } else if err := service.Control(s, "start"); err != nil {
+		log.Fatal("[ERR] 启动unlock-monitor服务失败", err)
+	} else {
+		log.Println("[OK] 启动unlock-monitor服务成功")
+	}
+	return
+}
+
+func stopService(s service.Service) {
+    if !serviceExists(s) {
+        log.Println("[ERR] unlock-monitor服务不存在")
+    } else if err := service.Control(s, "stop"); err != nil {
+		log.Println("[OK] 停止unlock-monitor服务失败:", err)
+	} else {
+	    log.Println("[OK] 停止unlock-monitor服务成功:", err)
 	}
 	return
 }
