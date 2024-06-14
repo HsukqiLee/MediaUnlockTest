@@ -37,6 +37,8 @@ Usage of build/unlock-monitor_linux_amd64:
         listen address (default ":9101")
   -interval uint
         check interval (s) (default 60)
+  -I string
+        source ip / interface
 
   -mul
         Mutation (default true)
