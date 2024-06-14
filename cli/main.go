@@ -227,7 +227,7 @@ func Japan(c http.Client) {
 	excute("Pretty Derby Japan", m.PrettyDerbyJP, c)
 	excute("Konosuba Fantastic Days", m.KonosubaFD, c)
 	excute("Princess Connect Re:Dive Japan", m.PCRJP, c)
-	excute("World Flipper Japan", m.WFJP, c)
+	//excute("World Flipper Japan", m.WFJP, c)
 	excute("Project Sekai: Colorful Stage", m.PJSK, c)
 	excute("Rakuten TV JP", m.RakutenTV_JP, c)
 	excute("Wowow", m.Wowow, c)
@@ -722,7 +722,7 @@ func main() {
 	}
 	
 	if test {
-	    fmt.Println("EurosportRO", ShowResult(m.EurosportRO(m.Ipv4HttpClient)))
+	    fmt.Println("joyn", ShowResult(m.Joyn(m.Ipv4HttpClient)))
 		return
 	}
 

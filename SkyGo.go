@@ -15,7 +15,7 @@ func SkyGo(c http.Client) Result {
 		return Result{Status: StatusOK}
 	}
 	
-	if resp.StatusCode == 403 {
+	if resp.StatusCode == 403 || resp.StatusCode == 200 {
 		return Result{Status: StatusNo}
 	}
 

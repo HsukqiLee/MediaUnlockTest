@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func Joyn(c http.Client) Result {
@@ -47,7 +48,9 @@ func Joyn(c http.Client) Result {
     var res2b struct {
         Token string `json:"entitlement_token"`
     }
-    
+    if strings.Contains(string(b2), "Unauthorized") {
+        return Result{Status: StatusErr, Err: err}
+    }
 	if err := json.Unmarshal(b2, &res2a); err != nil {
 	    if err := json.Unmarshal(b2, &res2b); err != nil {
 	       return Result{Status: StatusFailed, Err: err}
