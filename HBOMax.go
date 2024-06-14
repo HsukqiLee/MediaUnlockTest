@@ -1,7 +1,6 @@
 package mediaunlocktest
 
 import (
-	"io"
 	"net/http"
 	"strings"
 )
@@ -12,12 +11,8 @@ func HBOMax(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-	s := string(b)
-	if strings.Contains(s, "geo-availability") {
+
+	if strings.Contains(resp.Header.Get("location"), "geo-availability") {
 		return Result{Status: StatusNo}
 	}
 	t := strings.Split(resp.Header.Get("location"), "/")
@@ -25,5 +20,5 @@ func HBOMax(c http.Client) Result {
 	if len(t) >= 4 {
 		region = strings.Split(resp.Header.Get("location"), "/")[3]
 	}
-	return Result{Status: StatusOK, Region: strings.ToUpper(region)}
+	return Result{Status: StatusOK, Region: strings.ToLower(region)}
 }

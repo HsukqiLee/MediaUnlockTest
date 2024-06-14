@@ -16,8 +16,15 @@ func serviceIsActive(s service.Service) bool {
 	return err == nil && status == service.StatusRunning
 }
 
-func restartService(s service.Service) error {
-	return s.Restart()
+func restartService(s service.Service) {
+	if !serviceExists(s) {
+        log.Println("[ERR] unlock-monitor服务不存在")
+    } else if err := service.Control(s, "restart"); err != nil {
+		log.Fatal("[ERR] 重启unlock-monitor服务失败", err)
+	} else {
+		log.Println("[OK] 重启unlock-monitor服务成功")
+	}
+	return
 }
 
 func installService(s service.Service) {

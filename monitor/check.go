@@ -170,7 +170,7 @@ func (T *TEST) Japan() {
 	T.excute("Pretty Derby Japan", mt.PrettyDerbyJP)
 	T.excute("Konosuba Fantastic Days", mt.KonosubaFD)
 	T.excute("Princess Connect Re:Dive Japan", mt.PCRJP)
-	T.excute("World Flipper Japan", mt.WFJP)
+	//T.excute("World Flipper Japan", mt.WFJP)
 	T.excute("Project Sekai: Colorful Stage", mt.PJSK)
 	T.excute("Rakuten TV", mt.RakutenTV_JP)
 	T.excute("Wowow", mt.Wowow)

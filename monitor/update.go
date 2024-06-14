@@ -122,7 +122,7 @@ func checkUpdate() {
 	    }
 	}
 
-	fmt.Println("[OK] unlock-monitor后端更新成功")
+	log.Println("[OK] unlock-monitor后端更新成功")
 
 	serviceConfig := &service.Config{
 		Name:        "unlock-monitor",
@@ -137,14 +137,9 @@ func checkUpdate() {
 	}
 
 	if serviceExists(s) && serviceIsActive(s) {
-		err = restartService(s)
-		if err != nil {
-			log.Println("[ERR] 重启服务失败:", err)
-			return
-		}
-		fmt.Println("[OK] 服务重启成功")
+		restartService(s)
 	} else {
-		fmt.Println("[INFO] unlock-monitor 服务未运行")
+		log.Println("[INFO] unlock-monitor 服务未运行")
 	}
 }
 

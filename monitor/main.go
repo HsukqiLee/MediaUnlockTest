@@ -4,11 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"runtime"
 	"time"
 	"os"
 	"strings"
+	"syscall"
     
     mt "MediaUnlockTest"
 	"github.com/kardianos/service"
@@ -20,6 +22,7 @@ var (
 	UpdateInterval uint64
 	Version        string = mt.Version
 	buildTime      string
+	Iface          string = ""
 )
 
 type program struct{}
@@ -57,19 +60,25 @@ func (p *program) Stop(s service.Service) error {
 	return nil
 }
 
+var setSocketOptions = func(network, address string, c syscall.RawConn, interfaceName string) (err error) {
+	return
+}
+
 func main() {
-    var install bool
+    var install   bool
 	var uninstall bool
-	var start bool
-	var stop bool
-	var update bool
-	var version bool
+	var start     bool
+	var stop      bool
+	var restart   bool
+	var update    bool
+	var version   bool
 	
 	
 	flag.Uint64Var(&Interval, "interval", 60, "check interval (s)")
 	flag.Uint64Var(&UpdateInterval, "update-interval", 0, "update check interval (s)")
 	flag.StringVar(&Listen, "listen", ":9101", "listen address")
 	flag.StringVar(&Node, "node", "", "Prometheus node field")
+	flag.StringVar(&Iface, "I", "", "source ip / interface")
 	flag.BoolVar(&MUL, "mul", true, "Mutation")
 	flag.BoolVar(&HK, "hk", false, "Hong Kong")
 	flag.BoolVar(&TW, "tw", false, "Taiwan")
@@ -88,6 +97,7 @@ func main() {
 	flag.BoolVar(&uninstall, "uninstall", false, "uninstall service")
 	flag.BoolVar(&start, "start", false, "start service")
 	flag.BoolVar(&stop, "stop", false, "stop service")
+	flag.BoolVar(&restart, "restart", false, "restart service")
 
 	flag.Parse()
 
@@ -99,6 +109,16 @@ func main() {
 	if update {
 	    checkUpdate()
 		return
+	}
+	
+	if Iface != "" {
+		if IP := net.ParseIP(Iface); IP != nil {
+			mt.Dialer.LocalAddr = &net.TCPAddr{IP: IP}
+		} else {
+			mt.Dialer.Control = func(network, address string, c syscall.RawConn) error {
+				return setSocketOptions(network, address, c, Iface)
+			}
+		}
 	}
 	
     args := []string{}
@@ -138,6 +158,11 @@ func main() {
 
 	if stop {
 	    stopService(s)
+	    return
+	}
+	
+	if restart {
+	    restartService(s)
 	    return
 	}
 
