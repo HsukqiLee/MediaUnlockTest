@@ -7,7 +7,7 @@ import (
 func Binge(c http.Client) Result {
 	resp, err := GET(c, "https://auth.streamotion.com.au")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

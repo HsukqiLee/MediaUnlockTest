@@ -7,7 +7,7 @@ import (
 func OptusSports(c http.Client) Result {
 	resp, err := GET(c, "https://sport.optus.com.au/api/userauth/validate/web/username/restriction.check@gmail.com")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

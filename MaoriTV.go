@@ -12,7 +12,7 @@ func MaoriTV(c http.Client) Result {
         H{"Origin", "https://www.maoritelevision.com"},
     )
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	

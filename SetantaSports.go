@@ -16,7 +16,7 @@ func SetantaSports(c http.Client) Result {
 
 	resp, err := cdo(c, req)
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	

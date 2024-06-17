@@ -63,6 +63,7 @@ var Ipv4Transport = &http.Transport{
 	TLSHandshakeTimeout:   30 * time.Second,
 	ExpectContinueTimeout: 1 * time.Second,
 	TLSClientConfig:       tlsConfig,
+	MaxResponseHeaderBytes: 262144,
 }
 
 

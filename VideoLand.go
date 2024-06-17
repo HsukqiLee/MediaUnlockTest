@@ -16,7 +16,7 @@ func VideoLand(c http.Client) Result {
 	    H{"accept", "application/json, text/plain, */*"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	

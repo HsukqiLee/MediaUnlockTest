@@ -24,7 +24,7 @@ func StarPlus(c http.Client) Result {
 
 	resp, err := GET(c, "https://www.starplus.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	
 	body, err := ioutil.ReadAll(resp.Body)

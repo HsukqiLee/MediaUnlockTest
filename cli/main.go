@@ -75,7 +75,7 @@ func ShowResult(r m.Result) (s string) {
 		return s
 
 	case m.StatusNetworkErr:
-		return Red("NO") + Yellow(" (Network Err)")
+		return Red("ERR") + Yellow(" (Network Err: " + r.Err.Error() + ")")
 
 	case m.StatusRestricted:
 		if r.Info != "" {
@@ -84,18 +84,18 @@ func ShowResult(r m.Result) (s string) {
 		return Yellow("Restricted")
 
 	case m.StatusErr:
-		s = Yellow("Error")
+		s = Yellow("ERR")
 		if r.Err != nil {
-			s += Yellow(": " + r.Err.Error())
+			s += Yellow(" (Err: " + r.Err.Error() + ")")
 		}
 		return s
 
 	case m.StatusNo:
 		if r.Info != "" {
-			return Red("NO") + Yellow(" (" + r.Info + ")")
+			return Red("NO ") + Yellow(" (Info: " + r.Info + ")")
 		}
 		if r.Region != "" {
-			return Red("NO (Region: " + strings.ToUpper(r.Region) + ")")
+			return Red("NO  (Region: " + strings.ToUpper(r.Region) + ")")
 		}
 		return Red("NO")
 
@@ -161,7 +161,6 @@ func NewBar(count int64) *pb.ProgressBar {
 func Multination(c http.Client) {
 	R = append(R, &result{Name: "Multination", Divider: true})
 	excute("Dazn", m.Dazn, c)
-	excute("Hotstar", m.Hotstar, c)
 	excute("Disney+", m.DisneyPlus, c)
 	excute("Netflix", m.NetflixRegion, c)
 	excute("Netflix CDN", m.NetflixCDN, c)
@@ -203,7 +202,6 @@ func Taiwan(c http.Client) {
 	excute("Bahamut Anime", m.BahamutAnime, c)
 	excute("HBO GO Asia", m.HboGoAsia, c)
 	excute("Bilibili Taiwan Only", m.BilibiliTW, c)
-	excute("SonyLiv", m.SonyLiv, c)
 }
 
 func Japan(c http.Client) {
@@ -252,6 +250,10 @@ func Korea(c http.Client) {
 
 func NorthAmerica(c http.Client) {
 	R = append(R, &result{Name: "North America", Divider: true})
+	excute("Shudder", m.Shudder, c)
+	excute("BritBox", m.BritBox, c)
+	excute("SonyLiv", m.SonyLiv, c)
+	excute("Hotstar", m.Hotstar, c)
 	R = append(R, &result{Name: "US", Divider: true})
 	excute("FOX", m.Fox, c)
 	excute("Hulu", m.Hulu, c)
@@ -263,8 +265,6 @@ func NorthAmerica(c http.Client) {
 	excute("FXNOW", m.FXNOW, c)
 	excute("TLC GO", m.TlcGo, c)
 	excute("HBO Max", m.HBOMax, c)
-	excute("Shudder", m.Shudder, c)
-	excute("BritBox", m.BritBox, c)
 	excute("CW TV", m.CW_TV, c)
 	excute("NBA TV", m.NBA_TV, c)
 	excute("Fubo TV", m.FuboTV, c)
@@ -280,7 +280,6 @@ func NorthAmerica(c http.Client) {
 	excute("Popcornflix", m.Popcornflix, c)
 	excute("Crunchyroll", m.Crunchyroll, c)
 	excute("DirecTV Stream", m.DirectvStream, c)
-	excute("SonyLiv", m.SonyLiv, c)
 	R = append(R, &result{Name: "CA", Divider: true})
 	excute("CBC Gem", m.CBCGem, c)
 	excute("Crave", m.Crave, c)
@@ -306,6 +305,7 @@ func Europe(c http.Client) {
     excute("Channel 5", m.Channel5, c)
     excute("Sky Go", m.SkyGo, c)
     excute("ITVX", m.ITVX, c)
+    excute("Hotstar", m.Hotstar, c)
     R = append(R, &result{Name: "IT", Divider: true})
     excute("Rai Play", m.RaiPlay, c)
     R = append(R, &result{Name: "FR/DE", Divider: true})
@@ -335,6 +335,7 @@ func SouthEastAsia(c http.Client) {
     R = append(R, &result{Name: "South East Asia", Divider: true})
     excute("Bilibili SouthEastAsia Only", m.BilibiliSEA, c)
     excute("SonyLiv", m.SonyLiv, c)
+    excute("Hotstar", m.Hotstar, c)
     R = append(R, &result{Name: "SG", Divider: true})
     excute("MeWatch", m.MeWatch, c)
     R = append(R, &result{Name: "TH", Divider: true})
@@ -722,12 +723,15 @@ func main() {
 	}
 	
 	if test {
-	    fmt.Println("joyn", ShowResult(m.Joyn(m.Ipv4HttpClient)))
+	    //GetIpv4Info()
+	    //GetIpv6Info()
+	    fmt.Println("Hulu", ShowResult(m.Hulu(m.Ipv4HttpClient)))
+	    fmt.Println("HuluJP", ShowResult(m.HuluJP(m.Ipv4HttpClient)))
 		return
 	}
 
 	fmt.Println("项目地址: " + SkyBlue("https://github.com/HsukqiLee/MediaUnlockTest"))
-	fmt.Println("使用方式: " + Yellow("bash <(curl -Ls unlock.icmp.ing/test.sh)"))
+	fmt.Println("使用方式: " + Yellow("bash <(curl -Ls unlock.icmp.ing/scripts/test.sh)"))
 	fmt.Println()
 
 	GetIpv4Info()

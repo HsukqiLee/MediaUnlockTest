@@ -11,7 +11,7 @@ func NeonTV(c http.Client) Result {
 	    H{"authorization", "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiOTNlZDQyZC00M2RiLTQzNDMtYThjZi1mZTk4YTY2NzVkNTgiLCJpc3MiOiJMaWdodGJveCIsImV4cCI6MTY2NDk3NTExMSwiZGV2aWNlSWQiOiI2NTgzZWU4YmM0YzQwZmJhOTgzMGQ0ZTYwNTM5ZDAzNSIsInBsYXRmb3JtIjoiV2ViIiwiYnJvd3NlciI6IkNocm9tZSIsInRhYiI6MTYzMzQxNzUwNzY4OSwib3MiOiJXaW5kb3dzIDEwLjAiLCJpYXQiOjE2MzM0MTc1MTF9.E7qgVpqsJEPsh0B3lgK9x8hPs7nQ_Bio_FCt1H8mB4XCPrsand4kHVHA5LpiB5rvBLfOaSfJKru-gKuMlgLJhg"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -19,7 +19,7 @@ func NeonTV(c http.Client) Result {
     bodyString := string(bodyBytes)
     
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	
 	if resp.StatusCode == 403 || strings.Contains(bodyString, "RESTRICTED_GEOLOCATION") {

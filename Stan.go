@@ -9,7 +9,7 @@ import (
 func Stan(c http.Client) Result {
 	resp, err := PostJson(c, "https://api.stan.com.au/login/v1/sessions/web/account", `{}`)
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

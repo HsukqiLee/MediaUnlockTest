@@ -12,7 +12,7 @@ func KayoSports(c http.Client) Result {
 	    H{"Referer", "https://kayosports.com.au/"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

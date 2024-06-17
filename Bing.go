@@ -19,7 +19,7 @@ func extractBingRegion(responseBody string) string {
 func Bing(c http.Client) Result {
 	resp, err := GET(c, "https://www.bing.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

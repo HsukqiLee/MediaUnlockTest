@@ -104,7 +104,6 @@ func (T *TEST) excute(Name string, F func(client http.Client) mt.Result) {
 func (T *TEST) Multination() {
 	// R = append(R, &result{Name: "Multination", Divider: true})
 	T.excute("Dazn", mt.Dazn)
-	T.excute("Hotstar", mt.Hotstar)
 	T.excute("Disney+", mt.DisneyPlus)
 	T.excute("Netflix", mt.NetflixRegion)
 	T.excute("Netflix CDN", mt.NetflixCDN)
@@ -146,7 +145,6 @@ func (T *TEST) Taiwan() {
 	T.excute("Bahamut Anime", mt.BahamutAnime)
 	T.excute("HBO GO Asia", mt.HboGoAsia)
 	T.excute("Bilibili TW", mt.BilibiliTW)
-	T.excute("SonyLiv", mt.SonyLiv)
 }
 
 func (T *TEST) Japan() {
@@ -223,6 +221,7 @@ func (T *TEST) NorthAmerica() {
 	T.excute("Crunchyroll", mt.Crunchyroll)
 	T.excute("DirecTV Stream", mt.DirectvStream)
 	T.excute("SonyLiv", mt.SonyLiv)
+	T.excute("Hotstar", mt.Hotstar)
 	// R = append(R, &result{Name: "CA", Divider: true})
 	T.excute("CBC Gem", mt.CBCGem)
 	T.excute("Crave", mt.Crave)
@@ -257,7 +256,7 @@ func (T *TEST) Europe() {
     T.excute("Movistar Plus+", mt.MoviStarPlus)
     T.excute("Eurosport RO", mt.EurosportRO)
     T.excute("Amediateka", mt.Amediateka)
-
+    T.excute("Hotstar", mt.Hotstar)
 }
 
 func (T *TEST) Africa() {
@@ -276,6 +275,7 @@ func (T *TEST) SouthEastAsia() {
     T.excute("TrueID", mt.TrueID)
     T.excute("Bilibili Indonesia Only", mt.BilibiliID)
     T.excute("Bilibili Vietnam Only", mt.BilibiliVN)
+    T.excute("Hotstar", mt.Hotstar)
 }
 
 func (T *TEST) Oceania() {
