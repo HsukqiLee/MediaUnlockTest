@@ -7,7 +7,7 @@ import (
 func CanalPlus(c http.Client) Result {
 	resp, err := GET(c, "https://boutique-tunnel.canalplus.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

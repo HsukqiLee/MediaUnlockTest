@@ -18,15 +18,18 @@ func extractSonyLivJwtToken(body string) string {
 }
 
 func SonyLiv(c http.Client) Result {
-    resp1, err := GET(c, "https://www.sonyliv.com/")
+    req, err := http.NewRequest("GET", "https://www.sonyliv.com/", nil)
+    resp1, err := cdo(c, req)
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNo, Info: err.Error()}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
     defer resp1.Body.Close()
 
     body1, err := ioutil.ReadAll(resp1.Body)
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNo, Info: "1"}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 
     if strings.Contains(string(body1), "geolocation_notsupported") {
@@ -43,13 +46,15 @@ func SonyLiv(c http.Client) Result {
         H{"security_token", jwtToken},
     )
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNo, Info: "2"}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
     defer resp2.Body.Close()
 
     body2, err := ioutil.ReadAll(resp2.Body)
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNo, Info: "3"}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	
     var res1 struct {
@@ -77,17 +82,20 @@ func SonyLiv(c http.Client) Result {
         H{"security_token", jwtToken},
     )
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNo, Info: "4"}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
     defer resp3.Body.Close()
 
     body3, err := ioutil.ReadAll(resp3.Body)
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNo, Info: "5"}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	
 	var res2 struct {
         ResultCode string `json:"resultCode"`
+        Message    string `json:"message"`
     }
 
     if err := json.Unmarshal(body3, &res2); err != nil {
@@ -99,7 +107,7 @@ func SonyLiv(c http.Client) Result {
     }
 
     if res2.ResultCode == "KO" {
-        return Result{Status: StatusNo, Region: strings.ToLower(region), Info: "Proxy Detected"}
+        return Result{Status: StatusNo, Region: strings.ToLower(region), Info: "Proxy"}
     }
     
     return Result{Status: StatusUnexpected}

@@ -7,14 +7,14 @@ import (
 func CoupangPlay(c http.Client) Result {
 	resp, err := GET(c, "https://www.coupangplay.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
     
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	
+
 	if resp.StatusCode == 302 && resp.Header.Get("Location") == "https://www.coupangplay.com/not-available" {
 		return Result{Status: StatusNo}
 	}

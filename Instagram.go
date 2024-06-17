@@ -31,7 +31,7 @@ func Instagram(c http.Client) Result {
         H{"viewport-width", "1640"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

@@ -9,7 +9,7 @@ import (
 func Reddit(c http.Client) Result {
 	resp, err := GET(c, "https://www.reddit.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -17,7 +17,7 @@ func Reddit(c http.Client) Result {
     bodyString := string(bodyBytes)
     
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	
 	if resp.StatusCode == 200 || resp.StatusCode == 302 {

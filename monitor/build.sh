@@ -114,8 +114,8 @@ CGO_ENABLED=0 GOOS=openbsd GOARCH=ppc64 go build -ldflags="$flags" $tp -o build/
 #echo "build plan9 arm5 ..."
 #CGO_ENABLED=0 GOOS=plan9 GOARCH=arm GOARM=5 go build -ldflags="$flags" $tp -o build/unlock-monitor_plan9_arm5
 
-echo "build solaris amd64 ..."
-CGO_ENABLED=0 GOOS=solaris GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_solaris_amd64
+#echo "build solaris amd64 ..."
+#CGO_ENABLED=0 GOOS=solaris GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_solaris_amd64
 
 echo "build windows 386 ..."
 CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-monitor_windows_386.exe

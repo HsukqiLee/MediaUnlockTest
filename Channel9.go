@@ -7,7 +7,7 @@ import (
 func Channel9(c http.Client) Result {
 	resp, err := GET(c, "https://login.nine.com.au")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

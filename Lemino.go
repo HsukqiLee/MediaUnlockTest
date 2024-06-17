@@ -16,7 +16,7 @@ func Lemino(c http.Client) Result {
 	    H{"x-trace-id", "556db33f-d739-4a82-84df-dd509a8aa179"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

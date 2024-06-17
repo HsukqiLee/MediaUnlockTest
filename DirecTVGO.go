@@ -18,7 +18,7 @@ func extractDirecTVGORegion (url string) string {
 func DirecTVGO(c http.Client) Result {
 	resp, err := GET(c, "https://www.directvgo.com/registrarse")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
     

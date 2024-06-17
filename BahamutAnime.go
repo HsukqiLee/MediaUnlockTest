@@ -11,7 +11,7 @@ func BahamutAnime(c http.Client) Result {
 	c.Jar, _ = cookiejar.New(nil)
 	resp, err := GET(c, "https://ani.gamer.com.tw/ajax/getdeviceid.php")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)

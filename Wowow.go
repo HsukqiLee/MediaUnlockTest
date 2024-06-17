@@ -33,7 +33,7 @@ func Wowow(c http.Client) Result {
     //    H{"X-Requested-With", "XMLHttpRequest"},
     //)
     //if err != nil {
-    //    return Result{Status: StatusNetworkErr}
+    //    return Result{Status: StatusNetworkErr, Err: err}
     //}
     //defer resp1.Body.Close()
 
@@ -54,7 +54,7 @@ func Wowow(c http.Client) Result {
     //resp2, err := GET(c, res1[1].DramaLink)
     resp2, err := GET(c, "https://www.wowow.co.jp/drama/original/yukai/")
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp2.Body.Close()
     
@@ -72,7 +72,7 @@ func Wowow(c http.Client) Result {
     
     resp3, err := GET(c, wodUrl)
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp3.Body.Close()
 
@@ -95,7 +95,7 @@ func Wowow(c http.Client) Result {
     )
     
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp4.Body.Close()
 

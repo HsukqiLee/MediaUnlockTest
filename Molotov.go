@@ -9,7 +9,7 @@ import (
 func Molotov(c http.Client) Result {
 	resp, err := GET(c, "https://fapi.molotov.tv/v1/open-europe/is-france")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
     

@@ -7,7 +7,7 @@ import (
 func ITVX(c http.Client) Result {
 	resp, err := GET(c, "https://simulcast.itv.com/playlist/itvonline/ITV", H{"connection", "keep-alive"})
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 

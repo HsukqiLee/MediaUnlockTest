@@ -32,13 +32,13 @@ func TVer(c http.Client) Result {
         H{"accept-language", "en-US,en;q=0.9"},
     )
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp1.Body.Close()
 
     body1, err := ioutil.ReadAll(resp1.Body)
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     
     var res1 struct {
@@ -59,13 +59,13 @@ func TVer(c http.Client) Result {
         H{"x-tver-platform-type", "web"},
     )
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp2.Body.Close()
 
     body2, err := ioutil.ReadAll(resp2.Body)
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     
     var res2 struct {
@@ -100,13 +100,13 @@ func TVer(c http.Client) Result {
         H{"accept-language", "en-US,en;q=0.9"},
     )
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp3.Body.Close()
 
     body3, err := ioutil.ReadAll(resp3.Body)
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     
     var res3 struct {
@@ -131,13 +131,13 @@ func TVer(c http.Client) Result {
         H{"accept-language", "en-US,en;q=0.9"},
     )
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp4.Body.Close()
 
     body4, err := ioutil.ReadAll(resp4.Body)
     if err != nil || len(body4) == 0 {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
 
     PolicyKey := extractTVerPolicyKey(string(body4))
@@ -160,13 +160,13 @@ func TVer(c http.Client) Result {
         )
     }
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp5.Body.Close()
 
     body5, err := ioutil.ReadAll(resp5.Body)
     if err != nil {
-        return Result{Status: StatusNetworkErr}
+        return Result{Status: StatusNetworkErr, Err: err}
     }
     
     var res4a []struct {

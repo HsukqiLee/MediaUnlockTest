@@ -7,7 +7,7 @@ import (
 func SevenPlus(c http.Client) Result {
 	resp, err := GET(c, "https://7plus.com.au/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	

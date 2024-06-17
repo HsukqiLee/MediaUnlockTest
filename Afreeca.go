@@ -9,7 +9,7 @@ import (
 func Afreeca(c http.Client) Result {
 	resp, err := GET(c, "https://vod.afreecatv.com/player/97464151")
 	if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -17,7 +17,7 @@ func Afreeca(c http.Client) Result {
     bodyString := string(bodyBytes)
     
     if err != nil {
-		return Result{Status: StatusNetworkErr}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 
 	if strings.Contains(bodyString, "document.location.href='https://vod.afreecatv.com'") {
