@@ -21,14 +21,12 @@ func SonyLiv(c http.Client) Result {
     req, err := http.NewRequest("GET", "https://www.sonyliv.com/", nil)
     resp1, err := cdo(c, req)
     if err != nil {
-        return Result{Status: StatusNo, Info: err.Error()}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
     defer resp1.Body.Close()
 
     body1, err := ioutil.ReadAll(resp1.Body)
     if err != nil {
-        return Result{Status: StatusNo, Info: "1"}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 
@@ -46,14 +44,12 @@ func SonyLiv(c http.Client) Result {
         H{"security_token", jwtToken},
     )
     if err != nil {
-        return Result{Status: StatusNo, Info: "2"}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
     defer resp2.Body.Close()
 
     body2, err := ioutil.ReadAll(resp2.Body)
     if err != nil {
-        return Result{Status: StatusNo, Info: "3"}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	
@@ -82,14 +78,12 @@ func SonyLiv(c http.Client) Result {
         H{"security_token", jwtToken},
     )
     if err != nil {
-        return Result{Status: StatusNo, Info: "4"}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
     defer resp3.Body.Close()
 
     body3, err := ioutil.ReadAll(resp3.Body)
     if err != nil {
-        return Result{Status: StatusNo, Info: "5"}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	
