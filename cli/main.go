@@ -725,8 +725,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("Hulu", ShowResult(m.Hulu(m.Ipv4HttpClient)))
-	    fmt.Println("HuluJP", ShowResult(m.HuluJP(m.Ipv4HttpClient)))
+	    fmt.Println("b1", ShowResult(m.BilibiliVN(m.Ipv4HttpClient)))
 		return
 	}
 

@@ -41,6 +41,9 @@ func Hulu(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
+	if resp.StatusCode == 406 {
+		return Result{Status: StatusBanned}
+	}
     var res struct {
 		Error struct {
 		    Name string `json:"name"`

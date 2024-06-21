@@ -6,7 +6,11 @@ import (
 
 func PrettyDerbyJP(c http.Client) Result {
 	for i := 0; i < 3; i++ {
-		resp, err := GET_Dalvik(c, "https://api-umamusume.cygames.jp/")
+		//resp, err := GET_Dalvik(c, "https://api-umamusume.cygames.jp/")
+		resp, err := GET(c, "https://api-umamusume.cygames.jp/",
+		    H{"user-agent", UA_Dalvik},
+		    H{"connection", "keep-alive"},
+		)
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}

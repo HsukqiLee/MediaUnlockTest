@@ -13,10 +13,11 @@ import (
 	
 	utls "github.com/refraction-networking/utls"
 	"github.com/google/uuid"
+	//"golang.org/x/net/http2"
 )
 
 var (
-	Version          = "1.4.6"
+	Version          = "1.4.8"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2

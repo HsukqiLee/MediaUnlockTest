@@ -18,7 +18,7 @@ func Watcha(c http.Client) Result {
 	defer resp.Body.Close()
 
 	
-	if resp.StatusCode == 451 {
+	if resp.StatusCode == 451 || resp.StatusCode == 403 {
 		return Result{Status: StatusNo}
 	}
 	

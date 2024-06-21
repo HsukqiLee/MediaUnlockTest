@@ -31,7 +31,7 @@ func SonyLiv(c http.Client) Result {
 	}
 
     if strings.Contains(string(body1), "geolocation_notsupported") {
-        return Result{Status: StatusNo, Info: "Unavailable"}
+        return Result{Status: StatusNo}
     }
 
     jwtToken := extractSonyLivJwtToken(string(body1))
