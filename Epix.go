@@ -69,7 +69,7 @@ func Epix(c http.Client) Result {
 	case "PROXY_DETECTED":
 		return Result{Status: StatusNo, Info: "Proxy Detected"}
 	case "GEO_BLOCKED":
-		return Result{Status: StatusNo, Info: "Unavailable"}
+		return Result{Status: StatusNo}
 	case "NOT_SUBSCRIBED":
 		return Result{Status: StatusOK}
 	}

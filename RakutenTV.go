@@ -26,7 +26,7 @@ func RakutenTV_EU(c http.Client) Result {
 	}
 	
 	if strings.Contains(bodyString, "forbidden_market") {
-		return Result{Status: StatusNo, Info: "Not Available"}
+		return Result{Status: StatusNo}
 	}
 	
 	if strings.Contains(bodyString, "forbidden_vpn") {

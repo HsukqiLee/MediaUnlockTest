@@ -69,7 +69,7 @@ func DisneyPlus(c http.Client) Result {
 		return Result{Status: StatusNo}
 	}
 	
-	resp3, err := GET(c, "https://disneyplus.com")
+	resp3, err := GET(c, "https://www.disneyplus.com")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

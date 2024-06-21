@@ -31,7 +31,7 @@ func Channel5(c http.Client) Result {
 		return Result{Status: StatusFailed, Err: err}
 	}
 	if res.Code == "3000" {
-		return Result{Status: StatusNo, Info: "Unavailable"}
+		return Result{Status: StatusNo}
 	}
 	
 	if res.Code == "3001" {

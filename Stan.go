@@ -21,7 +21,7 @@ func Stan(c http.Client) Result {
 	}
 	
 	if strings.Contains(bodyString, "Access Denied") {
-		return Result{Status: StatusNo, Info: "Unavailable"}
+		return Result{Status: StatusNo}
 	}
 	
 	if strings.Contains(bodyString, "VPNDetected") {
