@@ -84,7 +84,7 @@ func ShowResult(r m.Result) (s string) {
 		return Yellow("Restricted")
 
 	case m.StatusErr:
-		s = Yellow("ERR")
+		s = Red("ERR")
 		if r.Err != nil {
 			s += Yellow(" (Err: " + r.Err.Error() + ")")
 		}
@@ -725,7 +725,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("b1", ShowResult(m.BilibiliVN(m.Ipv4HttpClient)))
+	    fmt.Println("BahamutAnime", ShowResult(m.BahamutAnime(m.Ipv4HttpClient)))
 		return
 	}
 
