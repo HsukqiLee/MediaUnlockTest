@@ -23,6 +23,9 @@ func BahamutAnime(c http.Client) Result {
 		Deviceid string
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
+	    if err.Error() == "invalid character '<' looking for beginning of value" {
+	        return Result{Status: StatusNo}
+	    }
 		return Result{Status: StatusErr, Err: err}
 	}
 	resp, err = GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=14667&device="+res.Deviceid)
@@ -40,5 +43,5 @@ func BahamutAnime(c http.Client) Result {
 	if res.AnimeSn != 0 {
 		return Result{Status: StatusOK}
 	}
-	return Result{Status: StatusNo}
+	return Result{Status: StatusUnexpected}
 }
