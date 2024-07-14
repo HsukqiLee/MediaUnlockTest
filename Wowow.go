@@ -9,6 +9,16 @@ import (
     "io/ioutil"
 )
 
+func extractWowowDramaURL(body string) string {
+    re := regexp.MustCompile(`https://www.wowow.co.jp/drama/original/\w+/`)
+    matches := re.FindStringSubmatch(body)
+    
+    if len(matches) > 0 {
+        return matches[0]
+    }
+    return ""
+}
+
 func extractWowowContentURL(body string) string {
     re := regexp.MustCompile(`https://wod.wowow.co.jp/content/\d+`)
     match := re.FindString(body)
@@ -27,23 +37,20 @@ func extractWowowMetaID(body string) string {
 
 func Wowow(c http.Client) Result {
     timestamp := time.Now().UnixNano()/int64(time.Millisecond)
-    //resp1, err := GET(c, "https://www.wowow.co.jp/drama/original/json/lineup.jsonf?_=" + strconv.FormatInt(timestamp, 10),
-    //    H{"Accept", "application/json, text/javascript, */*; q=0.01"},
-    //    H{"Referer", "https://www.wowow.co.jp/drama/original/"},
-    //    H{"X-Requested-With", "XMLHttpRequest"},
-    //)
-    //if err != nil {
-    //    return Result{Status: StatusNetworkErr, Err: err}
-    //}
-    //defer resp1.Body.Close()
+    resp1, err := GET(c, "https://www.wowow.co.jp/drama/original/json/lineup.json?_=" + strconv.FormatInt(timestamp, 10),
+        H{"Accept", "application/json, text/javascript, */*; q=0.01"},
+        H{"Referer", "https://www.wowow.co.jp/drama/original/"},
+        H{"X-Requested-With", "XMLHttpRequest"},
+    )
+    if err != nil {
+        return Result{Status: StatusNetworkErr, Err: err}
+    }
+    defer resp1.Body.Close()
 
-    //body1, err := ioutil.ReadAll(resp1.Body)
-    //if err != nil {
-    //    return Result{Status: StatusNetworkErr, Err: err}
-    //}
-    
-    //fmt.Printf(string(body1))
-
+    body1, err := ioutil.ReadAll(resp1.Body)
+    if err != nil {
+        return Result{Status: StatusNetworkErr, Err: err}
+    }
     //var res1 []struct {
     //    DramaLink string `json:"link"`
     //}
@@ -51,14 +58,18 @@ func Wowow(c http.Client) Result {
 	//	return Result{Status: StatusFailed, Err: err}
 	//}
 
-    //resp2, err := GET(c, res1[1].DramaLink)
-    resp2, err := GET(c, "https://www.wowow.co.jp/drama/original/yukai/")
+	dramaLink := extractWowowDramaURL(string(body1))
+	
+	if dramaLink == "" {
+	    return Result{Status: StatusFailed}
+	}
+
+    resp2, err := GET(c, dramaLink)
+    //resp2, err := GET(c, "https://www.wowow.co.jp/drama/original/yukai/")
     if err != nil {
         return Result{Status: StatusNetworkErr, Err: err}
     }
     defer resp2.Body.Close()
-    
-    
 
     body2, err := ioutil.ReadAll(resp2.Body)
     if err != nil {
@@ -82,7 +93,6 @@ func Wowow(c http.Client) Result {
     }
 
     metaID := extractWowowMetaID(string(body3))
-
     vUid := md5Sum(strconv.FormatInt(timestamp, 10) )
 
     resp4, err := PostJson(c, "https://mapi.wowow.co.jp/api/v1/playback/auth", 
@@ -103,14 +113,15 @@ func Wowow(c http.Client) Result {
     if err != nil {
         return Result{Status: StatusNetworkErr, Err: err}
     }
+    bodyString4 := string(body4)
     
-    if strings.Contains(string(body4), "VPN") {
+    if strings.Contains(bodyString4, "VPN") {
         return Result{Status: StatusNo}
     }
     
-    if strings.Contains(string(body4), "playback_session_id") {
+    if strings.Contains(bodyString4, "Unauthorized") || strings.Contains(bodyString4, "playback_session_id") {
         return Result{Status: StatusOK}
     }
-    
+
     return Result{Status: StatusUnexpected}
 }
