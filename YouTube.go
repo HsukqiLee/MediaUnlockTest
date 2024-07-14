@@ -34,7 +34,7 @@ func YoutubeRegion(c http.Client) Result {
 		}
 	}
 	if strings.Contains(s, "premiumPurchaseButton") || strings.Contains(s, "manageSubscriptionButton") || strings.Contains(s, "/月") || strings.Contains(s, "/month") {
-		return Result{Status: StatusOK}
+		return Result{Status: StatusOK, Region: "us"}
 	}
 	return Result{Status: StatusNo}
 }

@@ -725,7 +725,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("BahamutAnime", ShowResult(m.BahamutAnime(m.Ipv4HttpClient)))
+	    fmt.Println("wowow", ShowResult(m.Wowow(m.Ipv4HttpClient)))
 		return
 	}
 
