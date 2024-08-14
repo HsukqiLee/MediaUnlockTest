@@ -32,7 +32,7 @@ func Gemini(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 
-	if strings.Contains(bodyString, "45631641,null,true") {
+	if !strings.Contains(bodyString, "45631641,null,true") {
 		return Result{Status: StatusNo}
 	}
 	

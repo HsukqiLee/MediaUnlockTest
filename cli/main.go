@@ -194,6 +194,7 @@ func HongKong(c http.Client) {
 	excute("BiliBili HongKong/Macau Only", m.BilibiliHKMO, c)
 	excute("SonyLiv", m.SonyLiv, c)
 	excute("Bahamut Anime", m.BahamutAnime, c)
+	excute("Hoy TV", m.HoyTV, c)
 }
 
 func Taiwan(c http.Client) {
@@ -241,6 +242,8 @@ func Japan(c http.Client) {
 	excute("Mora", m.Mora, c)
 	excute("AnimeFesta", m.AnimeFesta, c)
 	excute("EroGameSpace", m.EroGameSpace, c)
+	excute("NHK+", m.NHKPlus, c)
+	excute("Rakuten Magazine", m.RakutenMagazine, c)
 }
 
 func Korea(c http.Client) {
@@ -322,11 +325,12 @@ func Europe(c http.Client) {
     R = append(R, &result{Name: "IT", Divider: true})
     excute("Rai Play", m.RaiPlay, c)
     R = append(R, &result{Name: "FR/DE", Divider: true})
-    excute("Canal Plus", m.CanalPlus, c)
+    excute("Canal+", m.CanalPlus, c)
     excute("ZDF", m.ZDF, c)
     excute("Joyn", m.Joyn, c)
     excute("Molotov", m.Molotov, c)
     excute("Sky DE", m.Sky_DE, c)
+    excute("France TV", m.FranceTV, c)
     R = append(R, &result{Name: "NL", Divider: true})
     excute("NPO Start Plus", m.NPOStartPlus, c)
     excute("Video Land", m.VideoLand, c)
@@ -353,6 +357,7 @@ func SouthEastAsia(c http.Client) {
     excute("Bilibili SouthEastAsia Only", m.BilibiliSEA, c)
     excute("SonyLiv", m.SonyLiv, c)
     excute("Hotstar", m.Hotstar, c)
+    excute("CatchPlay+", m.Catchplay, c)
     R = append(R, &result{Name: "SG", Divider: true})
     excute("MeWatch", m.MeWatch, c)
     excute("Meta AI", m.MetaAI, c)
@@ -748,7 +753,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("Showmax", ShowResult(m.Showmax(m.AutoHttpClient)))
+	    fmt.Println("MathsSpotRoblox", ShowResult(m.MathsSpotRoblox(m.AutoHttpClient)))
 	    //fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
