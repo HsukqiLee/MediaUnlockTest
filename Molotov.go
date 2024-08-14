@@ -19,14 +19,14 @@ func Molotov(c http.Client) Result {
 	}
 	
     var res struct {
-		isFrance bool `json:"is_france"`
+		IsFrance bool `json:"is_france"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
 		// log.Println(err)
 		return Result{Status: StatusFailed, Err: err}
 	}
 	
-	if res.isFrance {
+	if res.IsFrance {
 		return Result{Status: StatusOK}
 	}
 

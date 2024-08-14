@@ -39,4 +39,3 @@ func Showmax(c http.Client) Result {
 
 	return Result{Status: StatusUnexpected}
 }
-

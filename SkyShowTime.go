@@ -7,13 +7,10 @@ import (
 
 func extractSkyShowTimeRegion(url string) string {
 	re := regexp.MustCompile(`https://www.skyshowtime.com/([a-z]{2})\?`)
-
 	matches := re.FindStringSubmatch(url)
-
 	if len(matches) > 1 {
 		return matches[1]
 	}
-
 	return ""
 }
 
@@ -25,8 +22,7 @@ func SkyShowTime(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-    
-    
+
     if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

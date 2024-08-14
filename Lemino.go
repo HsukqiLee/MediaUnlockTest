@@ -20,9 +20,12 @@ func Lemino(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	
 	if resp.StatusCode == 403 {
 		return Result{Status: StatusNo}
+	}
+	
+	if resp.StatusCode == 500 {
+		return Result{Status: StatusErr}
 	}
 	
 	if resp.StatusCode == 200  {
