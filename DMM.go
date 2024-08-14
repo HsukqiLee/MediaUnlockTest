@@ -25,6 +25,7 @@ func DMM(c http.Client) Result {
 	}
 	return Result{Status: StatusNo, Info: "Unsupported"}
 }
+
 func DMMTV(c http.Client) Result {
 	resp, err := PostJson(c, "https://api.beacon.dmm.com/v1/streaming/start", `{"player_name":"dmmtv_browser","player_version":"0.0.0","content_type_detail":"VOD_SVOD","content_id":"11uvjcm4fw2wdu7drtd1epnvz","purchase_product_id":null}`)
 	if err != nil {

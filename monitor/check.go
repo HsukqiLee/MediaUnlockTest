@@ -133,6 +133,7 @@ func (T *TEST) HongKong() {
 	T.excute("BiliBili HK/MO", mt.BilibiliHKMO)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("Bahamut Anime", mt.BahamutAnime)
+	T.excute("Hoy TV", mt.HoyTV)
 }
 
 func (T *TEST) Taiwan() {
@@ -179,7 +180,9 @@ func (T *TEST) Japan() {
 	T.excute("D Anime Store", mt.DAnimeStore)
 	T.excute("Mora", mt.Mora)
 	T.excute("AnimeFesta", mt.AnimeFesta)
-	T.excute(" EroGameSpace", mt.EroGameSpace)
+	T.excute("EroGameSpace", mt.EroGameSpace)
+	T.excute("NHK+", mt.NHKPlus)
+	T.excute("Rakuten Magazine", mt.RakutenMagazine)
 }
 
 func (T *TEST) Korea() {
@@ -253,7 +256,7 @@ func (T *TEST) Europe() {
     T.excute("Sky Go", mt.SkyGo)
     T.excute("ITVX", mt.ITVX)
     T.excute("Rai Play", mt.RaiPlay)
-    T.excute("Canal Plus", mt.CanalPlus)
+    T.excute("Canal+", mt.CanalPlus)
     T.excute("ZDF", mt.ZDF)
     T.excute("Joyn", mt.Joyn)
     T.excute("Sky DE", mt.Sky_DE)
@@ -269,6 +272,7 @@ func (T *TEST) Europe() {
     T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
     T.excute("KOCOWA+", mt.KOCOWA)
     T.excute("Meta AI", mt.MetaAI)
+    T.excute("France TV", mt.FranceTV)
 }
 
 func (T *TEST) Africa() {
@@ -290,6 +294,7 @@ func (T *TEST) SouthEastAsia() {
     T.excute("Bilibili Vietnam Only", mt.BilibiliVN)
     T.excute("Hotstar", mt.Hotstar)
     T.excute("Meta AI", mt.MetaAI)
+    T.excute("CatchPlay+", mt.Catchplay)
 }
 
 func (T *TEST) Oceania() {

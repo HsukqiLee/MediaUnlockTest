@@ -2,19 +2,19 @@ package mediaunlocktest
 
 import (
     "io"
-    "regexp"
+    //"regexp"
 	"net/http"
 	"strings"
 )
 
-func extractMetaAIRegion(body string) string {
+/*func extractMetaAIRegion(body string) string {
     re := regexp.MustCompile(`"code"\s*:\s*"([^"]+)"`)
     matches := re.FindStringSubmatch(body)
     if len(matches) > 1 {
         return matches[1]
     }
     return ""
-} 
+}*/
 
 func MetaAI(c http.Client) Result {
 	resp, err := GET(c, "https://www.meta.ai/")
@@ -35,10 +35,11 @@ func MetaAI(c http.Client) Result {
 	}
 	
 	if strings.Contains(bodyString, "AbraHomeRootConversationQuery") {
-	    region := extractMetaAIRegion(bodyString)
+	    /*region := extractMetaAIRegion(bodyString)
 	    if region != "" {
 		    return Result{Status: StatusOK, Region: strings.ToLower(region)}
-	    }
+	    }*/
+	    return Result{Status: StatusOK}
 	}
 	
 	return Result{Status: StatusUnexpected}

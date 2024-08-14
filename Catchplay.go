@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"time"
+	"strings"
 )
 
 func Catchplay(c http.Client) Result {
@@ -27,7 +28,10 @@ func Catchplay(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	var res struct {
-		Code string
+		Code string `json:"code"`
+		Data struct {
+		    IsoCode string `json:"isoCode"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
@@ -35,5 +39,10 @@ func Catchplay(c http.Client) Result {
 	if res.Code == "100016" {
 		return Result{Status: StatusNo}
 	}
-	return Result{Status: StatusOK}
+	region := res.Data.IsoCode
+	if region != "" {
+	    return Result{Status: StatusOK, Region: strings.ToLower(region)}
+	}
+	
+	return Result{Status: StatusUnexpected}
 }

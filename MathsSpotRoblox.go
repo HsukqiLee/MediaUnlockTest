@@ -54,6 +54,9 @@ func MathsSpotRoblox(c http.Client) Result {
     apiPath := extractMathsSpotRobloxAPIPath(bodyString1)
     region := extractMathsSpotRobloxRegion(bodyString1)
     nggFeVersion := extractMathsSpotRobloxNggFeVersion(bodyString1)
+    if nggFeVersion == "berlin-v1.34.800_redisexp-arm.1" {
+        nggFeVersion = "berlin-v1.34.810_redisexp-arm.1"
+    }
 
     if apiPath == "" || region == "" || nggFeVersion =="" {
         return Result{Status: StatusFailed}
@@ -75,25 +78,22 @@ func MathsSpotRoblox(c http.Client) Result {
 	defer resp2.Body.Close()
 
     body2, err := ioutil.ReadAll(resp2.Body)
+
     var res struct {
 		Status string `json:"status"`
 	}
     if err := json.Unmarshal(body2, &res); err != nil {
-		// log.Println(err)
 		return Result{Status: StatusFailed, Err: err}
 	}
 
-    
     switch res.Status {
     case "FailureServiceNotInRegion":
         return Result{Status: StatusNo}
     case "FailureProxyUserLimitExceeded":
         return Result{Status: StatusNo, Info: "Proxy Detected"}
-    case "Success":
-        return Result{Status: StatusOK, Region: strings.ToLower(region)}
-    case "FailureUnauthorized":
+    case "Success", "FailureUnauthorized":
         return Result{Status: StatusOK, Region: strings.ToLower(region)}
     }
-    
+
     return Result{Status: StatusFailed}
 }
