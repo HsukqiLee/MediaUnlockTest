@@ -16,7 +16,7 @@ func Wavve(c http.Client) Result {
 		return Result{Status: StatusBanned}
 	}
 	
-	if resp.StatusCode == 550 {
+	if resp.StatusCode == 550 || resp.StatusCode == 421 {
 		return Result{Status: StatusNo}
 	}
 	

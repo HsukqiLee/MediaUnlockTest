@@ -121,6 +121,7 @@ func (T *TEST) Multination() {
 	T.excute("TikTok", mt.TikTok)
 	T.excute("Bing", mt.Bing)
 	T.excute("Instagram Audio", mt.Instagram)
+	T.excute("Google Gemini", mt.Gemini)
 }
 
 func (T *TEST) HongKong() {
@@ -131,6 +132,7 @@ func (T *TEST) HongKong() {
 	T.excute("HBO GO Asia", mt.HboGoAsia)
 	T.excute("BiliBili HK/MO", mt.BilibiliHKMO)
 	T.excute("SonyLiv", mt.SonyLiv)
+	T.excute("Bahamut Anime", mt.BahamutAnime)
 }
 
 func (T *TEST) Taiwan() {
@@ -168,7 +170,6 @@ func (T *TEST) Japan() {
 	T.excute("Pretty Derby Japan", mt.PrettyDerbyJP)
 	T.excute("Konosuba Fantastic Days", mt.KonosubaFD)
 	T.excute("Princess Connect Re:Dive Japan", mt.PCRJP)
-	//T.excute("World Flipper Japan", mt.WFJP)
 	T.excute("Project Sekai: Colorful Stage", mt.PJSK)
 	T.excute("Rakuten TV", mt.RakutenTV_JP)
 	T.excute("Wowow", mt.Wowow)
@@ -177,6 +178,8 @@ func (T *TEST) Japan() {
 	T.excute("Lemino", mt.Lemino)
 	T.excute("D Anime Store", mt.DAnimeStore)
 	T.excute("Mora", mt.Mora)
+	T.excute("AnimeFesta", mt.AnimeFesta)
+	T.excute(" EroGameSpace", mt.EroGameSpace)
 }
 
 func (T *TEST) Korea() {
@@ -197,7 +200,7 @@ func (T *TEST) NorthAmerica() {
 	T.excute("Hulu", mt.Hulu)
 	T.excute("NFL+", mt.NFLPlus)
 	T.excute("ESPN+", mt.ESPNPlus)
-	T.excute("Epix", mt.Epix)
+	T.excute("MGM+", mt.MGMPlus)
 	T.excute("Starz", mt.Starz)
 	T.excute("Philo", mt.Philo)
 	T.excute("FXNOW", mt.FXNOW)
@@ -217,11 +220,14 @@ func (T *TEST) NorthAmerica() {
 	T.excute("Discovery+", mt.DiscoveryPlus)
 	T.excute("Paramount+", mt.ParamountPlus)
 	T.excute("Peacock TV", mt.PeacockTV)
-	T.excute("Popcornflix", mt.Popcornflix)
 	T.excute("Crunchyroll", mt.Crunchyroll)
 	T.excute("DirecTV Stream", mt.DirectvStream)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("Hotstar", mt.Hotstar)
+	T.excute("Meta AI", mt.MetaAI)
+	T.excute("AMC+", mt.AMCPlus)
+	T.excute("Crackle", mt.Crackle)
+	T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
 	// R = append(R, &result{Name: "CA", Divider: true})
 	T.excute("CBC Gem", mt.CBCGem)
 	T.excute("Crave", mt.Crave)
@@ -249,14 +255,17 @@ func (T *TEST) Europe() {
     T.excute("Canal Plus", mt.CanalPlus)
     T.excute("ZDF", mt.ZDF)
     T.excute("Joyn", mt.Joyn)
+    T.excute("Sky DE", mt.Sky_DE)
     T.excute("Molotov", mt.Molotov)
     T.excute("NPO Start Plus", mt.NPOStartPlus)
     T.excute("Video Land", mt.VideoLand)
     T.excute("NLZIET", mt.NLZIET)
     T.excute("Movistar Plus+", mt.MoviStarPlus)
     T.excute("Eurosport RO", mt.EurosportRO)
+    T.excute("Sky CH", mt.Sky_CH)
     T.excute("Amediateka", mt.Amediateka)
     T.excute("Hotstar", mt.Hotstar)
+    T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
 }
 
 func (T *TEST) Africa() {
@@ -299,4 +308,5 @@ func (T *TEST) Oceania() {
     T.excute("Three Now", mt.ThreeNow)
     T.excute("Maori TV", mt.MaoriTV)
     T.excute("Sky Go NZ", mt.SkyGo_NZ)
+    T.excute("AMC+", mt.AMCPlus)
 }
