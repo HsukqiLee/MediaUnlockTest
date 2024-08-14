@@ -30,6 +30,7 @@ var IPV4 = true
 var IPV6 = true
 var M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA bool
 var Force bool
+var debug = false
 
 type result struct {
 	Name    string
@@ -75,7 +76,10 @@ func ShowResult(r m.Result) (s string) {
 		return s
 
 	case m.StatusNetworkErr:
-		return Red("ERR") + Yellow(" (Network Err: " + r.Err.Error() + ")")
+		if debug {
+		    return Red("ERR") + Yellow(" (Network Err: " + r.Err.Error() + ")")
+		}
+		return Red("ERR") + Yellow(" (Network Err)")
 
 	case m.StatusRestricted:
 		if r.Info != "" {
@@ -85,7 +89,7 @@ func ShowResult(r m.Result) (s string) {
 
 	case m.StatusErr:
 		s = Red("ERR")
-		if r.Err != nil {
+		if r.Err != nil && debug {
 			s += Yellow(" (Err: " + r.Err.Error() + ")")
 		}
 		return s
@@ -686,6 +690,7 @@ func main() {
 	flag.StringVar(&httpProxy, "http-proxy", "", "http proxy")
 	flag.BoolVar(&nf, "nf", false, "netflix")
 	flag.BoolVar(&test, "test", false, "test")
+	flag.BoolVar(&debug, "debug", false, "debug mode")
 	flag.Parse()
 	if showVersion {
 		fmt.Println(m.Version)
@@ -743,7 +748,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("Wavve", ShowResult(m.Wavve(m.AutoHttpClient)))
+	    fmt.Println("Showmax", ShowResult(m.Showmax(m.AutoHttpClient)))
 	    //fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

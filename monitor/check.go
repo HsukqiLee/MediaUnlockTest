@@ -228,6 +228,7 @@ func (T *TEST) NorthAmerica() {
 	T.excute("AMC+", mt.AMCPlus)
 	T.excute("Crackle", mt.Crackle)
 	T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
+	T.excute("KOCOWA+", mt.KOCOWA)
 	// R = append(R, &result{Name: "CA", Divider: true})
 	T.excute("CBC Gem", mt.CBCGem)
 	T.excute("Crave", mt.Crave)
@@ -266,12 +267,15 @@ func (T *TEST) Europe() {
     T.excute("Amediateka", mt.Amediateka)
     T.excute("Hotstar", mt.Hotstar)
     T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
+    T.excute("KOCOWA+", mt.KOCOWA)
+    T.excute("Meta AI", mt.MetaAI)
 }
 
 func (T *TEST) Africa() {
     //R = append(R, &result{Name: "Europe", Divider: true})
     T.excute("DSTV", mt.DSTV)
     T.excute("Showmax", mt.Showmax)
+    T.excute("Meta AI", mt.MetaAI)
 }
 
 func (T *TEST) SouthEastAsia() {
@@ -285,6 +289,7 @@ func (T *TEST) SouthEastAsia() {
     T.excute("Bilibili Indonesia Only", mt.BilibiliID)
     T.excute("Bilibili Vietnam Only", mt.BilibiliVN)
     T.excute("Hotstar", mt.Hotstar)
+    T.excute("Meta AI", mt.MetaAI)
 }
 
 func (T *TEST) Oceania() {
@@ -309,4 +314,6 @@ func (T *TEST) Oceania() {
     T.excute("Maori TV", mt.MaoriTV)
     T.excute("Sky Go NZ", mt.SkyGo_NZ)
     T.excute("AMC+", mt.AMCPlus)
+    T.excute("KOCOWA+", mt.KOCOWA)
+    T.excute("Meta AI", mt.MetaAI)
 }
