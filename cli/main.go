@@ -753,7 +753,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("MathsSpotRoblox", ShowResult(m.MathsSpotRoblox(m.AutoHttpClient)))
+	    fmt.Println("EroGameSpace", ShowResult(m.EroGameSpace(m.AutoHttpClient)))
 	    //fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
