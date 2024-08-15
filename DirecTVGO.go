@@ -31,10 +31,11 @@ func DirecTVGO(c http.Client) Result {
 	}
 	
 	if resp.StatusCode == 301 {
-	    if region := extractDirecTVGORegion(resp.Header.Get("Location")); region != ""{
-	        return Result{Status: StatusOK, Region: region}
-	    }
-		return Result{Status: StatusUnexpected}
+	    return Result{Status: StatusOK}
+	    //if region := extractDirecTVGORegion(resp.Header.Get("Location")); region != ""{
+	    //    return Result{Status: StatusOK, Region: region}
+	    //}
+		//return Result{Status: StatusUnexpected}
 	}
 	
 	return Result{Status: StatusUnexpected}

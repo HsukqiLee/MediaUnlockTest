@@ -232,6 +232,7 @@ func (T *TEST) NorthAmerica() {
 	T.excute("Crackle", mt.Crackle)
 	T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
 	T.excute("KOCOWA+", mt.KOCOWA)
+	T.excute("Viaplay", mt.Viaplay)
 	// R = append(R, &result{Name: "CA", Divider: true})
 	T.excute("CBC Gem", mt.CBCGem)
 	T.excute("Crave", mt.Crave)
@@ -273,6 +274,7 @@ func (T *TEST) Europe() {
     T.excute("KOCOWA+", mt.KOCOWA)
     T.excute("Meta AI", mt.MetaAI)
     T.excute("France TV", mt.FranceTV)
+    T.excute("Viaplay", mt.Viaplay)
 }
 
 func (T *TEST) Africa() {

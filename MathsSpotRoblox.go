@@ -6,6 +6,7 @@ import (
     "net/http"
     "regexp"
     "strings"
+    "fmt"
 )
 
 func extractMathsSpotRobloxAPIPath(body string) string {
@@ -78,12 +79,29 @@ func MathsSpotRoblox(c http.Client) Result {
 	defer resp2.Body.Close()
 
     body2, err := ioutil.ReadAll(resp2.Body)
-
+    
+    fmt.Println(string(body2))
+    
     var res struct {
 		Status string `json:"status"`
 	}
     if err := json.Unmarshal(body2, &res); err != nil {
-		return Result{Status: StatusFailed, Err: err}
+        nggFeVersion = string(body2)
+        resp3, err := GET(c, "https://mathsspot.com" + apiPath + "/startSession?appId=5349&uaId=ua-" + fakeUAId + "&uaSessionId=uasess-" +fakeSessId+ "&feSessionId=fesess-" +fakeFesessId+ "&visitId=visitid-" +fakeVisitId+ "&initialOrientation=landscape&utmSource=NA&utmMedium=NA&utmCampaign=NA&deepLinkUrl=&accessCode=&ngReferrer=NA&pageReferrer=NA&ngEntryPoint=https%%3A%%2F%%2Fmathsspot.com%%2F&ntmSource=NA&customData=&appLaunchExtraData=&feSessionTags=nowgg&sdpType=&eVar=&isIframe=false&feDeviceType=desktop&feOsName=window&userSource=direct&visitSource=direct&userCampaign=NA&visitCampaign=NA",
+            H{"referer", "https://mathsspot.com/"},
+            H{"x-ngg-skip-evar-check", "true"},
+            H{"x-ngg-fe-version", nggFeVersion},
+        )
+    	if err != nil {
+    		return Result{Status: StatusNetworkErr, Err: err}
+    	}
+    	defer resp3.Body.Close()
+    
+        body3, err := ioutil.ReadAll(resp3.Body)
+        
+        if err := json.Unmarshal(body3, &res); err != nil {
+		    return Result{Status: StatusFailed, Err: err}
+        }
 	}
 
     switch res.Status {
