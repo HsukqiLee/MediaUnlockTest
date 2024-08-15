@@ -24,6 +24,10 @@ func Gemini(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
+	
+	if resp.StatusCode == 403 {
+	    return Result{Status: StatusBanned}
+	} 
 
     bodyBytes, err := io.ReadAll(resp.Body)
     bodyString := string(bodyBytes)
@@ -32,14 +36,13 @@ func Gemini(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 
-	if !strings.Contains(bodyString, "45631641,null,true") {
-		return Result{Status: StatusNo}
-	}
-	
 	regionThreeCode := extractGeminiRegion(bodyString)
 	regionTwoCode := threeToTwoCode(regionThreeCode)
 	
 	if regionThreeCode != "" && regionTwoCode != "" {
+	    if !strings.Contains(bodyString, "45631641,null,true") {
+		    return Result{Status: StatusNo, Region: strings.ToLower(regionTwoCode)}
+	    }
 	    return Result{Status: StatusOK, Region: strings.ToLower(regionTwoCode)}
 	}
 

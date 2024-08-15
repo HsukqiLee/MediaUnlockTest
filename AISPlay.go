@@ -9,8 +9,6 @@ import (
 	"encoding/json"
 )
 
-
-
 func AISPlay(c http.Client) Result {
     userId := "09e8b25510"
 	fakeApiKey := md5Sum(genUUID())

@@ -269,6 +269,7 @@ func NorthAmerica(c http.Client) {
 	excute("Tubi TV", m.TubiTV, c)
 	excute("Meta AI", m.MetaAI, c)
 	excute("AMC+", m.AMCPlus, c)
+	excute("Viaplay", m.Viaplay, c)
 	R = append(R, &result{Name: "US", Divider: true})
 	excute("FOX", m.Fox, c)
 	excute("Hulu", m.Hulu, c)
@@ -314,6 +315,7 @@ func Europe(c http.Client) {
     excute("HBO Max", m.HBOMax, c)
     excute("SonyLiv", m.SonyLiv, c)
     excute("KOCOWA+", m.KOCOWA, c)
+    excute("Viaplay", m.Viaplay, c)
     R = append(R, &result{Name: "GB", Divider: true})
     excute("BBC iPlayer", m.BBCiPlayer, c)
     excute("Channel 4", m.Channel4, c)
@@ -407,7 +409,7 @@ func Ipv6Multination() {
 	excute("Disney+", m.DisneyPlus, c)
 	excute("Netflix", m.NetflixRegion, c)
 	excute("Netflix CDN", m.NetflixCDN, c)
-	excute("Youtube", m.YoutubeRegion, c)
+	excute("Youtube Premium", m.YoutubeRegion, c)
 	excute("Youtube CDN", m.YoutubeCDN, c)
 	excute("Wikipedia", m.WikipediaEditable, c)
 	excute("Bing", m.Bing, c)
@@ -753,7 +755,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("EroGameSpace", ShowResult(m.EroGameSpace(m.AutoHttpClient)))
+	    fmt.Println("ViaPlay", ShowResult(m.Viaplay(m.AutoHttpClient)))
 	    //fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

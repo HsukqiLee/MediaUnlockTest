@@ -33,7 +33,16 @@ func Spotify(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	var res spotifyRes
+	
+	if resp.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
+	
+	var res struct {
+	    Status            int
+	    Country           string
+	    IsCountryLaunched bool `json:"is_country_launched"`
+    }
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
@@ -44,10 +53,4 @@ func Spotify(c http.Client) Result {
 		return Result{Status: StatusOK, Region: strings.ToLower(res.Country)}
 	}
 	return Result{Status: StatusNo}
-}
-
-type spotifyRes struct {
-	Status            int
-	Country           string
-	IsCountryLaunched bool `json:"is_country_launched"`
 }
