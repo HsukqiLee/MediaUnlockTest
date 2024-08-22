@@ -40,7 +40,7 @@ func Gemini(c http.Client) Result {
 	regionTwoCode := threeToTwoCode(regionThreeCode)
 	
 	if regionThreeCode != "" && regionTwoCode != "" {
-	    if !strings.Contains(bodyString, "45631641,null,true") {
+	    if !strings.Contains(bodyString, "45617354,null,true") {
 		    return Result{Status: StatusNo, Region: strings.ToLower(regionTwoCode)}
 	    }
 	    return Result{Status: StatusOK, Region: strings.ToLower(regionTwoCode)}

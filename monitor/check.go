@@ -240,7 +240,7 @@ func (T *TEST) NorthAmerica() {
 
 func (T *TEST) SouthAmerica() {
     //R = append(R, &result{Name: "South America", Divider: true})
-    T.excute("Star Plus", mt.StarPlus)
+    //T.excute("Star Plus", mt.StarPlus)
     T.excute("DirecTV GO", mt.DirecTVGO)
 }
 
