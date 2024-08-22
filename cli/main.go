@@ -302,7 +302,7 @@ func NorthAmerica(c http.Client) {
 
 func SouthAmerica(c http.Client) {
     R = append(R, &result{Name: "South America", Divider: true})
-    excute("Star Plus", m.StarPlus, c)
+    //excute("Star Plus", m.StarPlus, c)
     excute("DirecTV GO", m.DirecTVGO, c)
     excute("HBO Max", m.HBOMax, c)
 }
@@ -755,7 +755,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("ViaPlay", ShowResult(m.Viaplay(m.AutoHttpClient)))
+	    fmt.Println("CoupangPlay", ShowResult(m.CoupangPlay(m.AutoHttpClient)))
 	    //fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

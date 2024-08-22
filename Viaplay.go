@@ -6,8 +6,17 @@ import (
     "regexp"
 )
 
-func extractViaplayRegion(url string) string {
+func extractViaplayRegion1(url string) string {
     re := regexp.MustCompile(`/([a-z]{2})/`)
+    matches := re.FindStringSubmatch(string(url))
+    if len(matches) > 1 {
+        return matches[1]
+    }
+    return ""
+}
+
+func extractViaplayRegion2(url string) string {
+    re := regexp.MustCompile(`viaplay.([a-z]{2})`)
     matches := re.FindStringSubmatch(string(url))
     if len(matches) > 1 {
         return matches[1]
@@ -25,7 +34,7 @@ func Viaplay(c http.Client) Result {
     if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	
+
 	if resp1.StatusCode == 403 {
 	    return Result{Status: StatusBanned}
 	}
@@ -45,8 +54,11 @@ func Viaplay(c http.Client) Result {
     		return Result{Status: StatusNetworkErr, Err: err}
     	}
     	if resp2.StatusCode == 302 {
-    	    if region := extractViaplayRegion(resp2.Header.Get("Location")); region != "" {
+    	    if region := extractViaplayRegion1(resp2.Header.Get("Location")); region != "" {
     	        return Result{Status: StatusOK, Region: strings.ToLower(region)}
+    	    }
+    	    if region := extractViaplayRegion2(resp2.Header.Get("Location")); region != "" {
+    	        return Result{Status: StatusOK, Region: region}
     	    }
     	}
 	}
