@@ -27,11 +27,15 @@ func Gemini(c http.Client) Result {
 	
 	if resp.StatusCode == 403 {
 	    return Result{Status: StatusBanned}
-	} 
+	}
+	
+	if resp.StatusCode == 302 {
+	    return Result{Status: StatusFailed}
+	}
 
     bodyBytes, err := io.ReadAll(resp.Body)
     bodyString := string(bodyBytes)
-    
+
     if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

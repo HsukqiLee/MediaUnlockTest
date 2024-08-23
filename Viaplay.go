@@ -53,6 +53,9 @@ func Viaplay(c http.Client) Result {
         if err != nil {
     		return Result{Status: StatusNetworkErr, Err: err}
     	}
+        if resp2.StatusCode == 404 {
+            return Result{Status: StatusNo}
+        }
     	if resp2.StatusCode == 302 {
     	    if region := extractViaplayRegion1(resp2.Header.Get("Location")); region != "" {
     	        return Result{Status: StatusOK, Region: strings.ToLower(region)}
