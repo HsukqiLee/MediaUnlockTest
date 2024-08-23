@@ -25,7 +25,7 @@ func NPOStartPlus(c http.Client) Result {
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
-	
+
 	resp2, err := PostJson(c, "https://prod.npoplayer.nl/stream-link", `{"profileName":"dash","drmType":"playready","referrerUrl":"https://npo.nl/start/live?channel=NPO1"}`,
 	    H{"authorization", res.Token},
 	    H{"referer", "https://npo.nl/"},
@@ -35,6 +35,10 @@ func NPOStartPlus(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp2.Body.Close()
+
+	if resp2.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
 	
 	if resp2.StatusCode == 451 {
 		return Result{Status: StatusNo}

@@ -364,7 +364,7 @@ func SouthEastAsia(c http.Client) {
     excute("MeWatch", m.MeWatch, c)
     excute("Meta AI", m.MetaAI, c)
     R = append(R, &result{Name: "TH", Divider: true})
-    excute("Bilibili Thailand Only", m.BilibiliTW, c)
+    excute("Bilibili Thailand Only", m.BilibiliTH, c)
     excute("AIS Play", m.AISPlay, c)
     excute("TrueID", m.TrueID, c)
     R = append(R, &result{Name: "ID", Divider: true})
@@ -755,7 +755,7 @@ func main() {
 	if test {
 	    //GetIpv4Info()
 	    //GetIpv6Info()
-	    fmt.Println("CoupangPlay", ShowResult(m.CoupangPlay(m.AutoHttpClient)))
+	    fmt.Println("Joyn", ShowResult(m.Joyn(m.AutoHttpClient)))
 	    //fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

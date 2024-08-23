@@ -289,7 +289,7 @@ func (T *TEST) SouthEastAsia() {
     T.excute("Bilibili SouthEastAsia Only", mt.BilibiliSEA)
     T.excute("SonyLiv", mt.SonyLiv)
     T.excute("MeWatch", mt.MeWatch)
-    T.excute("Bilibili Thailand Only", mt.BilibiliTW)
+    T.excute("Bilibili Thailand Only", mt.BilibiliTH)
     T.excute("AIS Play", mt.AISPlay)
     T.excute("TrueID", mt.TrueID)
     T.excute("Bilibili Indonesia Only", mt.BilibiliID)
