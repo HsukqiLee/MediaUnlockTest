@@ -19,11 +19,10 @@ import (
 	"time"
 
 	m "MediaUnlockTest"
-	
-	selfUpdate "github.com/inconshreveable/go-update"
+
 	"github.com/fatih/color"
+	selfUpdate "github.com/inconshreveable/go-update"
 	pb "github.com/schollz/progressbar/v3"
-	
 )
 
 var IPV4 = true
@@ -57,19 +56,19 @@ func excute(Name string, F func(client http.Client) m.Result, client http.Client
 }
 
 var (
-	Red    = color.New(color.FgRed).SprintFunc()
-	Green  = color.New(color.FgGreen).SprintFunc()
-	Yellow = color.New(color.FgYellow).SprintFunc()
-	Blue   = color.New(color.FgBlue).SprintFunc()
-	Purple = color.New(color.FgMagenta).SprintFunc()
-	SkyBlue   = color.New(color.FgCyan).SprintFunc()
+	Red     = color.New(color.FgRed).SprintFunc()
+	Green   = color.New(color.FgGreen).SprintFunc()
+	Yellow  = color.New(color.FgYellow).SprintFunc()
+	Blue    = color.New(color.FgBlue).SprintFunc()
+	Purple  = color.New(color.FgMagenta).SprintFunc()
+	SkyBlue = color.New(color.FgCyan).SprintFunc()
 	White   = color.New(color.FgWhite).SprintFunc()
 )
 
 func ShowResult(r m.Result) (s string) {
 	switch r.Status {
 	case m.StatusOK:
-		s =Green("YES")
+		s = Green("YES")
 		if r.Region != "" {
 			s += Green(" (Region: " + strings.ToUpper(r.Region) + ")")
 		}
@@ -77,7 +76,7 @@ func ShowResult(r m.Result) (s string) {
 
 	case m.StatusNetworkErr:
 		if debug {
-		    return Red("ERR") + Yellow(" (Network Err: " + r.Err.Error() + ")")
+			return Red("ERR") + Yellow(" (Network Err: "+r.Err.Error()+")")
 		}
 		return Red("ERR") + Yellow(" (Network Err)")
 
@@ -96,7 +95,7 @@ func ShowResult(r m.Result) (s string) {
 
 	case m.StatusNo:
 		if r.Info != "" {
-			return Red("NO ") + Yellow(" (Info: " + r.Info + ")")
+			return Red("NO ") + Yellow(" (Info: "+r.Info+")")
 		}
 		if r.Region != "" {
 			return Red("NO  (Region: " + strings.ToUpper(r.Region) + ")")
@@ -105,7 +104,7 @@ func ShowResult(r m.Result) (s string) {
 
 	case m.StatusBanned:
 		if r.Info != "" {
-			return Red("Banned") + Yellow(" (" + r.Info + ")")
+			return Red("Banned") + Yellow(" ("+r.Info+")")
 		}
 		return Red("Banned")
 
@@ -292,113 +291,113 @@ func NorthAmerica(c http.Client) {
 	excute("Peacock TV", m.PeacockTV, c)
 	excute("Crunchyroll", m.Crunchyroll, c)
 	excute("DirecTV Stream", m.DirectvStream, c)
-    excute("KOCOWA+", m.KOCOWA, c)
-    excute("Crackle", m.Crackle, c)
-    excute("MathsSpot Roblox", m.MathsSpotRoblox, c)
+	excute("KOCOWA+", m.KOCOWA, c)
+	excute("Crackle", m.Crackle, c)
+	excute("MathsSpot Roblox", m.MathsSpotRoblox, c)
 	R = append(R, &result{Name: "CA", Divider: true})
 	excute("CBC Gem", m.CBCGem, c)
 	excute("Crave", m.Crave, c)
 }
 
 func SouthAmerica(c http.Client) {
-    R = append(R, &result{Name: "South America", Divider: true})
-    //excute("Star Plus", m.StarPlus, c)
-    excute("DirecTV GO", m.DirecTVGO, c)
-    excute("HBO Max", m.HBOMax, c)
+	R = append(R, &result{Name: "South America", Divider: true})
+	//excute("Star Plus", m.StarPlus, c)
+	excute("DirecTV GO", m.DirecTVGO, c)
+	excute("HBO Max", m.HBOMax, c)
 }
 
 func Europe(c http.Client) {
-    R = append(R, &result{Name: "Europe", Divider: true})
-    excute("Rakuten TV EU", m.RakutenTV_EU, c)
-    excute("Setanta Sports", m.SetantaSports, c)
-    excute("Sky Show Time", m.SkyShowTime, c)
-    excute("HBO Max", m.HBOMax, c)
-    excute("SonyLiv", m.SonyLiv, c)
-    excute("KOCOWA+", m.KOCOWA, c)
-    excute("Viaplay", m.Viaplay, c)
-    R = append(R, &result{Name: "GB", Divider: true})
-    excute("BBC iPlayer", m.BBCiPlayer, c)
-    excute("Channel 4", m.Channel4, c)
-    excute("Channel 5", m.Channel5, c)
-    excute("Sky Go", m.SkyGo, c)
-    excute("ITVX", m.ITVX, c)
-    excute("Hotstar", m.Hotstar, c)
-    excute("MathsSpot Roblox", m.MathsSpotRoblox, c)
-    R = append(R, &result{Name: "IT", Divider: true})
-    excute("Rai Play", m.RaiPlay, c)
-    R = append(R, &result{Name: "FR/DE", Divider: true})
-    excute("Canal+", m.CanalPlus, c)
-    excute("ZDF", m.ZDF, c)
-    excute("Joyn", m.Joyn, c)
-    excute("Molotov", m.Molotov, c)
-    excute("Sky DE", m.Sky_DE, c)
-    excute("France TV", m.FranceTV, c)
-    R = append(R, &result{Name: "NL", Divider: true})
-    excute("NPO Start Plus", m.NPOStartPlus, c)
-    excute("Video Land", m.VideoLand, c)
-    excute("NLZIET", m.NLZIET, c)
-    R = append(R, &result{Name: "ES", Divider: true})
-    excute("Movistar Plus+", m.MoviStarPlus, c)
-    R = append(R, &result{Name: "RO", Divider: true})
-    excute("Eurosport RO", m.EurosportRO, c)
-    R = append(R, &result{Name: "CH", Divider: true})
-    excute("Sky CH", m.Sky_CH, c)
-    R = append(R, &result{Name: "RU", Divider: true})
-    excute("Amediateka", m.Amediateka, c)
+	R = append(R, &result{Name: "Europe", Divider: true})
+	excute("Rakuten TV EU", m.RakutenTV_EU, c)
+	excute("Setanta Sports", m.SetantaSports, c)
+	excute("Sky Show Time", m.SkyShowTime, c)
+	excute("HBO Max", m.HBOMax, c)
+	excute("SonyLiv", m.SonyLiv, c)
+	excute("KOCOWA+", m.KOCOWA, c)
+	excute("Viaplay", m.Viaplay, c)
+	R = append(R, &result{Name: "GB", Divider: true})
+	excute("BBC iPlayer", m.BBCiPlayer, c)
+	excute("Channel 4", m.Channel4, c)
+	excute("Channel 5", m.Channel5, c)
+	excute("Sky Go", m.SkyGo, c)
+	excute("ITVX", m.ITVX, c)
+	excute("Hotstar", m.Hotstar, c)
+	excute("MathsSpot Roblox", m.MathsSpotRoblox, c)
+	R = append(R, &result{Name: "IT", Divider: true})
+	excute("Rai Play", m.RaiPlay, c)
+	R = append(R, &result{Name: "FR/DE", Divider: true})
+	excute("Canal+", m.CanalPlus, c)
+	excute("ZDF", m.ZDF, c)
+	excute("Joyn", m.Joyn, c)
+	excute("Molotov", m.Molotov, c)
+	excute("Sky DE", m.Sky_DE, c)
+	excute("France TV", m.FranceTV, c)
+	R = append(R, &result{Name: "NL", Divider: true})
+	excute("NPO Start Plus", m.NPOStartPlus, c)
+	excute("Video Land", m.VideoLand, c)
+	excute("NLZIET", m.NLZIET, c)
+	R = append(R, &result{Name: "ES", Divider: true})
+	excute("Movistar Plus+", m.MoviStarPlus, c)
+	R = append(R, &result{Name: "RO", Divider: true})
+	excute("Eurosport RO", m.EurosportRO, c)
+	R = append(R, &result{Name: "CH", Divider: true})
+	excute("Sky CH", m.Sky_CH, c)
+	R = append(R, &result{Name: "RU", Divider: true})
+	excute("Amediateka", m.Amediateka, c)
 }
 
 func Africa(c http.Client) {
-    R = append(R, &result{Name: "Africa", Divider: true})
-    excute("DSTV", m.DSTV, c)
-    excute("Showmax", m.Showmax, c)
+	R = append(R, &result{Name: "Africa", Divider: true})
+	excute("DSTV", m.DSTV, c)
+	excute("Showmax", m.Showmax, c)
 	excute("Meta AI", m.MetaAI, c)
 }
 
 func SouthEastAsia(c http.Client) {
-    R = append(R, &result{Name: "South East Asia", Divider: true})
-    excute("Bilibili SouthEastAsia Only", m.BilibiliSEA, c)
-    excute("SonyLiv", m.SonyLiv, c)
-    excute("Hotstar", m.Hotstar, c)
-    excute("CatchPlay+", m.Catchplay, c)
-    R = append(R, &result{Name: "SG", Divider: true})
-    excute("MeWatch", m.MeWatch, c)
-    excute("Meta AI", m.MetaAI, c)
-    R = append(R, &result{Name: "TH", Divider: true})
-    excute("Bilibili Thailand Only", m.BilibiliTH, c)
-    excute("AIS Play", m.AISPlay, c)
-    excute("TrueID", m.TrueID, c)
-    R = append(R, &result{Name: "ID", Divider: true})
-    excute("Bilibili Indonesia Only", m.BilibiliID, c)
-    R = append(R, &result{Name: "VN", Divider: true})
-    excute("Bilibili Vietnam Only", m.BilibiliVN, c)
+	R = append(R, &result{Name: "South East Asia", Divider: true})
+	excute("Bilibili SouthEastAsia Only", m.BilibiliSEA, c)
+	excute("SonyLiv", m.SonyLiv, c)
+	excute("Hotstar", m.Hotstar, c)
+	excute("CatchPlay+", m.Catchplay, c)
+	R = append(R, &result{Name: "SG", Divider: true})
+	excute("MeWatch", m.MeWatch, c)
+	excute("Meta AI", m.MetaAI, c)
+	R = append(R, &result{Name: "TH", Divider: true})
+	excute("Bilibili Thailand Only", m.BilibiliTH, c)
+	excute("AIS Play", m.AISPlay, c)
+	excute("TrueID", m.TrueID, c)
+	R = append(R, &result{Name: "ID", Divider: true})
+	excute("Bilibili Indonesia Only", m.BilibiliID, c)
+	R = append(R, &result{Name: "VN", Divider: true})
+	excute("Bilibili Vietnam Only", m.BilibiliVN, c)
 }
 
 func Oceania(c http.Client) {
-    R = append(R, &result{Name: "Oceania", Divider: true})
-    excute("NBA TV", m.NBA_TV, c)
-    excute("Acorn TV", m.AcornTV, c)
-    excute("BritBox", m.BritBox, c)
-    excute("Paramount+", m.ParamountPlus, c)
-    excute("SonyLiv", m.SonyLiv, c)
+	R = append(R, &result{Name: "Oceania", Divider: true})
+	excute("NBA TV", m.NBA_TV, c)
+	excute("Acorn TV", m.AcornTV, c)
+	excute("BritBox", m.BritBox, c)
+	excute("Paramount+", m.ParamountPlus, c)
+	excute("SonyLiv", m.SonyLiv, c)
 	excute("Meta AI", m.MetaAI, c)
 	excute("KOCOWA+", m.KOCOWA, c)
 	excute("AMC+", m.AMCPlus, c)
-    R = append(R, &result{Name: "AU", Divider: true})
-    excute("Stan", m.Stan, c)
-    excute("Binge", m.Binge, c)
-    excute("Doc Play", m.DocPlay, c)
-    excute("7Plus", m.SevenPlus, c)
-    excute("Channel 9", m.Channel9, c)
-    excute("10 Play", m.Channel10, c)
-    excute("ABC iView", m.ABCiView, c)
-    excute("Optus Sports", m.OptusSports, c)
-    excute("SBS on Demand", m.SBSonDemand, c)
-    excute("Kayo Sports", m.KayoSports, c)
-    R = append(R, &result{Name: "NZ", Divider: true})
-    excute("Neon TV", m.NeonTV, c)
-    excute("Three Now", m.ThreeNow, c)
-    excute("Maori TV", m.MaoriTV, c)
-    excute("Sky Go NZ", m.SkyGo_NZ, c)
+	R = append(R, &result{Name: "AU", Divider: true})
+	excute("Stan", m.Stan, c)
+	excute("Binge", m.Binge, c)
+	excute("Doc Play", m.DocPlay, c)
+	excute("7Plus", m.SevenPlus, c)
+	excute("Channel 9", m.Channel9, c)
+	excute("10 Play", m.Channel10, c)
+	excute("ABC iView", m.ABCiView, c)
+	excute("Optus Sports", m.OptusSports, c)
+	excute("SBS on Demand", m.SBSonDemand, c)
+	excute("Kayo Sports", m.KayoSports, c)
+	R = append(R, &result{Name: "NZ", Divider: true})
+	excute("Neon TV", m.NeonTV, c)
+	excute("Three Now", m.ThreeNow, c)
+	excute("Maori TV", m.MaoriTV, c)
+	excute("Sky Go NZ", m.SkyGo_NZ, c)
 }
 
 func Ipv6Multination() {
@@ -417,7 +416,7 @@ func Ipv6Multination() {
 }
 
 func GetIpv4Info() {
-    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
 	resp, err := m.Ipv4HttpClient.Do(req)
@@ -440,7 +439,7 @@ func GetIpv4Info() {
 	fmt.Println("Your IPV4 address:", SkyBlue(s[:i]))
 }
 func GetIpv6Info() {
-    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
 	resp, err := m.Ipv6HttpClient.Do(req)
@@ -496,15 +495,15 @@ func ReadSelect() {
 		case "5":
 			NA = true
 		case "6":
-		    SA = true
+			SA = true
 		case "7":
-		    EU = true
+			EU = true
 		case "8":
-		    AFR = true
+			AFR = true
 		case "9":
-		    SEA = true
+			SEA = true
 		case "10":
-		    OCEA = true
+			OCEA = true
 		default:
 			M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA = true, true, true, true, true, true, true, true, true, true, true
 		}
@@ -547,14 +546,14 @@ func checkUpdate() {
 		log.Println("[ERR] 读取版本信息时出错:", err)
 		return
 	}
-	
+
 	parts := strings.Split(string(b), "-")
 	if len(parts) != 2 {
 		log.Println("[ERR] 版本号格式错误:", err)
 		return
 	}
 	version := parts[0]
-	
+
 	if version == m.Version {
 		fmt.Println("已经是最新版本")
 		return
@@ -573,76 +572,75 @@ func checkUpdate() {
 	OS, ARCH := runtime.GOOS, runtime.GOARCH
 	fmt.Println("运行系统：", OS)
 	fmt.Println("运行架构：", ARCH)
-	
-	if OS == "android" && strings.Contains(os.Getenv("PREFIX"), "com.termux") {
-	    target_path := os.Getenv("PREFIX") + "/bin"
-	    out, err := os.Create(target_path + "/unlock-test_new")
-	    if err != nil {
-	    	log.Fatal("[ERR] 创建文件出错:", err)
-	    	return
-	    }
-	    defer out.Close()
-	    log.Println("下载unlock-test中 ...")
-    	url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
-	    resp, err = http.Get(url)
-	    if err != nil {
-	    	log.Fatal("[ERR] 下载unlock-test时出错:", err)
-	    }
-	    defer resp.Body.Close()
-	    downloader := &Downloader{
-	    	Reader: resp.Body,
-	    	Total:  uint64(resp.ContentLength),
-	    	Pb:     pb.DefaultBytes(resp.ContentLength, "下载进度"),
-    	}
-	    if _, err := io.Copy(out, downloader); err != nil {
-	    	log.Fatal("[ERR] 下载unlock-test时出错:", err)
-	    }
-	    if os.Chmod(target_path + "/unlock-test_new", 0777) != nil {
-	    	log.Fatal("[ERR] 更改unlock-test后端权限出错:", err)
-	    }
-	    if _, err := os.Stat(target_path + "/unlock-test"); err == nil {
-	    	if err := os.Remove(target_path + "/unlock-test"); err != nil {
-	    		log.Fatal("[ERR] 删除unlock-test旧版本时出错:", err.Error())
-	    	}
-	    }
-	    if os.Rename(target_path + "/unlock-test_new", target_path + "/unlock-test") != nil {
-	    	log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
-	    }
-	} else {
-	    url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
-        if OS == "windows" {
-	        url += ".exe"
-	    }
-	
-	    resp, err = http.Get(url)
-	    if err != nil {
-	    	log.Fatal("[ERR] 下载unlock-test时出错:", err)
-	    	return
-	    }
-	    defer resp.Body.Close()
-	    
-	    bar := pb.DefaultBytes(
-	    	resp.ContentLength,
-	    	"下载进度",
-	    )
-    
-	    body := io.TeeReader(resp.Body, bar)
-    
-	    if resp.StatusCode != http.StatusOK {
-	    	log.Fatal("[ERR] 下载unlock-test时出错: 非预期的状态码", resp.StatusCode)
-	    	return
-    	}
 
-	    err = selfUpdate.Apply(body, selfUpdate.Options{})
-	    if err != nil {
-	    	log.Fatal("[ERR] 更新unlock-test时出错:", err)
-	    	return
-	    }
+	if OS == "android" && strings.Contains(os.Getenv("PREFIX"), "com.termux") {
+		target_path := os.Getenv("PREFIX") + "/bin"
+		out, err := os.Create(target_path + "/unlock-test_new")
+		if err != nil {
+			log.Fatal("[ERR] 创建文件出错:", err)
+			return
+		}
+		defer out.Close()
+		log.Println("下载unlock-test中 ...")
+		url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
+		resp, err = http.Get(url)
+		if err != nil {
+			log.Fatal("[ERR] 下载unlock-test时出错:", err)
+		}
+		defer resp.Body.Close()
+		downloader := &Downloader{
+			Reader: resp.Body,
+			Total:  uint64(resp.ContentLength),
+			Pb:     pb.DefaultBytes(resp.ContentLength, "下载进度"),
+		}
+		if _, err := io.Copy(out, downloader); err != nil {
+			log.Fatal("[ERR] 下载unlock-test时出错:", err)
+		}
+		if os.Chmod(target_path+"/unlock-test_new", 0777) != nil {
+			log.Fatal("[ERR] 更改unlock-test后端权限出错:", err)
+		}
+		if _, err := os.Stat(target_path + "/unlock-test"); err == nil {
+			if err := os.Remove(target_path + "/unlock-test"); err != nil {
+				log.Fatal("[ERR] 删除unlock-test旧版本时出错:", err.Error())
+			}
+		}
+		if os.Rename(target_path+"/unlock-test_new", target_path+"/unlock-test") != nil {
+			log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
+		}
+	} else {
+		url := "https://unlock.icmp.ing/test/latest/unlock-test_" + OS + "_" + ARCH
+		if OS == "windows" {
+			url += ".exe"
+		}
+
+		resp, err = http.Get(url)
+		if err != nil {
+			log.Fatal("[ERR] 下载unlock-test时出错:", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		bar := pb.DefaultBytes(
+			resp.ContentLength,
+			"下载进度",
+		)
+
+		body := io.TeeReader(resp.Body, bar)
+
+		if resp.StatusCode != http.StatusOK {
+			log.Fatal("[ERR] 下载unlock-test时出错: 非预期的状态码", resp.StatusCode)
+			return
+		}
+
+		err = selfUpdate.Apply(body, selfUpdate.Options{})
+		if err != nil {
+			log.Fatal("[ERR] 更新unlock-test时出错:", err)
+			return
+		}
 	}
 
 	fmt.Println("[OK] unlock-test后端更新成功")
 }
-
 
 func showCounts() {
 	resp, err := http.Get("https://unlock.moe/count.php")
@@ -733,8 +731,9 @@ func main() {
 			m.Ipv4HttpClient.Transport = m.Ipv4Transport
 			m.Ipv6Transport.Proxy = m.ClientProxy
 			m.Ipv6HttpClient.Transport = m.Ipv6Transport
-			m.AutoTransport.Proxy = m.ClientProxy
-			m.AutoHttpClient.Transport = m.AutoTransport
+			autoTransport := m.AutoTransport()
+			autoTransport.Proxy = m.ClientProxy
+			m.AutoHttpClient.Transport = autoTransport
 		}
 	}
 	if mode == 4 {
@@ -751,12 +750,12 @@ func main() {
 		fmt.Println("Netflix", ShowResult(m.NetflixRegion(m.AutoHttpClient)))
 		return
 	}
-	
+
 	if test {
-	    //GetIpv4Info()
-	    //GetIpv6Info()
-	    fmt.Println("Joyn", ShowResult(m.Joyn(m.AutoHttpClient)))
-	    //fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
+		//GetIpv4Info()
+		//GetIpv6Info()
+		fmt.Println("dir", ShowResult(m.DirecTVGO(m.AutoHttpClient)))
+		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
 
@@ -828,20 +827,20 @@ func main() {
 				NorthAmerica(m.Ipv6HttpClient)
 			}
 			if SA {
-		    	SouthAmerica(m.Ipv6HttpClient)
-	    	}
-	    	if EU {
-	    		Europe(m.Ipv6HttpClient)
-	    	}
-	    	if AFR {
-	    		Africa(m.Ipv6HttpClient)
-	    	}
-	    	if SEA {
-			    SouthEastAsia(m.Ipv6HttpClient)
-		    }
-	    	if OCEA {
-			    Oceania(m.Ipv6HttpClient)
-		    }
+				SouthAmerica(m.Ipv6HttpClient)
+			}
+			if EU {
+				Europe(m.Ipv6HttpClient)
+			}
+			if AFR {
+				Africa(m.Ipv6HttpClient)
+			}
+			if SEA {
+				SouthEastAsia(m.Ipv6HttpClient)
+			}
+			if OCEA {
+				Oceania(m.Ipv6HttpClient)
+			}
 		} else {
 			Ipv6Multination()
 		}

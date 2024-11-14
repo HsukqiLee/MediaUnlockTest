@@ -4,3 +4,5 @@ upload.sh
 .VSCodeCounter
 /cli/test.sh
 /monitor/test.sh
+/cli/test.bat
+/monitor/test.bat

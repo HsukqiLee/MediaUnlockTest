@@ -10,11 +10,7 @@ func CoupangPlay(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-    
-    if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-	
+
 	if resp.StatusCode == 403 {
 		return Result{Status: StatusBanned}
 	}
@@ -22,10 +18,10 @@ func CoupangPlay(c http.Client) Result {
 	if resp.StatusCode == 302 && resp.Header.Get("Location") == "https://www.coupangplay.com/not-available" {
 		return Result{Status: StatusNo}
 	}
-	
+
 	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}
-	
+
 	return Result{Status: StatusUnexpected}
 }

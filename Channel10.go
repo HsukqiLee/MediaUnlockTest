@@ -2,7 +2,7 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
-    "io"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -18,15 +18,15 @@ func Channel10(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	var res struct {
-		allow bool
+		Allow bool `json:"allow"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
-	    if strings.Contains(string(b), "not available") {
-	        return Result{Status: StatusNo}
-        }
+		if strings.Contains(string(b), "not available") {
+			return Result{Status: StatusNo}
+		}
 		return Result{Status: StatusErr, Err: err}
 	}
-	if res.allow {
+	if res.Allow {
 		return Result{Status: StatusOK}
 	}
 	return Result{Status: StatusNo}

@@ -1,19 +1,19 @@
 package mediaunlocktest
 
 import (
+	"context"
+	"crypto/md5"
 	"crypto/tls"
+	"encoding/hex"
 	"errors"
+	"math/rand"
 	"net"
 	"net/http"
 	"strings"
-	"context"
 	"time"
-	"crypto/md5"
-	"encoding/hex"
-	"math/rand"
-	
-	utls "github.com/refraction-networking/utls"
+
 	"github.com/google/uuid"
+	utls "github.com/refraction-networking/utls"
 	//"golang.org/x/net/http2"
 )
 
@@ -51,23 +51,22 @@ var ClientProxy = http.ProxyFromEnvironment
 
 func UseLastResponse(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 
-var defaultCipherSuites = []uint16{0xc02f, 0xc030, 0xc02b, 0xc02c, 0xcca8, 0xcca9, 0xc013, 0xc009, 0xc014, 0xc00a, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a}
+//var defaultCipherSuites = []uint16{0xc02f, 0xc030, 0xc02b, 0xc02c, 0xcca8, 0xcca9, 0xc013, 0xc009, 0xc014, 0xc00a, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a}
 
 var Ipv4Transport = &http.Transport{
 	Proxy: ClientProxy,
 	DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-        // 强制使用IPv4
-        return Dialer.DialContext(ctx, "tcp4", addr)
-    },
+		// 强制使用IPv4
+		return Dialer.DialContext(ctx, "tcp4", addr)
+	},
 	// ForceAttemptHTTP2:     true,
-	MaxIdleConns:          100,
-	IdleConnTimeout:       90 * time.Second,
-	TLSHandshakeTimeout:   30 * time.Second,
-	ExpectContinueTimeout: 1 * time.Second,
-	TLSClientConfig:       tlsConfig,
+	MaxIdleConns:           100,
+	IdleConnTimeout:        90 * time.Second,
+	TLSHandshakeTimeout:    30 * time.Second,
+	ExpectContinueTimeout:  1 * time.Second,
+	TLSClientConfig:        tlsConfig,
 	MaxResponseHeaderBytes: 262144,
 }
-
 
 var Ipv4HttpClient = http.Client{
 	Timeout:       30 * time.Second,
@@ -78,18 +77,17 @@ var Ipv4HttpClient = http.Client{
 var Ipv6Transport = &http.Transport{
 	Proxy: ClientProxy,
 	DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-        // 强制使用IPv4
-        return Dialer.DialContext(ctx, "tcp6", addr)
-    },
+		// 强制使用IPv4
+		return Dialer.DialContext(ctx, "tcp6", addr)
+	},
 	// ForceAttemptHTTP2:     true,
-	MaxIdleConns:          100,
-	IdleConnTimeout:       90 * time.Second,
-	TLSHandshakeTimeout:   30 * time.Second,
-	ExpectContinueTimeout: 1 * time.Second,
-	TLSClientConfig:       tlsConfig,
+	MaxIdleConns:           100,
+	IdleConnTimeout:        90 * time.Second,
+	TLSHandshakeTimeout:    30 * time.Second,
+	ExpectContinueTimeout:  1 * time.Second,
+	TLSClientConfig:        tlsConfig,
 	MaxResponseHeaderBytes: 262144,
 }
-
 
 var Ipv6HttpClient = http.Client{
 	Timeout:       30 * time.Second,
@@ -97,10 +95,9 @@ var Ipv6HttpClient = http.Client{
 	Transport:     Ipv6Transport,
 }
 
-
 var AutoHttpClient = NewAutoHttpClient()
 
-var AutoTransport = &http.Transport{
+/*var AutoTransport = &http.Transport{
 	Proxy:       ClientProxy,
 	DialContext: (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
 	// ForceAttemptHTTP2:     true,
@@ -110,13 +107,26 @@ var AutoTransport = &http.Transport{
 	ExpectContinueTimeout: 1 * time.Second,
 	TLSClientConfig:       tlsConfig,
 	MaxResponseHeaderBytes: 262144,
+}*/
+
+func AutoTransport() *http.Transport {
+	return &http.Transport{
+		Proxy:       ClientProxy,
+		DialContext: (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+		// ForceAttemptHTTP2:     true,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   30 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+		TLSClientConfig:       tlsConfig,
+	}
 }
 
 func NewAutoHttpClient() http.Client {
 	return http.Client{
 		Timeout:       30 * time.Second,
 		CheckRedirect: UseLastResponse,
-		Transport:     AutoTransport,
+		Transport:     AutoTransport(),
 	}
 }
 
@@ -261,11 +271,11 @@ func genUUID() string {
 }
 
 func md5Sum(text string) string {
-   hash := md5.Sum([]byte(text))
-   return hex.EncodeToString(hash[:])
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
 }
 
-func twoToThreeCode(code string) string {
+/*func twoToThreeCode(code string) string {
 	countryCodes := map[string]string{
 		"AD": "AND", "AE": "ARE", "AF": "AFG", "AG": "ATG", "AI": "AIA", "AL": "ALB", "AM": "ARM", "AO": "AGO", "AQ": "ATA", "AR": "ARG",
 		"AS": "ASM", "AT": "AUT", "AU": "AUS", "AW": "ABW", "AX": "ALA", "AZ": "AZE", "BA": "BIH", "BB": "BRB", "BD": "BGD", "BE": "BEL",
@@ -294,7 +304,7 @@ func twoToThreeCode(code string) string {
 		"VN": "VNM", "VU": "VUT", "WF": "WLF", "WS": "WSM", "YE": "YEM", "YT": "MYT", "ZA": "ZAF", "ZM": "ZMB", "ZW": "ZWE",
 	}
 	return countryCodes[strings.ToUpper(code)]
-}
+}*/
 
 func threeToTwoCode(code string) string {
 	countryCodes := map[string]string{
@@ -328,10 +338,10 @@ func threeToTwoCode(code string) string {
 }
 
 func genRandomStr(length int) string {
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    b := make([]byte, length)
-    for i := range b {
-        b[i] = charset[rand.Intn(len(charset))]
-    }
-    return string(b)
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
 }
