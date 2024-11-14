@@ -2,10 +2,10 @@ package mediaunlocktest
 
 import (
 	"net/http"
-	"regexp"
+	//"regexp"
 )
 
-func extractDirecTVGORegion (url string) string {
+/*func extractDirecTVGORegion(url string) string {
     re := regexp.MustCompile(`https?://www\.directvgo\.com/([^/]+)/`)
 
     matches := re.FindStringSubmatch(url)
@@ -13,7 +13,7 @@ func extractDirecTVGORegion (url string) string {
         return matches[1]
     }
     return ""
-}
+}*/
 
 func DirecTVGO(c http.Client) Result {
 	resp, err := GET(c, "https://www.directvgo.com/registrarse")
@@ -21,22 +21,18 @@ func DirecTVGO(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-    
-    if err != nil {
-		return Result{Status: StatusFailed}
+
+	if resp.StatusCode == 403 || resp.StatusCode == 200 {
+		return Result{Status: StatusNo}
 	}
-	
-	if resp.StatusCode == 403 {
-	    return Result{Status: StatusNo}
-	}
-	
+
 	if resp.StatusCode == 301 {
-	    return Result{Status: StatusOK}
-	    //if region := extractDirecTVGORegion(resp.Header.Get("Location")); region != ""{
-	    //    return Result{Status: StatusOK, Region: region}
-	    //}
+		return Result{Status: StatusOK}
+		//if region := extractDirecTVGORegion(resp.Header.Get("Location")); region != ""{
+		//    return Result{Status: StatusOK, Region: region}
+		//}
 		//return Result{Status: StatusUnexpected}
 	}
-	
+
 	return Result{Status: StatusUnexpected}
 }

@@ -5,11 +5,11 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
-	"time"
 	"strconv"
+	"time"
 )
 
 func urlEncode(input string) string {
@@ -25,30 +25,30 @@ func generateHMACSignature(key, data string) string {
 func NaverTV(c http.Client) Result {
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
 	signature := generateHMACSignature(
-	    "nbxvs5nwNG9QKEWK0ADjYA4JZoujF4gHcIwvoCxFTPAeamq5eemvt5IWAYXxrbYM", 
-	    "https://apis.naver.com/now_web2/now_web_api/v1/clips/31030608/play-info" + strconv.FormatInt(timestamp, 10),
+		"nbxvs5nwNG9QKEWK0ADjYA4JZoujF4gHcIwvoCxFTPAeamq5eemvt5IWAYXxrbYM",
+		"https://apis.naver.com/now_web2/now_web_api/v1/clips/31030608/play-info"+strconv.FormatInt(timestamp, 10),
 	)
 
-    resp, err := GET(c, "https://apis.naver.com/now_web2/now_web_api/v1/clips/31030608/play-info?msgpad=" + strconv.FormatInt(timestamp, 10) + "&md=" + urlEncode(signature),
-	    H{"Connection", "keep-alive"},
-	    H{"Accept", "application/json, text/plain, */*"},
-	    H{"Origin", "https://tv.naver.com"},
-	    H{"Referer", "https://tv.naver.com/v/31030608"},
-    )
+	resp, err := GET(c, "https://apis.naver.com/now_web2/now_web_api/v1/clips/31030608/play-info?msgpad="+strconv.FormatInt(timestamp, 10)+"&md="+urlEncode(signature),
+		H{"Connection", "keep-alive"},
+		H{"Accept", "application/json, text/plain, */*"},
+		H{"Origin", "https://tv.naver.com"},
+		H{"Referer", "https://tv.naver.com/v/31030608"},
+	)
 
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	
+
 	var res struct {
-	    Playable string `json:"playable"`
-    }
+		Playable string `json:"playable"`
+	}
 
 	err = json.Unmarshal(body, &res)
 	if err != nil {
@@ -61,6 +61,6 @@ func NaverTV(c http.Client) Result {
 	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}
-	
+
 	return Result{Status: StatusUnexpected}
 }

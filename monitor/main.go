@@ -6,13 +6,14 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"runtime"
-	"time"
 	"os"
+	"runtime"
 	"strings"
 	"syscall"
-    
-    mt "MediaUnlockTest"
+	"time"
+
+	mt "MediaUnlockTest"
+
 	"github.com/kardianos/service"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -25,7 +26,10 @@ var (
 	Iface          string = ""
 )
 
-type program struct{}
+type program struct {
+	authToken   string
+	metricsPath string
+}
 
 func (p *program) Start(s service.Service) error {
 	go p.scheduleUpdate()
@@ -41,7 +45,7 @@ func (p *program) scheduleUpdate() {
 		ticker := time.NewTicker(time.Duration(UpdateInterval) * time.Second)
 		for {
 			select {
-		    case <-ticker.C:
+			case <-ticker.C:
 				checkUpdate()
 			}
 		}
@@ -50,7 +54,20 @@ func (p *program) scheduleUpdate() {
 
 func (p *program) run() {
 	go recordMetrics()
-	http.Handle("/metrics", promhttp.Handler())
+	handler := promhttp.Handler()
+	http.HandleFunc(p.metricsPath, func(w http.ResponseWriter, r *http.Request) {
+		if p.authToken != "" {
+			token := r.URL.Query().Get("token")
+			if token == "" {
+				token = r.Header.Get("token")
+			}
+			if token != p.authToken {
+				w.Write([]byte("wrong token"))
+				return
+			}
+		}
+		handler.ServeHTTP(w, r)
+	})
 	log.Println("serve on " + Listen)
 	http.ListenAndServe(Listen, nil)
 }
@@ -65,20 +82,23 @@ var setSocketOptions = func(network, address string, c syscall.RawConn, interfac
 }
 
 func main() {
-    var install   bool
+	var install bool
 	var uninstall bool
-	var start     bool
-	var stop      bool
-	var restart   bool
-	var update    bool
-	var version   bool
-	
-	
+	var start bool
+	var stop bool
+	var restart bool
+	var update bool
+	var authToken string
+	var metricsPath string
+	var version bool
+
 	flag.Uint64Var(&Interval, "interval", 60, "check interval (s)")
 	flag.Uint64Var(&UpdateInterval, "update-interval", 0, "update check interval (s)")
 	flag.StringVar(&Listen, "listen", ":9101", "listen address")
 	flag.StringVar(&Node, "node", "", "Prometheus node field")
 	flag.StringVar(&Iface, "I", "", "source ip / interface")
+	flag.StringVar(&authToken, "token", "", "check token in http headers or queries")
+	flag.StringVar(&metricsPath, "metrics-path", "/metrics", "custom metrics path")
 	flag.BoolVar(&MUL, "mul", true, "Mutation")
 	flag.BoolVar(&HK, "hk", false, "Hong Kong")
 	flag.BoolVar(&TW, "tw", false, "Taiwan")
@@ -105,12 +125,12 @@ func main() {
 		fmt.Println("unlock-monitor " + Version + " (" + runtime.GOOS + "_" + runtime.GOARCH + " " + runtime.Version() + " build-time: " + buildTime + ")")
 		return
 	}
-	
+
 	if update {
-	    checkUpdate()
+		checkUpdate()
 		return
 	}
-	
+
 	if Iface != "" {
 		if IP := net.ParseIP(Iface); IP != nil {
 			mt.Dialer.LocalAddr = &net.TCPAddr{IP: IP}
@@ -120,14 +140,14 @@ func main() {
 			}
 		}
 	}
-	
-    args := []string{}
+
+	args := []string{}
 	for _, a := range os.Args[1:] {
 		if !strings.Contains(a, "-install") && !strings.Contains(a, "-uninstall") {
 			args = append(args, a)
 		}
 	}
-	
+
 	svcConfig := &service.Config{
 		Name:        "unlock-monitor",
 		DisplayName: "unlock-monitor",
@@ -135,35 +155,38 @@ func main() {
 		Arguments:   args,
 	}
 
-	prg := &program{}
+	prg := &program{
+		authToken:   authToken,
+		metricsPath: metricsPath,
+	}
 	s, err := service.New(prg, svcConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if install {
-	    installService(s)
-	    return
+		installService(s)
+		return
 	}
 
 	if uninstall {
-	    uninstallService(s)
-	    return
+		uninstallService(s)
+		return
 	}
-	
+
 	if start {
-	    startService(s)
-	    return
+		startService(s)
+		return
 	}
 
 	if stop {
-	    stopService(s)
-	    return
+		stopService(s)
+		return
 	}
-	
+
 	if restart {
-	    restartService(s)
-	    return
+		restartService(s)
+		return
 	}
 
 	err = s.Run()

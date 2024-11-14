@@ -39,6 +39,10 @@ Usage of build/unlock-monitor_linux_amd64:
         check interval (s) (default 60)
   -I string
         source ip / interface
+  -token string
+        check token in http headers or queries
+  -metrics-path string
+        custom metrics path (default "/metrics")
         
   -mul
         Mutation (default true)

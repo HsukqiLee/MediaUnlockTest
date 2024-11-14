@@ -2,7 +2,7 @@ package mediaunlocktest
 
 import (
 	"net/http"
-    "strings"
+	"strings"
 )
 
 func Mora(c http.Client) Result {
@@ -12,22 +12,18 @@ func Mora(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-    if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-	
 	if resp.StatusCode == 403 || resp.StatusCode == 500 {
 		return Result{Status: StatusNo}
 	}
-	
+
 	if resp.StatusCode == 302 {
 		if strings.Contains(resp.Header.Get("Location"), "error") {
-		    return Result{Status: StatusNo}
-        }
-        if strings.Contains(resp.Header.Get("Location"), "signin") {
-		    return Result{Status: StatusOK}
-        }
+			return Result{Status: StatusNo}
+		}
+		if strings.Contains(resp.Header.Get("Location"), "signin") {
+			return Result{Status: StatusOK}
+		}
 	}
-	
+
 	return Result{Status: StatusUnexpected}
 }

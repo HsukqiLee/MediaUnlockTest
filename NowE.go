@@ -25,7 +25,7 @@ func NowE(c http.Client) Result {
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusUnexpected, Err: err}
 	}
-	if res.ResponseCode == "SUCCESS" {
+	if res.ResponseCode == "SUCCESS" || res.ResponseCode == "ASSET_MISSING" {
 		return Result{Status: StatusOK}
 	} else if res.ResponseCode == "GEO_CHECK_FAIL" {
 		return Result{Status: StatusNo}
