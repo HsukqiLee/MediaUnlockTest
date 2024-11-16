@@ -3,7 +3,7 @@ package mediaunlocktest
 import "net/http"
 
 func SHOWTIME(c http.Client) Result {
-	resp, err := GET(c, "https://www.showtime.com/")
+	resp, err := GET(c, "https://www.paramountpluswithshowtime.com/")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -14,5 +14,5 @@ func SHOWTIME(c http.Client) Result {
 	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}
-	return Result{Status: StatusFailed}
+	return Result{Status: StatusUnexpected}
 }
