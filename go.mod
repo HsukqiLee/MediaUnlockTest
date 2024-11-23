@@ -7,7 +7,7 @@ toolchain go1.22.0
 require (
 	github.com/prometheus/client_golang v1.17.0
 	github.com/schollz/progressbar/v3 v3.14.1
-	golang.org/x/sys v0.18.0
+	golang.org/x/sys v0.27.0
 )
 
 require (
@@ -32,9 +32,9 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/refraction-networking/utls v1.6.6 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
+	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/term v0.26.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )

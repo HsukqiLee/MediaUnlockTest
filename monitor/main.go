@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strings"
@@ -16,6 +18,7 @@ import (
 
 	"github.com/kardianos/service"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/net/proxy"
 )
 
 var (
@@ -24,6 +27,10 @@ var (
 	Version        string = mt.Version
 	buildTime      string
 	Iface          string = ""
+	DnsServers     string
+	HttpClient     http.Client
+	httpProxy      string
+	socksProxy     string
 )
 
 type program struct {
@@ -43,11 +50,8 @@ func (p *program) scheduleUpdate() {
 			UpdateInterval = 86400
 		}
 		ticker := time.NewTicker(time.Duration(UpdateInterval) * time.Second)
-		for {
-			select {
-			case <-ticker.C:
-				checkUpdate()
-			}
+		for range ticker.C {
+			checkUpdate()
 		}
 	}
 }
@@ -94,12 +98,16 @@ func main() {
 
 	flag.Uint64Var(&Interval, "interval", 60, "check interval (s)")
 	flag.Uint64Var(&UpdateInterval, "update-interval", 0, "update check interval (s)")
+	flag.Uint64Var(&Conc, "conc", 0, "concurrency of tests")
 	flag.StringVar(&Listen, "listen", ":9101", "listen address")
 	flag.StringVar(&Node, "node", "", "Prometheus node field")
 	flag.StringVar(&Iface, "I", "", "source ip / interface")
+	flag.StringVar(&DnsServers, "dns-servers", "", "specify dns servers")
+	flag.StringVar(&httpProxy, "http-proxy", "", "http proxy")
+	flag.StringVar(&socksProxy, "socks-proxy", "", "socks5 proxy")
 	flag.StringVar(&authToken, "token", "", "check token in http headers or queries")
 	flag.StringVar(&metricsPath, "metrics-path", "/metrics", "custom metrics path")
-	flag.BoolVar(&MUL, "mul", true, "Mutation")
+	flag.BoolVar(&MUL, "mul", true, "Multination")
 	flag.BoolVar(&HK, "hk", false, "Hong Kong")
 	flag.BoolVar(&TW, "tw", false, "Taiwan")
 	flag.BoolVar(&JP, "jp", false, "Japan")
@@ -131,6 +139,8 @@ func main() {
 		return
 	}
 
+	HttpClient = mt.AutoHttpClient
+
 	if Iface != "" {
 		if IP := net.ParseIP(Iface); IP != nil {
 			mt.Dialer.LocalAddr = &net.TCPAddr{IP: IP}
@@ -139,6 +149,55 @@ func main() {
 				return setSocketOptions(network, address, c, Iface)
 			}
 		}
+	}
+	if DnsServers != "" {
+		mt.Dialer.Resolver = &net.Resolver{
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				return (&net.Dialer{}).DialContext(ctx, "udp", DnsServers)
+			},
+		}
+
+		mt.AutoTransport().Resolver = mt.Dialer.Resolver
+		//mt.AutoHttpClient.Transport = mt.AutoTransport()
+		//HttpClient.Transport = mt.AutoHttpClient.Transport
+	}
+	if httpProxy != "" {
+		// log.Println(httpProxy)
+		// c := httpproxy.Config{HTTPProxy: httpProxy, CGI: true}
+		// m.ClientProxy = func(req *http.Request) (*url.URL, error) { return c.ProxyFunc()(req.URL) }
+		if u, err := url.Parse(httpProxy); err == nil {
+			mt.ClientProxy = http.ProxyURL(u)
+			mt.AutoTransport().Proxy = mt.ClientProxy
+			mt.AutoHttpClient.Transport = mt.AutoTransport()
+			HttpClient.Transport = mt.AutoHttpClient.Transport
+		}
+	}
+	if socksProxy != "" {
+		proxyURL, err := url.Parse(socksProxy)
+		if err != nil {
+			log.Fatal("SOCKS5 地址不合法：", err)
+		}
+
+		var auth *proxy.Auth
+		if proxyURL.User != nil {
+			username := proxyURL.User.Username()
+			password, _ := proxyURL.User.Password()
+			auth = &proxy.Auth{
+				User:     username,
+				Password: password,
+			}
+		}
+
+		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
+		if err != nil {
+			log.Fatal("创建 SOCKS5 连接失败：", err)
+		}
+
+		// 设置自定义 DialContext
+		customDialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return dialer.Dial(network, addr)
+		}
+		mt.AutoTransport().Base.DialContext = customDialContext
 	}
 
 	args := []string{}

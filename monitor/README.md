@@ -39,6 +39,12 @@ Usage of build/unlock-monitor_linux_amd64:
         check interval (s) (default 60)
   -I string
         source ip / interface
+  -dns-servers string
+        specify dns servers
+  -http-proxy string
+        http proxy
+  -socks-proxy string
+        socks5 proxy
   -token string
         check token in http headers or queries
   -metrics-path string
@@ -77,6 +83,9 @@ Usage of build/unlock-monitor_linux_amd64:
         set auto update
   -update-interval uint
         update check interval (s) (default 86400)
+
+  -conc uint
+        concurrency of tests
 
   -u    check update
   -v    show version
