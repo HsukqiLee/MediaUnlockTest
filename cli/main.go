@@ -23,39 +23,31 @@ import (
 	"github.com/fatih/color"
 	selfUpdate "github.com/inconshreveable/go-update"
 	pb "github.com/schollz/progressbar/v3"
+	"golang.org/x/net/proxy"
 )
 
-var IPV4 = true
-var IPV6 = true
-var M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA bool
-var Force bool
-var debug = false
-
-type result struct {
-	Name    string
-	Divider bool
-	Value   m.Result
-}
-
-var tot int64
-var R []*result
-var bar *pb.ProgressBar
-var wg *sync.WaitGroup
-
-func excute(Name string, F func(client http.Client) m.Result, client http.Client) {
-	r := &result{Name: Name}
-	R = append(R, r)
-	wg.Add(1)
-	tot++
-	go func() {
-		r.Value = F(client)
-		bar.Describe(Name + " " + ShowResult(r.Value))
-		bar.Add(1)
-		wg.Done()
-	}()
-}
-
 var (
+	IPV4    bool = true
+	IPV6    bool = true
+	M       bool
+	HK      bool
+	TW      bool
+	JP      bool
+	KR      bool
+	NA      bool
+	SA      bool
+	EU      bool
+	AFR     bool
+	SEA     bool
+	OCEA    bool
+	Force   bool
+	Debug   bool   = false
+	Conc    uint64 = 0
+	sem     chan struct{}
+	tot     int64
+	R       []*result
+	bar     *pb.ProgressBar
+	wg      *sync.WaitGroup
 	Red     = color.New(color.FgRed).SprintFunc()
 	Green   = color.New(color.FgGreen).SprintFunc()
 	Yellow  = color.New(color.FgYellow).SprintFunc()
@@ -64,6 +56,33 @@ var (
 	SkyBlue = color.New(color.FgCyan).SprintFunc()
 	White   = color.New(color.FgWhite).SprintFunc()
 )
+
+type result struct {
+	Name    string
+	Divider bool
+	Value   m.Result
+}
+
+func excute(Name string, F func(client http.Client) m.Result, client http.Client) {
+	r := &result{Name: Name}
+	R = append(R, r)
+	wg.Add(1)
+	tot++
+	go func() {
+		if Conc > 0 {
+			sem <- struct{}{}
+			defer func() {
+				<-sem
+				wg.Done()
+			}()
+		} else {
+			defer wg.Done()
+		}
+		r.Value = F(client)
+		bar.Describe(Name + " " + ShowResult(r.Value))
+		bar.Add(1)
+	}()
+}
 
 func ShowResult(r m.Result) (s string) {
 	switch r.Status {
@@ -75,7 +94,7 @@ func ShowResult(r m.Result) (s string) {
 		return s
 
 	case m.StatusNetworkErr:
-		if debug {
+		if Debug {
 			return Red("ERR") + Yellow(" (Network Err: "+r.Err.Error()+")")
 		}
 		return Red("ERR") + Yellow(" (Network Err)")
@@ -88,7 +107,7 @@ func ShowResult(r m.Result) (s string) {
 
 	case m.StatusErr:
 		s = Red("ERR")
-		if r.Err != nil && debug {
+		if r.Err != nil && Debug {
 			s += Yellow(" (Err: " + r.Err.Error() + ")")
 		}
 		return s
@@ -418,7 +437,7 @@ func Ipv6Multination() {
 func GetIpv4Info() {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
 	resp, err := m.Ipv4HttpClient.Do(req)
 	if err != nil {
 		IPV4 = false
@@ -441,7 +460,7 @@ func GetIpv4Info() {
 func GetIpv6Info() {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
 	resp, err := m.Ipv6HttpClient.Do(req)
 	if err != nil {
 		IPV6 = false
@@ -596,7 +615,7 @@ func checkUpdate() {
 		if _, err := io.Copy(out, downloader); err != nil {
 			log.Fatal("[ERR] 下载unlock-test时出错:", err)
 		}
-		if os.Chmod(target_path+"/unlock-test_new", 0777) != nil {
+		if err := os.Chmod(target_path+"/unlock-test_new", 0777); err != nil {
 			log.Fatal("[ERR] 更改unlock-test后端权限出错:", err)
 		}
 		if _, err := os.Stat(target_path + "/unlock-test"); err == nil {
@@ -604,7 +623,7 @@ func checkUpdate() {
 				log.Fatal("[ERR] 删除unlock-test旧版本时出错:", err.Error())
 			}
 		}
-		if os.Rename(target_path+"/unlock-test_new", target_path+"/unlock-test") != nil {
+		if err := os.Rename(target_path+"/unlock-test_new", target_path+"/unlock-test"); err != nil {
 			log.Fatal("[ERR] 更新unlock-test后端时出错:", err)
 		}
 	} else {
@@ -678,24 +697,27 @@ var setSocketOptions = func(network, address string, c syscall.RawConn, interfac
 
 func main() {
 	client := m.AutoHttpClient
-	mode := 0
+	Iface := ""
+	DnsServers := ""
+	httpProxy := ""
+	socksProxy := ""
 	showVersion := false
 	update := false
 	nf := false
 	test := false
-	Iface := ""
-	DnsServers := ""
-	httpProxy := ""
-	flag.IntVar(&mode, "m", 0, "mode 0(default)/4/6")
-	flag.BoolVar(&Force, "f", false, "ipv6 force")
-	flag.BoolVar(&showVersion, "v", false, "show version")
-	flag.BoolVar(&update, "u", false, "update")
+	mode := 0
 	flag.StringVar(&Iface, "I", "", "source ip / interface")
 	flag.StringVar(&DnsServers, "dns-servers", "", "specify dns servers")
 	flag.StringVar(&httpProxy, "http-proxy", "", "http proxy")
+	flag.StringVar(&socksProxy, "socks-proxy", "", "socks5 proxy")
+	flag.BoolVar(&Force, "f", false, "force ipv6")
+	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.BoolVar(&update, "u", false, "update")
 	flag.BoolVar(&nf, "nf", false, "netflix")
 	flag.BoolVar(&test, "test", false, "test")
-	flag.BoolVar(&debug, "debug", false, "debug mode")
+	flag.BoolVar(&Debug, "debug", false, "debug mode")
+	flag.IntVar(&mode, "m", 0, "mode 0(default)/4/6")
+	flag.Uint64Var(&Conc, "conc", 0, "concurrency of tests")
 	flag.Parse()
 	if showVersion {
 		fmt.Println(m.Version)
@@ -720,6 +742,9 @@ func main() {
 				return (&net.Dialer{}).DialContext(ctx, "udp", DnsServers)
 			},
 		}
+		m.Ipv4Transport.Resolver = m.Dialer.Resolver
+		m.Ipv6Transport.Resolver = m.Dialer.Resolver
+		m.AutoHttpClient.Transport.(*m.CustomTransport).Resolver = m.Dialer.Resolver
 	}
 	if httpProxy != "" {
 		log.Println(httpProxy)
@@ -736,6 +761,35 @@ func main() {
 			m.AutoHttpClient.Transport = autoTransport
 		}
 	}
+	if socksProxy != "" {
+		proxyURL, err := url.Parse(socksProxy)
+		if err != nil {
+			log.Fatal("SOCKS5 地址不合法：", err)
+		}
+
+		var auth *proxy.Auth
+		if proxyURL.User != nil {
+			username := proxyURL.User.Username()
+			password, _ := proxyURL.User.Password()
+			auth = &proxy.Auth{
+				User:     username,
+				Password: password,
+			}
+		}
+
+		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
+		if err != nil {
+			log.Fatal("创建 SOCKS5 连接失败：", err)
+		}
+
+		// 设置自定义 DialContext
+		customDialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return dialer.Dial(network, addr)
+		}
+		m.Ipv4Transport.Base.DialContext = customDialContext
+		m.Ipv6Transport.Base.DialContext = customDialContext
+		m.AutoTransport().Base.DialContext = customDialContext
+	}
 	if mode == 4 {
 		client = m.Ipv4HttpClient
 		IPV6 = false
@@ -744,6 +798,9 @@ func main() {
 		client = m.Ipv6HttpClient
 		IPV4 = false
 		M = true
+	}
+	if Conc > 0 {
+		sem = make(chan struct{}, Conc)
 	}
 
 	if nf {
@@ -754,7 +811,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("dir", ShowResult(m.DirecTVGO(m.AutoHttpClient)))
+		fmt.Println("dir", ShowResult(m.YoutubeCDN(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

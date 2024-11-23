@@ -6,9 +6,11 @@ import (
 	"crypto/tls"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"math/rand"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -18,7 +20,7 @@ import (
 )
 
 var (
-	Version          = "1.4.16"
+	Version          = "1.5.0"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
@@ -53,19 +55,66 @@ func UseLastResponse(req *http.Request, via []*http.Request) error { return http
 
 //var defaultCipherSuites = []uint16{0xc02f, 0xc030, 0xc02b, 0xc02c, 0xcca8, 0xcca9, 0xc013, 0xc009, 0xc014, 0xc00a, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a}
 
-var Ipv4Transport = &http.Transport{
-	Proxy: ClientProxy,
-	DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-		// 强制使用IPv4
-		return Dialer.DialContext(ctx, "tcp4", addr)
+type CustomTransport struct {
+	Dialer   *net.Dialer
+	Resolver *net.Resolver
+	Network  string
+	Proxy    func(*http.Request) (*url.URL, error)
+	Base     *http.Transport
+}
+
+func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	// 使用自定义解析器进行 DNS 解析
+	dialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
+		if t.Resolver != nil {
+			// 提取主机名和端口
+			host, port, err := net.SplitHostPort(addr)
+			if err != nil {
+				return nil, err
+			}
+			// 解析主机名
+			ips, err := t.Resolver.LookupIP(ctx, "ip", host)
+			if err != nil {
+				return nil, err
+			}
+			// 根据网络类型过滤 IP 地址
+			var filteredIPs []net.IP
+			for _, ip := range ips {
+				if (t.Network == "tcp4" && ip.To4() != nil) || (t.Network == "tcp6" && ip.To4() == nil) {
+					filteredIPs = append(filteredIPs, ip)
+				}
+			}
+			// 连接第一个解析到的 IP 地址
+			for _, ip := range filteredIPs {
+				ipAddr := net.JoinHostPort(ip.String(), port)
+				conn, err := t.Dialer.DialContext(ctx, t.Network, ipAddr)
+				if err == nil {
+					return conn, nil
+				}
+			}
+			return nil, fmt.Errorf("failed to connect to any resolved IP addresses for %s", addr)
+		}
+		return t.Dialer.DialContext(ctx, t.Network, addr)
+	}
+
+	t.Base.DialContext = dialContext
+	t.Base.Proxy = t.Proxy
+	return t.Base.RoundTrip(req)
+}
+
+var Ipv4Transport = &CustomTransport{
+	Dialer:   Dialer,
+	Resolver: Dialer.Resolver,
+	Network:  "tcp4",
+	Proxy:    ClientProxy,
+	Base: &http.Transport{
+		MaxIdleConns:           100,
+		IdleConnTimeout:        90 * time.Second,
+		TLSHandshakeTimeout:    30 * time.Second,
+		ExpectContinueTimeout:  1 * time.Second,
+		TLSClientConfig:        tlsConfig,
+		MaxResponseHeaderBytes: 262144,
 	},
-	// ForceAttemptHTTP2:     true,
-	MaxIdleConns:           100,
-	IdleConnTimeout:        90 * time.Second,
-	TLSHandshakeTimeout:    30 * time.Second,
-	ExpectContinueTimeout:  1 * time.Second,
-	TLSClientConfig:        tlsConfig,
-	MaxResponseHeaderBytes: 262144,
 }
 
 var Ipv4HttpClient = http.Client{
@@ -74,19 +123,19 @@ var Ipv4HttpClient = http.Client{
 	Transport:     Ipv4Transport,
 }
 
-var Ipv6Transport = &http.Transport{
-	Proxy: ClientProxy,
-	DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-		// 强制使用IPv4
-		return Dialer.DialContext(ctx, "tcp6", addr)
+var Ipv6Transport = &CustomTransport{
+	Dialer:   Dialer,
+	Resolver: Dialer.Resolver,
+	Network:  "tcp6",
+	Proxy:    ClientProxy,
+	Base: &http.Transport{
+		MaxIdleConns:           100,
+		IdleConnTimeout:        90 * time.Second,
+		TLSHandshakeTimeout:    30 * time.Second,
+		ExpectContinueTimeout:  1 * time.Second,
+		TLSClientConfig:        tlsConfig,
+		MaxResponseHeaderBytes: 262144,
 	},
-	// ForceAttemptHTTP2:     true,
-	MaxIdleConns:           100,
-	IdleConnTimeout:        90 * time.Second,
-	TLSHandshakeTimeout:    30 * time.Second,
-	ExpectContinueTimeout:  1 * time.Second,
-	TLSClientConfig:        tlsConfig,
-	MaxResponseHeaderBytes: 262144,
 }
 
 var Ipv6HttpClient = http.Client{
@@ -109,16 +158,20 @@ var AutoHttpClient = NewAutoHttpClient()
 	MaxResponseHeaderBytes: 262144,
 }*/
 
-func AutoTransport() *http.Transport {
-	return &http.Transport{
-		Proxy:       ClientProxy,
-		DialContext: (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
-		// ForceAttemptHTTP2:     true,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   30 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-		TLSClientConfig:       tlsConfig,
+func AutoTransport() *CustomTransport {
+	return &CustomTransport{
+		Dialer:   Dialer,
+		Resolver: Dialer.Resolver,
+		Network:  "tcp",
+		Proxy:    ClientProxy,
+		Base: &http.Transport{
+			MaxIdleConns:           100,
+			IdleConnTimeout:        90 * time.Second,
+			TLSHandshakeTimeout:    30 * time.Second,
+			ExpectContinueTimeout:  1 * time.Second,
+			TLSClientConfig:        tlsConfig,
+			MaxResponseHeaderBytes: 262144,
+		},
 	}
 }
 

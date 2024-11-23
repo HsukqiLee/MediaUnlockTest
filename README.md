@@ -6,6 +6,8 @@
 
 修复了原作者留下的若干 Bugs，提供比原版更多的测试项目！
 
+> 也许是目前最快的流媒体检测工具，欢迎来挑战
+
 ## 解锁检测
 
 Linux / macOS / Android Termux：
@@ -30,7 +32,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 bash <(curl -Ls unlock.icmp.ing/test.sh) -m 4
 ```
 
-只检测IPv6结果：
+只检测IPv6结果（仅测试已知支持 IPv6 的项目）：
 
 ```bash
 bash <(curl -Ls unlock.icmp.ing/test.sh) -m 6
@@ -40,9 +42,15 @@ bash <(curl -Ls unlock.icmp.ing/test.sh) -m 6
 
 |参数|说明|
 |-|-|
-|`--dns-servers`|指定 DNS 服务器|
-|`-I`|使用的 IP / 网卡|
-|`--http-proxy`|设置代理 (示例: "http://username:password@127.0.0.1:1080")|
+|`-I`|绑定的 IP / 接口|
+|`-f`|强制使用 IPv6 测试（选中的项目都使用 IPv6 测试）|
+|`-u`|检查更新|
+|`-v`|输出版本|
+|`-conc`|并发请求数|
+|`-debug`|开启调试模式（输出 Err/Network Err 的详细报错）|
+|`-dns-servers`|指定 DNS 服务器（示例："1.1.1.1:53"）|
+|`-http-proxy`|设置 HTTP 代理 (示例: "http://username:password@127.0.0.1:1080")|
+|`-socks-proxy`|设置 SOCKS5 代理 (示例: "socks5://username:password@127.0.0.1:1080")|
 
 ## 解锁监控
 
