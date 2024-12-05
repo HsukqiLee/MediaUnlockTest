@@ -31,7 +31,7 @@ type TEST struct {
 
 func NewTest() *TEST {
 	t := &TEST{
-		Client:  HttpClient,
+		Client:  mt.AutoHttpClient,
 		Results: make([]*result, 0),
 		Wg:      &sync.WaitGroup{},
 	}

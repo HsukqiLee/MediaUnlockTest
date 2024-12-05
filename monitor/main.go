@@ -28,7 +28,6 @@ var (
 	buildTime      string
 	Iface          string = ""
 	DnsServers     string
-	HttpClient     http.Client
 	httpProxy      string
 	socksProxy     string
 )
@@ -139,8 +138,6 @@ func main() {
 		return
 	}
 
-	HttpClient = mt.AutoHttpClient
-
 	if Iface != "" {
 		if IP := net.ParseIP(Iface); IP != nil {
 			mt.Dialer.LocalAddr = &net.TCPAddr{IP: IP}
@@ -157,19 +154,12 @@ func main() {
 			},
 		}
 
-		mt.AutoTransport().Resolver = mt.Dialer.Resolver
-		//mt.AutoHttpClient.Transport = mt.AutoTransport()
-		//HttpClient.Transport = mt.AutoHttpClient.Transport
+		mt.AutoHttpClient.Transport.(*mt.CustomTransport).Resolver = mt.Dialer.Resolver
 	}
 	if httpProxy != "" {
-		// log.Println(httpProxy)
-		// c := httpproxy.Config{HTTPProxy: httpProxy, CGI: true}
-		// m.ClientProxy = func(req *http.Request) (*url.URL, error) { return c.ProxyFunc()(req.URL) }
 		if u, err := url.Parse(httpProxy); err == nil {
 			mt.ClientProxy = http.ProxyURL(u)
-			mt.AutoTransport().Proxy = mt.ClientProxy
-			mt.AutoHttpClient.Transport = mt.AutoTransport()
-			HttpClient.Transport = mt.AutoHttpClient.Transport
+			mt.AutoHttpClient.Transport.(*mt.CustomTransport).Proxy = mt.ClientProxy
 		}
 	}
 	if socksProxy != "" {
@@ -177,7 +167,6 @@ func main() {
 		if err != nil {
 			log.Fatal("SOCKS5 地址不合法：", err)
 		}
-
 		var auth *proxy.Auth
 		if proxyURL.User != nil {
 			username := proxyURL.User.Username()
@@ -187,17 +176,11 @@ func main() {
 				Password: password,
 			}
 		}
-
 		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
 		if err != nil {
 			log.Fatal("创建 SOCKS5 连接失败：", err)
 		}
-
-		// 设置自定义 DialContext
-		customDialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
-			return dialer.Dial(network, addr)
-		}
-		mt.AutoTransport().Base.DialContext = customDialContext
+		mt.AutoHttpClient.Transport.(*mt.CustomTransport).SocksDialer = dialer
 	}
 
 	args := []string{}
@@ -209,7 +192,7 @@ func main() {
 
 	svcConfig := &service.Config{
 		Name:        "unlock-monitor",
-		DisplayName: "unlock-monitor",
+		DisplayName: "Media Unlock Monitor Service",
 		Description: "Service to monitor media unlock status.",
 		Arguments:   args,
 	}
