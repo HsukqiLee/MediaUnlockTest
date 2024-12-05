@@ -747,18 +747,11 @@ func main() {
 		m.AutoHttpClient.Transport.(*m.CustomTransport).Resolver = m.Dialer.Resolver
 	}
 	if httpProxy != "" {
-		log.Println(httpProxy)
-		// c := httpproxy.Config{HTTPProxy: httpProxy, CGI: true}
-		// m.ClientProxy = func(req *http.Request) (*url.URL, error) { return c.ProxyFunc()(req.URL) }
 		if u, err := url.Parse(httpProxy); err == nil {
 			m.ClientProxy = http.ProxyURL(u)
 			m.Ipv4Transport.Proxy = m.ClientProxy
-			m.Ipv4HttpClient.Transport = m.Ipv4Transport
 			m.Ipv6Transport.Proxy = m.ClientProxy
-			m.Ipv6HttpClient.Transport = m.Ipv6Transport
-			autoTransport := m.AutoTransport()
-			autoTransport.Proxy = m.ClientProxy
-			m.AutoHttpClient.Transport = autoTransport
+			m.AutoHttpClient.Transport.(*m.CustomTransport).Proxy = m.ClientProxy
 		}
 	}
 	if socksProxy != "" {
@@ -766,7 +759,6 @@ func main() {
 		if err != nil {
 			log.Fatal("SOCKS5 地址不合法：", err)
 		}
-
 		var auth *proxy.Auth
 		if proxyURL.User != nil {
 			username := proxyURL.User.Username()
@@ -776,19 +768,14 @@ func main() {
 				Password: password,
 			}
 		}
-
 		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
 		if err != nil {
 			log.Fatal("创建 SOCKS5 连接失败：", err)
 		}
 
-		// 设置自定义 DialContext
-		customDialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
-			return dialer.Dial(network, addr)
-		}
-		m.Ipv4Transport.Base.DialContext = customDialContext
-		m.Ipv6Transport.Base.DialContext = customDialContext
-		m.AutoTransport().Base.DialContext = customDialContext
+		m.Ipv4Transport.SocksDialer = dialer
+		m.Ipv6Transport.SocksDialer = dialer
+		m.AutoHttpClient.Transport.(*m.CustomTransport).SocksDialer = dialer
 	}
 	if mode == 4 {
 		client = m.Ipv4HttpClient
@@ -811,7 +798,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("dir", ShowResult(m.YoutubeCDN(m.AutoHttpClient)))
+		fmt.Println("myv", ShowResult(m.MyVideo(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

@@ -16,11 +16,13 @@ import (
 
 	"github.com/google/uuid"
 	utls "github.com/refraction-networking/utls"
+
 	//"golang.org/x/net/http2"
+	"golang.org/x/net/proxy"
 )
 
 var (
-	Version          = "1.5.0"
+	Version          = "1.5.1"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
@@ -56,35 +58,34 @@ func UseLastResponse(req *http.Request, via []*http.Request) error { return http
 //var defaultCipherSuites = []uint16{0xc02f, 0xc030, 0xc02b, 0xc02c, 0xcca8, 0xcca9, 0xc013, 0xc009, 0xc014, 0xc00a, 0x009c, 0x009d, 0x002f, 0x0035, 0xc012, 0x000a}
 
 type CustomTransport struct {
-	Dialer   *net.Dialer
-	Resolver *net.Resolver
-	Network  string
-	Proxy    func(*http.Request) (*url.URL, error)
-	Base     *http.Transport
+	Dialer      *net.Dialer
+	Resolver    *net.Resolver
+	Network     string
+	Proxy       func(*http.Request) (*url.URL, error)
+	Base        *http.Transport
+	SocksDialer proxy.Dialer
 }
 
 func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	// 使用自定义解析器进行 DNS 解析
 	dialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
+		if t.SocksDialer != nil {
+			return t.SocksDialer.Dial(t.Network, addr)
+		}
 		if t.Resolver != nil {
-			// 提取主机名和端口
 			host, port, err := net.SplitHostPort(addr)
 			if err != nil {
 				return nil, err
 			}
-			// 解析主机名
 			ips, err := t.Resolver.LookupIP(ctx, "ip", host)
 			if err != nil {
 				return nil, err
 			}
-			// 根据网络类型过滤 IP 地址
 			var filteredIPs []net.IP
 			for _, ip := range ips {
 				if (t.Network == "tcp4" && ip.To4() != nil) || (t.Network == "tcp6" && ip.To4() == nil) {
 					filteredIPs = append(filteredIPs, ip)
 				}
 			}
-			// 连接第一个解析到的 IP 地址
 			for _, ip := range filteredIPs {
 				ipAddr := net.JoinHostPort(ip.String(), port)
 				conn, err := t.Dialer.DialContext(ctx, t.Network, ipAddr)
@@ -96,7 +97,6 @@ func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		}
 		return t.Dialer.DialContext(ctx, t.Network, addr)
 	}
-
 	t.Base.DialContext = dialContext
 	t.Base.Proxy = t.Proxy
 	return t.Base.RoundTrip(req)

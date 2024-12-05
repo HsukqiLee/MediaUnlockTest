@@ -8,7 +8,9 @@ import (
 
 func MyVideo(c http.Client) Result {
 	c.CheckRedirect = nil
-	resp, err := GET(c, "https://www.myvideo.net.tw/login.do")
+	resp, err := GET(c, "https://www.myvideo.net.tw/goLoginPage.do",
+		H{"Cookie", "JSESSIONID=12805776F340391EA3CB6A38E12F423A"},
+	)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
