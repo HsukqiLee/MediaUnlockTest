@@ -1,7 +1,7 @@
 package mediaunlocktest
 
 import (
-    "io"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -13,17 +13,21 @@ func RaiPlay(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-    bodyBytes, err := io.ReadAll(resp.Body)
-    bodyString := string(bodyBytes)
-    
-    if err != nil {
+	if resp.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+
+	if err != nil {
 		return Result{Status: StatusFailed}
 	}
-	
+
 	if strings.Contains(bodyString, "no_available") {
 		return Result{Status: StatusNo}
 	}
-	
+
 	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}

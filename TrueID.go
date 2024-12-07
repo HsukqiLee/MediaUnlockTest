@@ -8,35 +8,35 @@ import (
 )
 
 func extractTrueIDChannelID(body string) string {
-    regex := regexp.MustCompile(`"channelId"\s*:\s*"([^"]+)`)
-    matches := regex.FindStringSubmatch(body)
-    if len(matches) >1 {
-        return matches[1]
-    }
-    return ""
+	regex := regexp.MustCompile(`"channelId"\s*:\s*"([^"]+)`)
+	matches := regex.FindStringSubmatch(body)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
 }
 
 func extractTrueIDAuthUser(body string) string {
-    regex := regexp.MustCompile(`"buildId"\s*:\s*"([^"]+)`)
-    matches := regex.FindStringSubmatch(body)
-    if len(matches) >1 {
-        return matches[1]
-    }
-    return ""
+	regex := regexp.MustCompile(`"buildId"\s*:\s*"([^"]+)`)
+	matches := regex.FindStringSubmatch(body)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
 }
 
 func extractTrueIDBillboardType(body string) string {
-    regex := regexp.MustCompile(`"billboardType"\s*:\s*"([^"]+)`)
-    matches := regex.FindStringSubmatch(body)
-    if len(matches) >1 {
-        return matches[1]
-    }
-    return ""
+	regex := regexp.MustCompile(`"billboardType"\s*:\s*"([^"]+)`)
+	matches := regex.FindStringSubmatch(body)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
 }
 
 func TrueID(c http.Client) Result {
-    resp1, err := GET(c, "https://tv.trueid.net/th-en/live/thairathtv-hd")
-    if err != nil {
+	resp1, err := GET(c, "https://tv.trueid.net/th-en/live/thairathtv-hd")
+	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()
@@ -44,12 +44,15 @@ func TrueID(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-    
-    channelId := extractTrueIDChannelID(string(body1))
+
+	channelId := extractTrueIDChannelID(string(body1))
 	authUser := extractTrueIDAuthUser(string(body1))
+	if len(authUser) < 11 {
+		return Result{Status: StatusNo}
+	}
 	authKey := authUser[10:]
-	
-	req, err := http.NewRequest("GET", "https://tv.trueid.net/api/stream/checkedPlay?channelId="  + channelId + "&lang=en&country=th", nil)
+
+	req, err := http.NewRequest("GET", "https://tv.trueid.net/api/stream/checkedPlay?channelId="+channelId+"&lang=en&country=th", nil)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -66,8 +69,8 @@ func TrueID(c http.Client) Result {
 	req.Header.Set("sec-fetch-site", "none")
 	req.Header.Set("sec-fetch-user", "?1")
 	req.Header.Set("upgrade-insecure-requests", "1")
-    req.SetBasicAuth(authUser, authKey)
-	resp2,err := cdo(c, req)
+	req.SetBasicAuth(authUser, authKey)
+	resp2, err := cdo(c, req)
 
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -77,14 +80,13 @@ func TrueID(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	
-	
-    switch extractTrueIDBillboardType(string(body2)) {
+
+	switch extractTrueIDBillboardType(string(body2)) {
 	case "GEO_BLOCK":
 		return Result{Status: StatusNo}
 	case "LOADING":
 		return Result{Status: StatusOK}
 	}
 
-    return Result{Status: StatusUnexpected}
+	return Result{Status: StatusUnexpected}
 }

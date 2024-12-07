@@ -1,7 +1,7 @@
 package mediaunlocktest
 
 import (
-    "io"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -18,21 +18,18 @@ func LiTV(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	
+
 	bodyBytes, err := io.ReadAll(resp.Body)
-    bodyString := string(bodyBytes)
+	bodyString := string(bodyBytes)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	
-	
+
 	if resp.StatusCode == 200 {
-	    if strings.Contains(bodyString, "OutsideRegionError") {
-		    return Result{Status: StatusNo}
-	    }
+		if strings.Contains(bodyString, "OutsideRegionError") {
+			return Result{Status: StatusNo}
+		}
 		return Result{Status: StatusOK}
 	}
-
-
 	return Result{Status: StatusUnexpected}
 }

@@ -28,6 +28,10 @@ func SonyLiv(c http.Client) Result {
 	}
 	defer resp1.Body.Close()
 
+	if resp1.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
+
 	body1, err := io.ReadAll(resp1.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}

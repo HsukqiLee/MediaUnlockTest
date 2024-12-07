@@ -31,6 +31,8 @@ func Hotstar(c http.Client) Result {
 			return Result{Status: StatusNo}
 		}
 		return Result{Status: StatusOK, Region: t[3]}
+	case 472, 473, 474:
+		return Result{Status: StatusBanned}
 	}
 	return Result{Status: StatusUnexpected}
 }

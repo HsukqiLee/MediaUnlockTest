@@ -55,7 +55,9 @@ func ChatGPT(c http.Client) Result {
 	if resp.StatusCode == 429 {
 		return Result{Status: StatusRestricted, Region: strings.ToLower(loc), Info: "429 Rate limit"}
 	}
-
+	if loc == "T1" {
+		return Result{Status: StatusOK, Region: "tor"}
+	}
 	if SupportGPT(loc) {
 		return Result{Status: StatusOK, Region: strings.ToLower(loc)}
 	}

@@ -15,6 +15,9 @@ func NPOStartPlus(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
