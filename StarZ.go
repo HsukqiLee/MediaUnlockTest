@@ -22,6 +22,11 @@ func Starz(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp2.Body.Close()
+
+	if resp.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
+
 	b2, err := io.ReadAll(resp2.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}

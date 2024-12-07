@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -37,6 +38,9 @@ func NaverTV(c http.Client) Result {
 	)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "EOF") {
+			return Result{Status: StatusBanned}
+		}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()

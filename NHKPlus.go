@@ -1,9 +1,9 @@
 package mediaunlocktest
 
 import (
-	"net/http"
 	"encoding/json"
 	"io"
+	"net/http"
 )
 
 func NHKPlus(c http.Client) Result {
@@ -12,19 +12,23 @@ func NHKPlus(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-    
-    b, err := io.ReadAll(resp.Body)
+
+	if resp.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
+
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	
-    var res struct {
+
+	var res struct {
 		CountryCode string `json:"country_code"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusFailed, Err: err}
 	}
-	
+
 	if res.CountryCode == "JP" {
 		return Result{Status: StatusOK}
 	}

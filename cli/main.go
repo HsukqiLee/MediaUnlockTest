@@ -798,7 +798,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("myv", ShowResult(m.MyVideo(m.AutoHttpClient)))
+		fmt.Println("gpt", ShowResult(m.ChatGPT(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
