@@ -10,7 +10,7 @@
 
 ## 解锁检测
 
-Linux / macOS / Android Termux：
+Linux (包括 iOS iSH) / macOS / Android Termux：
 
 （分别需要 /usr/bin、/usr/local/bin、$PREFIX/bin 目录的读写权限）
 

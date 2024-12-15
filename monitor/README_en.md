@@ -10,7 +10,7 @@ Use Grafana to connect to Prometheus and build a streaming media monitoring page
 
 ### Installation
 
-Linux / macOS / Android Termux:
+Linux (Including iOS iSH) / macOS / Android Termux：
 
 (Read and write permissions are required for /usr/bin, /usr/local/bin, and $PREFIX/bin directories respectively)
 

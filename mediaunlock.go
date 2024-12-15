@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	Version          = "1.5.2"
+	Version          = "1.5.3"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
@@ -82,7 +82,7 @@ func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 			}
 			var filteredIPs []net.IP
 			for _, ip := range ips {
-				if (t.Network == "tcp4" && ip.To4() != nil) || (t.Network == "tcp6" && ip.To4() == nil) {
+				if (t.Network == "tcp4" && ip.To4() != nil) || (t.Network == "tcp6" && ip.To4() == nil) || t.Network == "tcp" {
 					filteredIPs = append(filteredIPs, ip)
 				}
 			}

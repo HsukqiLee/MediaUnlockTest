@@ -142,7 +142,7 @@ func (T *TEST) HongKong() {
 	T.excute("Viu.TV", mt.ViuTV)
 	T.excute("MyTVSuper", mt.MyTvSuper)
 	T.excute("HBO GO Asia", mt.HboGoAsia)
-	T.excute("BiliBili HK/MO", mt.BilibiliHKMO)
+	T.excute("Bilibili HK/MO", mt.BilibiliHKMO)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("Bahamut Anime", mt.BahamutAnime)
 	T.excute("Hoy TV", mt.HoyTV)
@@ -254,6 +254,7 @@ func (T *TEST) SouthAmerica() {
 	//R = append(R, &result{Name: "South America", Divider: true})
 	//T.excute("Star Plus", mt.StarPlus)
 	T.excute("DirecTV GO", mt.DirecTVGO)
+	T.excute("Meta AI", mt.MetaAI)
 }
 
 func (T *TEST) Europe() {
