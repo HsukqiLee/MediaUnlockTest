@@ -10,7 +10,7 @@ Fixed some bugs, provides more test items than the original version!
 
 ## Unlock Test
 
-Linux / macOS / Android Termux:
+Linux (Including iOS iSH) / macOS / Android Termux：
 
 (requires read and write permissions for the /usr/bin, /usr/local/bin, and $PREFIX/bin directories respectively)
 

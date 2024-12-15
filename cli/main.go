@@ -209,7 +209,7 @@ func HongKong(c http.Client) {
 	excute("Viu.TV", m.ViuTV, c)
 	excute("MyTVSuper", m.MyTvSuper, c)
 	excute("HBO GO Asia", m.HboGoAsia, c)
-	excute("BiliBili HongKong/Macau Only", m.BilibiliHKMO, c)
+	excute("Bilibili HongKong/Macau Only", m.BilibiliHKMO, c)
 	excute("SonyLiv", m.SonyLiv, c)
 	excute("Bahamut Anime", m.BahamutAnime, c)
 	excute("Hoy TV", m.HoyTV, c)
@@ -798,7 +798,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("gpt", ShowResult(m.ChatGPT(m.AutoHttpClient)))
+		fmt.Println("metaai", ShowResult(m.MetaAI(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

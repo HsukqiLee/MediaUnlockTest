@@ -21,12 +21,12 @@ func SupportNLZIET(loc string) bool {
 func NLZIET(c http.Client) Result {
 	resp, err := GET(c, "https://nlziet.nl/cdn-cgi/trace")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: ErrNetwork}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: ErrNetwork}
+		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	s := string(b)
 	i := strings.Index(s, "loc=")
@@ -39,7 +39,6 @@ func NLZIET(c http.Client) Result {
 		return Result{Status: StatusUnexpected}
 	}
 	loc := s[:i]
-
 
 	if SupportNLZIET(loc) {
 		return Result{Status: StatusOK, Region: strings.ToLower(loc)}

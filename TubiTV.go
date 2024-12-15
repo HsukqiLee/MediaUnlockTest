@@ -7,7 +7,7 @@ import (
 )
 
 func TubiTV(c http.Client) Result {
-	resp, err := GET(c, "https://tubitv.com/home")
+	resp, err := GET(c, "https://tubitv.com")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

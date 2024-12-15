@@ -1,8 +1,9 @@
 package mediaunlocktest
 
 import (
-    "io"
-    //"regexp"
+	"io"
+
+	//"regexp"
 	"net/http"
 	"strings"
 )
@@ -23,24 +24,24 @@ func MetaAI(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-    bodyBytes, err := io.ReadAll(resp.Body)
-    bodyString := string(bodyBytes)
-    
-    if err != nil {
+	bodyBytes, err := io.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+
+	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	
+
 	if strings.Contains(bodyString, "AbraGeoBlockedErrorRoot") {
 		return Result{Status: StatusNo}
 	}
-	
-	if strings.Contains(bodyString, "AbraHomeRootConversationQuery") {
-	    /*region := extractMetaAIRegion(bodyString)
-	    if region != "" {
-		    return Result{Status: StatusOK, Region: strings.ToLower(region)}
-	    }*/
-	    return Result{Status: StatusOK}
+
+	if strings.Contains(bodyString, "AbraRateLimitedErrorRoot") || strings.Contains(bodyString, "AbraHomeRootConversationQuery") {
+		/*region := extractMetaAIRegion(bodyString)
+		    if region != "" {
+			    return Result{Status: StatusOK, Region: strings.ToLower(region)}
+		    }*/
+		return Result{Status: StatusOK}
 	}
-	
+
 	return Result{Status: StatusUnexpected}
 }
