@@ -798,7 +798,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("metaai", ShowResult(m.MetaAI(m.AutoHttpClient)))
+		fmt.Println("c5", ShowResult(m.Channel5(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}

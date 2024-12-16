@@ -16,10 +16,6 @@ func Channel5(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
-	}
-
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -30,7 +26,9 @@ func Channel5(c http.Client) Result {
 	}
 
 	if err := json.Unmarshal(b, &res); err != nil {
-		//log.Println(err)
+		if err.Error() == `invalid character '<' looking for beginning of value` {
+			return Result{Status: StatusBanned}
+		}
 		return Result{Status: StatusFailed, Err: err}
 	}
 	if res.Code == "3000" {
