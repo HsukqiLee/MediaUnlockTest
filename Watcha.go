@@ -1,20 +1,21 @@
 package mediaunlocktest
 
 import (
-	"io"
+	//"fmt"
+	//"io"
 	"net/http"
-	"regexp"
-	"strings"
+	//"regexp"
+	//"strings"
 )
 
-func extractWatchaRegion(responseBody string) string {
+/*func extractWatchaRegion(responseBody string) string {
 	re := regexp.MustCompile(`"regionCode"\s*:\s*"([^"]+)"`)
 	match := re.FindStringSubmatch(responseBody)
 	if len(match) > 1 {
 		return match[1]
 	}
 	return ""
-}
+}*/
 
 func Watcha(c http.Client) Result {
 	resp, err := GET(c, "https://watcha.com/browse/theater",
@@ -36,7 +37,7 @@ func Watcha(c http.Client) Result {
 		return Result{Status: StatusBanned}
 	}
 	if resp.StatusCode == 200 {
-		bodyBytes, err := io.ReadAll(resp.Body)
+		/*bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}
@@ -44,7 +45,20 @@ func Watcha(c http.Client) Result {
 		region := extractWatchaRegion(bodyString)
 		if region != "" {
 			return Result{Status: StatusOK, Region: strings.ToLower(region)}
+		}*/
+		return Result{Status: StatusOK, Region: "kr"}
+	}
+	if resp.StatusCode == 302 && resp.Header.Get("Location") == "/ja-JP/browse/theater" {
+		/*bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return Result{Status: StatusNetworkErr, Err: err}
 		}
+		bodyString := string(bodyBytes)
+		region := extractWatchaRegion(bodyString)
+		if region != "" {
+			return Result{Status: StatusOK, Region: strings.ToLower(region)}
+		}*/
+		return Result{Status: StatusOK, Region: "jp"}
 	}
 	return Result{Status: StatusUnexpected}
 }
