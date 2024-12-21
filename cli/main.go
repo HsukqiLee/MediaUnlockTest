@@ -201,6 +201,8 @@ func Multination(c http.Client) {
 	excute("Bing", m.Bing, c)
 	excute("Instagram Audio", m.Instagram, c)
 	excute("Google Gemini", m.Gemini, c)
+	excute("Google Play Store", m.GooglePlayStore, c)
+	excute("Sora", m.Sora, c)
 }
 
 func HongKong(c http.Client) {
@@ -429,9 +431,12 @@ func Ipv6Multination() {
 	excute("Netflix CDN", m.NetflixCDN, c)
 	excute("Youtube Premium", m.YoutubeRegion, c)
 	excute("Youtube CDN", m.YoutubeCDN, c)
+	excute("ChatGPT", m.ChatGPT, c)
 	excute("Wikipedia", m.WikipediaEditable, c)
 	excute("Bing", m.Bing, c)
 	excute("Google Gemini", m.Gemini, c)
+	excute("Google Play Store", m.GooglePlayStore, c)
+	excute("Sora", m.Sora, c)
 }
 
 func GetIpv4Info() {
@@ -798,7 +803,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("c5", ShowResult(m.Channel5(m.AutoHttpClient)))
+		fmt.Println("sora", ShowResult(m.Sora(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
