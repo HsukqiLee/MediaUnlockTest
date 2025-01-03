@@ -2,6 +2,7 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
+	//"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -10,24 +11,24 @@ import (
 	"time"
 )
 
-func extractWowowDramaURL(body string) []string {
-	re := regexp.MustCompile(`https://www.wowow.co.jp/drama/original/\w+/`)
-	matches := re.FindAllString(body, -1)
+// func extractWowowDramaURL(body string) []string {
+// 	re := regexp.MustCompile(`https://www.wowow.co.jp/drama/original/\w+/`)
+// 	matches := re.FindAllString(body, -1)
 
-	if len(matches) > 0 {
-		return matches
-	}
-	return []string{}
-}
+// 	if len(matches) > 0 {
+// 		return matches
+// 	}
+// 	return []string{}
+// }
 
-func extractWowowProgramID(body string) string {
-	re := regexp.MustCompile(`PRG_CD\s*:\s*"(\d+)"`)
-	matches := re.FindStringSubmatch(body)
-	if len(matches) > 0 {
-		return matches[1]
-	}
-	return ""
-}
+// func extractWowowProgramID(body string) string {
+// 	re := regexp.MustCompile(`PRG_CD\s*:\s*"(\d+)"`)
+// 	matches := re.FindStringSubmatch(body)
+// 	if len(matches) > 0 {
+// 		return matches[1]
+// 	}
+// 	return ""
+// }
 
 func extractWowowMetaID(body string) string {
 	re := regexp.MustCompile(`https://wod.wowow.co.jp/watch/(\d+)`)
@@ -41,7 +42,8 @@ func extractWowowMetaID(body string) string {
 
 func Wowow(c http.Client) Result {
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
-	resp1, err := GET(c, "https://www.wowow.co.jp/drama/original/json/lineup.json?_="+strconv.FormatInt(timestamp, 10),
+	// resp1, err := GET(c, "https://www.wowow.co.jp/drama/original/json/lineup.json?_="+strconv.FormatInt(timestamp, 10),
+	resp1, err := GET(c, "https://www.wowow.co.jp/assets/config/top_recommend_list.json",
 		H{"Accept", "application/json, text/javascript, */*; q=0.01"},
 		H{"Referer", "https://www.wowow.co.jp/drama/original/"},
 		H{"X-Requested-With", "XMLHttpRequest"},
@@ -55,33 +57,34 @@ func Wowow(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	//var res1 []struct {
-	//    DramaLink string `json:"link"`
-	//}
-	//if err := json.Unmarshal(body1, &res1); err != nil {
-	//	return Result{Status: StatusFailed, Err: err}
-	//}
-
-	dramaLinks := extractWowowDramaURL(string(body1))
-
-	if len(dramaLinks) == 0 {
-		return Result{Status: StatusFailed}
+	var res1 struct {
+		Movie         []string      `json:"movie"`
+		DramaOriginal []interface{} `json:"drama_original"`
+		Music         []interface{} `json:"music"`
+	}
+	if err := json.Unmarshal(body1, &res1); err != nil {
+		return Result{Status: StatusErr, Err: err}
 	}
 
+	//dramaLinks := extractWowowDramaURL(string(body1))
+
 	var wodUrl string
-	for _, dramaLink := range dramaLinks {
-		resp2, err := GET(c, dramaLink)
-		if err != nil {
-			continue
-		}
-		defer resp2.Body.Close()
-		body2, err := io.ReadAll(resp2.Body)
-		if err != nil {
-			continue
-		}
-		programID := extractWowowProgramID(string(body2))
-		if programID == "" {
-			continue
+	for _, id := range res1.DramaOriginal {
+		// resp2, err := GET(c, dramaLink)
+		// if err != nil {
+		// 	continue
+		// }
+		// defer resp2.Body.Close()
+		// body2, err := io.ReadAll(resp2.Body)
+		// if err != nil {
+		// 	continue
+		// }
+		// programID := extractWowowProgramID(string(body2))
+		var programID string
+		if str, ok := id.(string); ok {
+			programID = str
+		} else if num, ok := id.(float64); ok {
+			programID = strconv.FormatFloat(num, 'f', 0, 64)
 		}
 		resp3, err := PostJson(c, "https://www.wowow.co.jp/API/new_prg/programdetail.php",
 			`{"prg_cd": "`+programID+`", "mode": "19"}`,
