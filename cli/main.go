@@ -815,31 +815,6 @@ func main() {
 	fmt.Println("使用方式: " + Yellow("bash <(curl -Ls unlock.icmp.ing/scripts/test.sh)"))
 	fmt.Println()
 
-	// GetIpv4Info()
-	// GetIpv6Info()
-
-	/*
-		func GetIpv4Info() {
-			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-			defer cancel()
-			req, _ := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
-			resp, err := m.Ipv4HttpClient.Do(req)
-			if err != nil {
-				IPV4 = false
-				log.Println(err)
-				fmt.Println("No IPv4 support")
-				return
-			}
-			defer resp.Body.Close()
-			b, err := io.ReadAll(resp.Body)
-			if err != nil {
-				IPV4 = false
-				fmt.Println("No IPv4 support")
-			}
-
-		}
-	*/
-
 	fmt.Println("正在从 ipw.cn 获取 IP...")
 	IP4_1, err := GetIPInfo("https://4.ipw.cn", 0)
 	if err != nil {
@@ -898,7 +873,7 @@ func main() {
 		}
 	} else {
 		IPV4 = true
-		if IP4_1 != IP4_2 {
+		if IP4_1 != IP4_2 || IP4_1 != IP4 {
 			fmt.Println(Yellow("正在使用监听地址为 IPv4 的代理，出口 IP：") + Red(IP4))
 		} else if IP4 == IP4_1 {
 			fmt.Println(Green("未使用 IPv4 代理，有 IPv4 网络"))
@@ -915,7 +890,7 @@ func main() {
 		}
 	} else {
 		IPV6 = true
-		if IP6_1 != IP6_2 {
+		if IP6_1 != IP6_2 || IP6_1 != IP6 {
 			fmt.Println(Yellow("正在使用监听地址为 IPv6 的代理，出口 IP：") + Red(IP6))
 		} else if IP6 == IP6_1 {
 			fmt.Println(Green("未使用 IPv6 代理，有 IPv6 网络"))
