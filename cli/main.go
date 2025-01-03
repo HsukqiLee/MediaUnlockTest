@@ -439,49 +439,52 @@ func Ipv6Multination() {
 	excute("Sora", m.Sora, c)
 }
 
-func GetIpv4Info() {
+func GetIPInfo(url string, ipType int, isCloudflare ...bool) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
-	resp, err := m.Ipv4HttpClient.Do(req)
+
+	var client http.Client
+	if ipType == 6 {
+		client = m.Ipv6HttpClient
+	} else if ipType == 4 {
+		client = m.Ipv4HttpClient
+	} else if ipType == 0 {
+		client = m.AutoHttpClient
+	} else {
+		return "", fmt.Errorf("IP type %d is invalid", ipType)
+	}
+
+	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0")
+	resp, err := client.Do(req)
 	if err != nil {
-		IPV4 = false
-		log.Println(err)
-		fmt.Println("No IPv4 support")
-		return
+		if ipType == 6 {
+			IPV6 = false
+		} else {
+			IPV4 = false
+		}
+		return "", err
 	}
 	defer resp.Body.Close()
+
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		IPV4 = false
-		fmt.Println("No IPv4 support")
+		if ipType == 6 {
+			IPV6 = false
+		} else {
+			IPV4 = false
+		}
+		return "", err
 	}
-	s := string(b)
-	i := strings.Index(s, "ip=")
-	s = s[i+3:]
-	i = strings.Index(s, "\n")
-	fmt.Println("Your IPV4 address:", SkyBlue(s[:i]))
-}
-func GetIpv6Info() {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
-	resp, err := m.Ipv6HttpClient.Do(req)
-	if err != nil {
-		IPV6 = false
-		fmt.Println("No IPv6 support")
-		return
+	if len(isCloudflare) > 0 && isCloudflare[0] {
+		s := string(b)
+		i := strings.Index(s, "ip=")
+		s = s[i+3:]
+		i = strings.Index(s, "\n")
+		return s[:i], nil
+	} else {
+		return strings.TrimSpace(string(b)), nil
 	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("No IPv6 support")
-	}
-	s := string(b)
-	i := strings.Index(s, "ip=")
-	s = s[i+3:]
-	i = strings.Index(s, "\n")
-	fmt.Println("Your IPV6 address:", SkyBlue(s[:i]))
 }
 
 func ReadSelect() {
@@ -803,7 +806,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("sora", ShowResult(m.Sora(m.AutoHttpClient)))
+		fmt.Println("wowow", ShowResult(m.Wowow(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
@@ -812,8 +815,116 @@ func main() {
 	fmt.Println("使用方式: " + Yellow("bash <(curl -Ls unlock.icmp.ing/scripts/test.sh)"))
 	fmt.Println()
 
-	GetIpv4Info()
-	GetIpv6Info()
+	// GetIpv4Info()
+	// GetIpv6Info()
+
+	/*
+		func GetIpv4Info() {
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
+			req, _ := http.NewRequestWithContext(ctx, "GET", "https://www.cloudflare.com/cdn-cgi/trace", nil)
+			resp, err := m.Ipv4HttpClient.Do(req)
+			if err != nil {
+				IPV4 = false
+				log.Println(err)
+				fmt.Println("No IPv4 support")
+				return
+			}
+			defer resp.Body.Close()
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				IPV4 = false
+				fmt.Println("No IPv4 support")
+			}
+
+		}
+	*/
+
+	fmt.Println("正在从 ipw.cn 获取 IP...")
+	IP4_1, err := GetIPInfo("https://4.ipw.cn", 0)
+	if err != nil {
+		if Debug {
+			fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
+		} else {
+			fmt.Println(Red("No IPv4 address"))
+		}
+	} else {
+		fmt.Println(SkyBlue("IPv4 address: ") + Green(IP4_1))
+	}
+	IP6_1, err := GetIPInfo("https://6.ipw.cn", 0)
+	if err != nil {
+		if Debug {
+			fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
+		} else {
+			fmt.Println(Red("No IPv6 address"))
+		}
+	} else {
+		fmt.Println(SkyBlue("IPv6 address: ") + Green(IP6_1))
+	}
+	fmt.Println()
+	fmt.Println("正在从 ip.sb 获取 IP...")
+	IP4_2, err := GetIPInfo("https://api-ipv4.ip.sb/ip", 0)
+	if err != nil {
+		if Debug {
+			fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
+		} else {
+			fmt.Println(Red("No IPv4 address"))
+		}
+	} else {
+		fmt.Println(SkyBlue("IPv4 address: ") + Green(IP4_2))
+	}
+	IP6_2, err := GetIPInfo("https://api-ipv6.ip.sb/ip", 0)
+	if err != nil {
+		if Debug {
+			fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
+		} else {
+			fmt.Println(Red("No IPv6 address"))
+		}
+	} else {
+		fmt.Println(SkyBlue("IPv6 address: ") + Green(IP6_2))
+	}
+
+	fmt.Println()
+	fmt.Println("正在检测系统代理...")
+	isProxy := false
+	IP4, err := GetIPInfo("https://www.cloudflare.com/cdn-cgi/trace", 4, true)
+	if err != nil {
+		if IP4_1 != "" || IP4_2 != "" {
+			isProxy = true
+			fmt.Println(Yellow("正在使用系统代理，且无法通过 IPv4 连接代理"))
+		} else {
+			IPV4 = false
+			fmt.Println(Red("未使用 IPv4 代理，无 IPv4 网络"))
+		}
+	} else {
+		IPV4 = true
+		if IP4_1 != IP4_2 {
+			fmt.Println(Yellow("正在使用监听地址为 IPv4 的代理，出口 IP：") + Red(IP4))
+		} else if IP4 == IP4_1 {
+			fmt.Println(Green("未使用 IPv4 代理，有 IPv4 网络"))
+		}
+	}
+	IP6, err := GetIPInfo("https://www.cloudflare.com/cdn-cgi/trace", 6, true)
+	if err != nil {
+		if IP6_1 != "" || IP6_2 != "" {
+			isProxy = true
+			fmt.Println(Yellow("正在使用系统代理，且无法通过 IPv6 连接代理"))
+		} else {
+			IPV6 = false
+			fmt.Println(Red("未使用 IPv4 代理，无 IPv6 网络"))
+		}
+	} else {
+		IPV6 = true
+		if IP6_1 != IP6_2 {
+			fmt.Println(Yellow("正在使用监听地址为 IPv6 的代理，出口 IP：") + Red(IP6))
+		} else if IP6 == IP6_1 {
+			fmt.Println(Green("未使用 IPv6 代理，有 IPv6 网络"))
+		}
+	}
+	if isProxy {
+		fmt.Println(Red("提示：") + Yellow("正在使用系统代理，此时连接行为全部受代理控制"))
+	}
+	fmt.Println()
 
 	if IPV4 || Force {
 		ReadSelect()
