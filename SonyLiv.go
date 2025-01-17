@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"regexp"
 	"strings"
 )
@@ -18,6 +19,7 @@ func extractSonyLivJwtToken(body string) string {
 }
 
 func SonyLiv(c http.Client) Result {
+	c.Jar, _ = cookiejar.New(nil)
 	req, err := http.NewRequest("GET", "https://www.sonyliv.com/", nil)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -46,8 +48,8 @@ func SonyLiv(c http.Client) Result {
 	resp2, err := GET(c, "https://apiv2.sonyliv.com/AGL/1.4/A/ENG/WEB/ALL/USER/ULD",
 		H{"accept", "application/json, text/plain, */*"},
 		H{"referer", "https://www.sonyliv.com/"},
-		H{"device_id", "25a417c3b5f246a393fadb022adc82d5-1715309762699"},
-		H{"app_version", "3.5.59"},
+		H{"device_id", "767cba5309634d129d8839d4f5e6dc59-1736780961139"},
+		H{"app_version", "3.6.3"},
 		H{"security_token", jwtToken},
 	)
 	if err != nil {
@@ -81,7 +83,7 @@ func SonyLiv(c http.Client) Result {
 		H{"accept", "application/json, text/plain, */*"},
 		H{"origin", "https://www.sonyliv.com"},
 		H{"referer", "https://www.sonyliv.com/"},
-		H{"device_id", "25a417c3b5f246a393fadb022adc82d5-1715309762699"},
+		H{"device_id", "767cba5309634d129d8839d4f5e6dc59-1736780961139"},
 		H{"security_token", jwtToken},
 	)
 	if err != nil {

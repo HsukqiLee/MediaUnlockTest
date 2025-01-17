@@ -704,7 +704,7 @@ var setSocketOptions = func(network, address string, c syscall.RawConn, interfac
 }
 
 func main() {
-	client := m.AutoHttpClient
+	client := m.Ipv4HttpClient
 	Iface := ""
 	DnsServers := ""
 	httpProxy := ""
@@ -787,11 +787,13 @@ func main() {
 	}
 	if mode == 4 {
 		client = m.Ipv4HttpClient
+		IPV4 = true
 		IPV6 = false
 	}
 	if mode == 6 {
 		client = m.Ipv6HttpClient
-		IPV4 = false
+		IPV4 = true
+		IPV6 = true
 		M = true
 	}
 	if Conc > 0 {
@@ -806,7 +808,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("wowow", ShowResult(m.Wowow(m.AutoHttpClient)))
+		fmt.Println("SonyLiv", ShowResult(m.SonyLiv(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
