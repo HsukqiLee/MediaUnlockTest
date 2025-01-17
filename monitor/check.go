@@ -136,6 +136,7 @@ func (T *TEST) Multination() {
 	T.excute("Google Gemini", mt.Gemini)
 	T.excute("Google Play Store", mt.GooglePlayStore)
 	T.excute("Sora", mt.Sora)
+	T.excute("Claude", mt.Claude)
 }
 
 func (T *TEST) HongKong() {

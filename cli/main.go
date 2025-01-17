@@ -203,6 +203,7 @@ func Multination(c http.Client) {
 	excute("Google Gemini", m.Gemini, c)
 	excute("Google Play Store", m.GooglePlayStore, c)
 	excute("Sora", m.Sora, c)
+	excute("Claude", m.Claude, c)
 }
 
 func HongKong(c http.Client) {
@@ -437,6 +438,7 @@ func Ipv6Multination() {
 	excute("Google Gemini", m.Gemini, c)
 	excute("Google Play Store", m.GooglePlayStore, c)
 	excute("Sora", m.Sora, c)
+	excute("Claude", m.Claude, c)
 }
 
 func GetIPInfo(url string, ipType int, isCloudflare ...bool) (string, error) {
