@@ -2,6 +2,7 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -23,6 +24,11 @@ func extractTVerDeliveryConfigID(body string) string {
 		return matches[1]
 	}
 	return ""
+}
+
+func isValidTVerEpisodeID(id string) bool {
+	re := regexp.MustCompile(`^[a-z0-9]{10}$`)
+	return re.MatchString(id)
 }
 
 func TVer(c http.Client) Result {
@@ -51,7 +57,6 @@ func TVer(c http.Client) Result {
 	if err := json.Unmarshal(body1, &res1); err != nil {
 		return Result{Status: StatusFailed, Err: err}
 	}
-
 	resp2, err := GET(c, "https://platform-api.tver.jp/service/api/v1/callHome?platform_uid="+res1.Result.PlatformUid+"&platform_token="+res1.Result.PlatformToken+"&require_data=mylist%2Cresume%2Clater",
 		H{"origin", "https://tver.jp"},
 		H{"referer", "https://tver.jp/"},
@@ -62,7 +67,6 @@ func TVer(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp2.Body.Close()
-
 	body2, err := io.ReadAll(resp2.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -85,15 +89,21 @@ func TVer(c http.Client) Result {
 	}
 
 	EpisodeID := ""
+	isEpisodeIDValid := false
 	for _, component := range res2.Result.Components {
-		if component.ComponentID == "newer." {
-			if len(component.Contents) > 0 {
-				EpisodeID = component.Contents[0].Content.EpisodeID
+		if component.ComponentID == "variety.catchup.recomend" && len(component.Contents) > 0 {
+			for _, content := range component.Contents {
+				EpisodeID = content.Content.EpisodeID
+				if isValidTVerEpisodeID(EpisodeID) {
+					isEpisodeIDValid = true
+				}
 			}
+		}
+		if isEpisodeIDValid {
 			break
 		}
 	}
-
+	fmt.Println(EpisodeID)
 	resp3, err := GET(c, "https://statics.tver.jp/content/episode/"+EpisodeID+".json",
 		H{"origin", "https://tver.jp"},
 		H{"referer", "https://tver.jp/"},

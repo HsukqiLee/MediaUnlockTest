@@ -5,7 +5,7 @@ import (
 )
 
 func Kancolle(c http.Client) Result {
-	resp, err := GET_Dalvik(c, "http://203.104.209.7/kcscontents/news/")
+	resp, err := GET_Dalvik(c, "http://w00g.kancolle-server.com/kcscontents/news/")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -14,10 +14,10 @@ func Kancolle(c http.Client) Result {
 	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}
-	
+
 	if resp.StatusCode == 403 || resp.StatusCode == 302 {
 		return Result{Status: StatusNo}
 	}
-	
+
 	return Result{Status: StatusUnexpected}
 }

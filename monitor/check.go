@@ -144,7 +144,7 @@ func (T *TEST) HongKong() {
 	T.excute("Now E", mt.NowE)
 	T.excute("Viu.TV", mt.ViuTV)
 	T.excute("MyTVSuper", mt.MyTvSuper)
-	T.excute("HBO GO Asia", mt.HboGoAsia)
+	T.excute("HBO Max", mt.HBOMax)
 	T.excute("Bilibili HK/MO", mt.BilibiliHKMO)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("Bahamut Anime", mt.BahamutAnime)
@@ -161,7 +161,7 @@ func (T *TEST) Taiwan() {
 	T.excute("Hami Video", mt.HamiVideo)
 	T.excute("CatchPlay+", mt.Catchplay)
 	T.excute("Bahamut Anime", mt.BahamutAnime)
-	T.excute("HBO GO Asia", mt.HboGoAsia)
+	T.excute("HBO Max", mt.HBOMax)
 	T.excute("Bilibili TW", mt.BilibiliTW)
 }
 
