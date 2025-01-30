@@ -144,7 +144,7 @@ func (T *TEST) HongKong() {
 	T.excute("Now E", mt.NowE)
 	T.excute("Viu.TV", mt.ViuTV)
 	T.excute("MyTVSuper", mt.MyTvSuper)
-	T.excute("HBO Max", mt.HBOMax)
+	T.excute("Max", mt.HBOMax)
 	T.excute("Bilibili HK/MO", mt.BilibiliHKMO)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("Bahamut Anime", mt.BahamutAnime)
@@ -161,8 +161,10 @@ func (T *TEST) Taiwan() {
 	T.excute("Hami Video", mt.HamiVideo)
 	T.excute("CatchPlay+", mt.Catchplay)
 	T.excute("Bahamut Anime", mt.BahamutAnime)
-	T.excute("HBO Max", mt.HBOMax)
+	T.excute("Max", mt.HBOMax)
 	T.excute("Bilibili TW", mt.BilibiliTW)
+	T.excute("Ofiii", mt.Ofiii)
+	T.excute("Friday Video", mt.FridayVideo)
 }
 
 func (T *TEST) Japan() {
@@ -173,7 +175,6 @@ func (T *TEST) Japan() {
 	T.excute("Niconico", mt.Niconico)
 	T.excute("music.jp", mt.MusicJP)
 	T.excute("Telasa", mt.Telasa)
-	T.excute("Paravi", mt.Paravi)
 	T.excute("U-NEXT", mt.U_NEXT)
 	T.excute("Hulu Japan", mt.HuluJP)
 	T.excute("GYAO!", mt.GYAO)
@@ -198,6 +199,7 @@ func (T *TEST) Japan() {
 	T.excute("EroGameSpace", mt.EroGameSpace)
 	T.excute("NHK+", mt.NHKPlus)
 	T.excute("Rakuten Magazine", mt.RakutenMagazine)
+	T.excute("MGStage", mt.MGStage)
 }
 
 func (T *TEST) Korea() {
@@ -206,14 +208,16 @@ func (T *TEST) Korea() {
 	T.excute("Tving", mt.Tving)
 	T.excute("Watcha", mt.Watcha)
 	T.excute("Coupang Play", mt.CoupangPlay)
-	T.excute("SpotvNow", mt.SpotvNow)
-	T.excute("NaverTV", mt.NaverTV)
+	T.excute("Spotv Now", mt.SpotvNow)
+	T.excute("Naver TV", mt.NaverTV)
 	T.excute("Afreeca", mt.Afreeca)
 	T.excute("KBS", mt.KBS)
+	T.excute("Panda TV", mt.PandaTV)
 }
 
 func (T *TEST) NorthAmerica() {
 	// R = append(R, &result{Name: "North America", Divider: true})
+	T.excute("A&E TV", mt.AETV)
 	T.excute("FOX", mt.Fox)
 	T.excute("Hulu", mt.Hulu)
 	T.excute("NFL+", mt.NFLPlus)
@@ -223,11 +227,12 @@ func (T *TEST) NorthAmerica() {
 	T.excute("Philo", mt.Philo)
 	T.excute("FXNOW", mt.FXNOW)
 	T.excute("TLC GO", mt.TlcGo)
-	T.excute("HBO Max", mt.HBOMax)
+	T.excute("Max", mt.HBOMax)
 	T.excute("Shudder", mt.Shudder)
 	T.excute("BritBox", mt.BritBox)
 	T.excute("CW TV", mt.CW_TV)
 	T.excute("NBA TV", mt.NBA_TV)
+	T.excute("NBC TV", mt.NBC_TV)
 	T.excute("Fubo TV", mt.FuboTV)
 	T.excute("Tubi TV", mt.TubiTV)
 	T.excute("Sling TV", mt.SlingTV)
@@ -255,7 +260,6 @@ func (T *TEST) NorthAmerica() {
 
 func (T *TEST) SouthAmerica() {
 	//R = append(R, &result{Name: "South America", Divider: true})
-	//T.excute("Star Plus", mt.StarPlus)
 	T.excute("DirecTV GO", mt.DirecTVGO)
 	T.excute("Meta AI", mt.MetaAI)
 }
@@ -265,7 +269,7 @@ func (T *TEST) Europe() {
 	T.excute("Rakuten TV", mt.RakutenTV_EU)
 	T.excute("Setanta Sports", mt.SetantaSports)
 	T.excute("Sky Show Time", mt.SkyShowTime)
-	T.excute("HBO Max", mt.HBOMax)
+	T.excute("Max", mt.HBOMax)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("BBC iPlayer", mt.BBCiPlayer)
 	T.excute("Channel 4", mt.Channel4)

@@ -40,7 +40,6 @@ var (
 	AFR     bool
 	SEA     bool
 	OCEA    bool
-	Force   bool
 	Debug   bool   = false
 	Conc    uint64 = 0
 	sem     chan struct{}
@@ -63,7 +62,7 @@ type result struct {
 	Value   m.Result
 }
 
-func excute(Name string, F func(client http.Client) m.Result, client http.Client) {
+func execute(Name string, F func(client http.Client) m.Result, client http.Client) {
 	r := &result{Name: Name}
 	R = append(R, r)
 	wg.Add(1)
@@ -180,269 +179,357 @@ func NewBar(count int64) *pb.ProgressBar {
 	)
 }
 
-func Multination(c http.Client) {
-	R = append(R, &result{Name: "Multination", Divider: true})
-	excute("Dazn", m.Dazn, c)
-	excute("Disney+", m.DisneyPlus, c)
-	excute("Netflix", m.NetflixRegion, c)
-	excute("Netflix CDN", m.NetflixCDN, c)
-	excute("Youtube Premium", m.YoutubeRegion, c)
-	excute("Youtube CDN", m.YoutubeCDN, c)
-	excute("Amazon Prime Video", m.PrimeVideo, c)
-	excute("TVBAnywhere+", m.TVBAnywhere, c)
-	excute("iQiYi", m.IQiYi, c)
-	excute("Viu.com", m.ViuCom, c)
-	excute("Spotify", m.Spotify, c)
-	excute("Steam", m.Steam, c)
-	excute("ChatGPT", m.ChatGPT, c)
-	excute("Wikipedia", m.WikipediaEditable, c)
-	excute("Reddit", m.Reddit, c)
-	excute("TikTok", m.TikTok, c)
-	excute("Bing", m.Bing, c)
-	excute("Instagram Audio", m.Instagram, c)
-	excute("Google Gemini", m.Gemini, c)
-	excute("Google Play Store", m.GooglePlayStore, c)
-	excute("Sora", m.Sora, c)
-	excute("Claude", m.Claude, c)
+func Globe(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Globe", ipTypeStr), Divider: true})
+	executeTests(MultinationTests, c, ipType)
+
 }
 
-func HongKong(c http.Client) {
-	R = append(R, &result{Name: "Hong Kong", Divider: true})
-	excute("Now E", m.NowE, c)
-	excute("Viu.TV", m.ViuTV, c)
-	excute("MyTVSuper", m.MyTvSuper, c)
-	excute("HBO Max", m.HBOMax, c)
-	excute("Bilibili HongKong/Macau Only", m.BilibiliHKMO, c)
-	excute("SonyLiv", m.SonyLiv, c)
-	excute("Bahamut Anime", m.BahamutAnime, c)
-	excute("Hoy TV", m.HoyTV, c)
+func HongKong(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Hong Kong", ipTypeStr), Divider: true})
+	executeTests(HongKongTests, c, ipType)
+
 }
 
-func Taiwan(c http.Client) {
-	R = append(R, &result{Name: "Taiwan", Divider: true})
-	excute("KKTV", m.KKTV, c)
-	excute("LiTV", m.LiTV, c)
-	excute("MyVideo", m.MyVideo, c)
-	excute("4GTV", m.TW4GTV, c)
-	excute("LineTV", m.LineTV, c)
-	excute("Hami Video", m.HamiVideo, c)
-	excute("CatchPlay+", m.Catchplay, c)
-	excute("Bahamut Anime", m.BahamutAnime, c)
-	excute("HBO Max", m.HBOMax, c)
-	excute("Bilibili Taiwan Only", m.BilibiliTW, c)
+func Taiwan(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Taiwan", ipTypeStr), Divider: true})
+	executeTests(TaiwanTests, c, ipType)
+
 }
 
-func Japan(c http.Client) {
-	R = append(R, &result{Name: "Japan", Divider: true})
-	excute("DMM", m.DMM, c)
-	excute("DMM TV", m.DMMTV, c)
-	excute("Abema", m.Abema, c)
-	excute("Niconico", m.Niconico, c)
-	excute("music.jp", m.MusicJP, c)
-	excute("Telasa", m.Telasa, c)
-	excute("Paravi", m.Paravi, c)
-	excute("U-NEXT", m.U_NEXT, c)
-	excute("Hulu Japan", m.HuluJP, c)
-	excute("GYAO!", m.GYAO, c)
-	excute("VideoMarket", m.VideoMarket, c)
-	excute("FOD(Fuji TV)", m.FOD, c)
-	excute("Radiko", m.Radiko, c)
-	excute("Karaoke@DAM", m.Karaoke, c)
-	excute("J:COM On Demand", m.J_COM_ON_DEMAND, c)
-	excute("Kancolle", m.Kancolle, c)
-	excute("Pretty Derby Japan", m.PrettyDerbyJP, c)
-	excute("Konosuba Fantastic Days", m.KonosubaFD, c)
-	excute("Princess Connect Re:Dive Japan", m.PCRJP, c)
-	excute("Project Sekai: Colorful Stage", m.PJSK, c)
-	excute("Rakuten TV JP", m.RakutenTV_JP, c)
-	excute("Wowow", m.Wowow, c)
-	excute("Watcha", m.Watcha, c)
-	excute("TVer", m.TVer, c)
-	excute("Lemino", m.Lemino, c)
-	excute("D Anime Store", m.DAnimeStore, c)
-	excute("Mora", m.Mora, c)
-	excute("AnimeFesta", m.AnimeFesta, c)
-	excute("EroGameSpace", m.EroGameSpace, c)
-	excute("NHK+", m.NHKPlus, c)
-	excute("Rakuten Magazine", m.RakutenMagazine, c)
+func Japan(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Japan", ipTypeStr), Divider: true})
+	executeTests(JapanTests, c, ipType)
+
 }
 
-func Korea(c http.Client) {
-	R = append(R, &result{Name: "Korea", Divider: true})
-	excute("Wavve", m.Wavve, c)
-	excute("Tving", m.Tving, c)
-	excute("Watcha", m.Watcha, c)
-	excute("Coupang Play", m.CoupangPlay, c)
-	excute("SpotvNow", m.SpotvNow, c)
-	excute("NaverTV", m.NaverTV, c)
-	excute("Afreeca", m.Afreeca, c)
-	excute("KBS", m.KBS, c)
+func Korea(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Korea", ipTypeStr), Divider: true})
+	if ipType == 6 {
+		R = append(R, &result{Name: "No Korean platform supports IPv6", Divider: false})
+	} else {
+		executeTests(KoreaTests, c, ipType)
+	}
+
 }
 
-func NorthAmerica(c http.Client) {
-	R = append(R, &result{Name: "North America", Divider: true})
-	excute("Shudder", m.Shudder, c)
-	excute("BritBox", m.BritBox, c)
-	excute("SonyLiv", m.SonyLiv, c)
-	excute("Hotstar", m.Hotstar, c)
-	excute("NBA TV", m.NBA_TV, c)
-	excute("Fubo TV", m.FuboTV, c)
-	excute("Tubi TV", m.TubiTV, c)
-	excute("Meta AI", m.MetaAI, c)
-	excute("AMC+", m.AMCPlus, c)
-	excute("Viaplay", m.Viaplay, c)
-	R = append(R, &result{Name: "US", Divider: true})
-	excute("FOX", m.Fox, c)
-	excute("Hulu", m.Hulu, c)
-	excute("NFL+", m.NFLPlus, c)
-	excute("ESPN+", m.ESPNPlus, c)
-	excute("MGM+", m.MGMPlus, c)
-	excute("Starz", m.Starz, c)
-	excute("Philo", m.Philo, c)
-	excute("FXNOW", m.FXNOW, c)
-	excute("TLC GO", m.TlcGo, c)
-	excute("HBO Max", m.HBOMax, c)
-	excute("CW TV", m.CW_TV, c)
-	excute("Sling TV", m.SlingTV, c)
-	excute("Pluto TV", m.PlutoTV, c)
-	excute("Acorn TV", m.AcornTV, c)
-	excute("SHOWTIME", m.SHOWTIME, c)
-	excute("encoreTVB", m.EncoreTVB, c)
-	excute("Discovery+", m.DiscoveryPlus, c)
-	excute("Paramount+", m.ParamountPlus, c)
-	excute("Peacock TV", m.PeacockTV, c)
-	excute("Crunchyroll", m.Crunchyroll, c)
-	excute("DirecTV Stream", m.DirectvStream, c)
-	excute("KOCOWA+", m.KOCOWA, c)
-	excute("Crackle", m.Crackle, c)
-	excute("MathsSpot Roblox", m.MathsSpotRoblox, c)
-	R = append(R, &result{Name: "CA", Divider: true})
-	excute("CBC Gem", m.CBCGem, c)
-	excute("Crave", m.Crave, c)
+func NorthAmerica(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s North America", ipTypeStr), Divider: true})
+	executeTests(NorthAmericaTests, c, ipType)
+
 }
 
-func SouthAmerica(c http.Client) {
-	R = append(R, &result{Name: "South America", Divider: true})
-	//excute("Star Plus", m.StarPlus, c)
-	excute("DirecTV GO", m.DirecTVGO, c)
-	excute("HBO Max", m.HBOMax, c)
+func SouthAmerica(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s South America", ipTypeStr), Divider: true})
+	executeTests(SouthAmericaTests, c, ipType)
 }
 
-func Europe(c http.Client) {
-	R = append(R, &result{Name: "Europe", Divider: true})
-	excute("Rakuten TV EU", m.RakutenTV_EU, c)
-	excute("Setanta Sports", m.SetantaSports, c)
-	excute("Sky Show Time", m.SkyShowTime, c)
-	excute("HBO Max", m.HBOMax, c)
-	excute("SonyLiv", m.SonyLiv, c)
-	excute("KOCOWA+", m.KOCOWA, c)
-	excute("Viaplay", m.Viaplay, c)
-	R = append(R, &result{Name: "GB", Divider: true})
-	excute("BBC iPlayer", m.BBCiPlayer, c)
-	excute("Channel 4", m.Channel4, c)
-	excute("Channel 5", m.Channel5, c)
-	excute("Sky Go", m.SkyGo, c)
-	excute("ITVX", m.ITVX, c)
-	excute("Hotstar", m.Hotstar, c)
-	excute("MathsSpot Roblox", m.MathsSpotRoblox, c)
-	R = append(R, &result{Name: "IT", Divider: true})
-	excute("Rai Play", m.RaiPlay, c)
-	R = append(R, &result{Name: "FR/DE", Divider: true})
-	excute("Canal+", m.CanalPlus, c)
-	excute("ZDF", m.ZDF, c)
-	excute("Joyn", m.Joyn, c)
-	excute("Molotov", m.Molotov, c)
-	excute("Sky DE", m.Sky_DE, c)
-	excute("France TV", m.FranceTV, c)
-	R = append(R, &result{Name: "NL", Divider: true})
-	excute("NPO Start Plus", m.NPOStartPlus, c)
-	excute("Video Land", m.VideoLand, c)
-	excute("NLZIET", m.NLZIET, c)
-	R = append(R, &result{Name: "ES", Divider: true})
-	excute("Movistar Plus+", m.MoviStarPlus, c)
-	R = append(R, &result{Name: "RO", Divider: true})
-	excute("Eurosport RO", m.EurosportRO, c)
-	R = append(R, &result{Name: "CH", Divider: true})
-	excute("Sky CH", m.Sky_CH, c)
-	R = append(R, &result{Name: "RU", Divider: true})
-	excute("Amediateka", m.Amediateka, c)
+func Europe(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Europe", ipTypeStr), Divider: true})
+	executeTests(EuropeTests, c, ipType)
 }
 
-func Africa(c http.Client) {
-	R = append(R, &result{Name: "Africa", Divider: true})
-	excute("DSTV", m.DSTV, c)
-	excute("Showmax", m.Showmax, c)
-	excute("Meta AI", m.MetaAI, c)
+func Africa(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Africa", ipTypeStr), Divider: true})
+	executeTests(AfricaTests, c, ipType)
 }
 
-func SouthEastAsia(c http.Client) {
-	R = append(R, &result{Name: "South East Asia", Divider: true})
-	excute("Bilibili SouthEastAsia Only", m.BilibiliSEA, c)
-	excute("SonyLiv", m.SonyLiv, c)
-	excute("Hotstar", m.Hotstar, c)
-	excute("CatchPlay+", m.Catchplay, c)
-	R = append(R, &result{Name: "SG", Divider: true})
-	excute("MeWatch", m.MeWatch, c)
-	excute("Meta AI", m.MetaAI, c)
-	R = append(R, &result{Name: "TH", Divider: true})
-	excute("Bilibili Thailand Only", m.BilibiliTH, c)
-	excute("AIS Play", m.AISPlay, c)
-	excute("TrueID", m.TrueID, c)
-	R = append(R, &result{Name: "ID", Divider: true})
-	excute("Bilibili Indonesia Only", m.BilibiliID, c)
-	R = append(R, &result{Name: "VN", Divider: true})
-	excute("Bilibili Vietnam Only", m.BilibiliVN, c)
+func SouthEastAsia(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s South East Asia", ipTypeStr), Divider: true})
+	executeTests(SouthEastAsiaTests, c, ipType)
 }
 
-func Oceania(c http.Client) {
-	R = append(R, &result{Name: "Oceania", Divider: true})
-	excute("NBA TV", m.NBA_TV, c)
-	excute("Acorn TV", m.AcornTV, c)
-	excute("BritBox", m.BritBox, c)
-	excute("Paramount+", m.ParamountPlus, c)
-	excute("SonyLiv", m.SonyLiv, c)
-	excute("Meta AI", m.MetaAI, c)
-	excute("KOCOWA+", m.KOCOWA, c)
-	excute("AMC+", m.AMCPlus, c)
-	R = append(R, &result{Name: "AU", Divider: true})
-	excute("Stan", m.Stan, c)
-	excute("Binge", m.Binge, c)
-	excute("Doc Play", m.DocPlay, c)
-	excute("7Plus", m.SevenPlus, c)
-	excute("Channel 9", m.Channel9, c)
-	excute("10 Play", m.Channel10, c)
-	excute("ABC iView", m.ABCiView, c)
-	excute("Optus Sports", m.OptusSports, c)
-	excute("SBS on Demand", m.SBSonDemand, c)
-	excute("Kayo Sports", m.KayoSports, c)
-	R = append(R, &result{Name: "NZ", Divider: true})
-	excute("Neon TV", m.NeonTV, c)
-	excute("Three Now", m.ThreeNow, c)
-	excute("Maori TV", m.MaoriTV, c)
-	excute("Sky Go NZ", m.SkyGo_NZ, c)
+func Oceania(c http.Client, ipType int) {
+	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
+	if ipType == 0 {
+		ipTypeStr = "Auto"
+	}
+	R = append(R, &result{Name: fmt.Sprintf("%s Oceania", ipTypeStr), Divider: true})
+	executeTests(OceaniaTests, c, ipType)
 }
 
-func Ipv6Multination() {
-	c := m.Ipv6HttpClient
-	R = append(R, &result{Name: "", Divider: true})
-	R = append(R, &result{Name: "IPV6 Multination", Divider: true})
-	excute("Hotstar", m.Hotstar, c)
-	excute("Disney+", m.DisneyPlus, c)
-	excute("Netflix", m.NetflixRegion, c)
-	excute("Netflix CDN", m.NetflixCDN, c)
-	excute("Youtube Premium", m.YoutubeRegion, c)
-	excute("Youtube CDN", m.YoutubeCDN, c)
-	excute("ChatGPT", m.ChatGPT, c)
-	excute("Wikipedia", m.WikipediaEditable, c)
-	excute("Bing", m.Bing, c)
-	excute("Google Gemini", m.Gemini, c)
-	excute("Google Play Store", m.GooglePlayStore, c)
-	excute("Sora", m.Sora, c)
-	excute("Claude", m.Claude, c)
+type TestItem struct {
+	Name       string
+	Func       func(client http.Client) m.Result
+	SupportsV6 bool
 }
 
-func GetIPInfo(url string, ipType int, isCloudflare ...bool) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+var MultinationTests = []TestItem{
+	{"Dazn", m.Dazn, false},
+	{"Disney+", m.DisneyPlus, true},
+	{"Netflix", m.NetflixRegion, true},
+	{"Netflix CDN", m.NetflixCDN, true},
+	{"Youtube Premium", m.YoutubeRegion, true},
+	{"Youtube CDN", m.YoutubeCDN, true},
+	{"Amazon Prime Video", m.PrimeVideo, false},
+	{"TVBAnywhere+", m.TVBAnywhere, false},
+	{"iQiYi", m.IQiYi, false},
+	{"Viu.com", m.ViuCom, false},
+	{"Spotify", m.Spotify, true},
+	{"Steam", m.Steam, false},
+	{"ChatGPT", m.ChatGPT, true},
+	{"Wikipedia", m.WikipediaEditable, true},
+	{"Reddit", m.Reddit, true},
+	{"TikTok", m.TikTok, false},
+	{"Bing", m.Bing, true},
+	{"Instagram Audio", m.Instagram, true},
+	{"Google Gemini", m.Gemini, true},
+	{"Google Play Store", m.GooglePlayStore, true},
+	{"Sora", m.Sora, true},
+	{"Claude", m.Claude, true},
+}
+
+var HongKongTests = []TestItem{
+	{"Now E", m.NowE, false},
+	{"Viu.TV", m.ViuTV, false},
+	{"MyTVSuper", m.MyTvSuper, false},
+	{"Max", m.HBOMax, true},
+	{"Bilibili HongKong/Macau Only", m.BilibiliHKMO, false},
+	{"SonyLiv", m.SonyLiv, false},
+	{"Bahamut Anime", m.BahamutAnime, false},
+	{"Hoy TV", m.HoyTV, true},
+	{"NBA TV", m.NBA_TV, true},
+}
+
+var TaiwanTests = []TestItem{
+	{"KKTV", m.KKTV, false},
+	{"LiTV", m.LiTV, false},
+	{"MyVideo", m.MyVideo, false},
+	{"4GTV", m.TW4GTV, false},
+	{"LineTV", m.LineTV, false},
+	{"Hami Video", m.HamiVideo, false},
+	{"CatchPlay+", m.Catchplay, false},
+	{"Bahamut Anime", m.BahamutAnime, false},
+	{"Max", m.HBOMax, true},
+	{"Bilibili Taiwan Only", m.BilibiliTW, false},
+	{"Ofiii", m.Ofiii, false},
+	{"Friday Video", m.FridayVideo, false},
+}
+
+var JapanTests = []TestItem{
+	{"DMM", m.DMM, false},
+	{"DMM TV", m.DMMTV, true},
+	{"Abema", m.Abema, false},
+	{"Niconico", m.Niconico, false},
+	{"music.jp", m.MusicJP, false},
+	{"Telasa", m.Telasa, true},
+	{"U-NEXT", m.U_NEXT, true},
+	{"Hulu Japan", m.HuluJP, false},
+	{"GYAO!", m.GYAO, false},
+	{"VideoMarket", m.VideoMarket, false},
+	{"FOD(Fuji TV)", m.FOD, false},
+	{"Radiko", m.Radiko, false},
+	{"Karaoke@DAM", m.Karaoke, false},
+	{"J:COM On Demand", m.J_COM_ON_DEMAND, false},
+	{"Kancolle", m.Kancolle, false},
+	{"Pretty Derby Japan", m.PrettyDerbyJP, true},
+	{"Konosuba Fantastic Days", m.KonosubaFD, false},
+	{"Princess Connect Re:Dive Japan", m.PCRJP, false},
+	{"Project Sekai: Colorful Stage", m.PJSK, false},
+	{"Rakuten TV JP", m.RakutenTV_JP, false},
+	{"Wowow", m.Wowow, false},
+	{"Watcha", m.Watcha, false},
+	{"TVer", m.TVer, false},
+	{"Lemino", m.Lemino, true},
+	{"D Anime Store", m.DAnimeStore, false},
+	{"Mora", m.Mora, false},
+	{"AnimeFesta", m.AnimeFesta, false},
+	{"EroGameSpace", m.EroGameSpace, false},
+	{"NHK+", m.NHKPlus, true},
+	{"Rakuten Magazine", m.RakutenMagazine, false},
+	{"MGStage", m.MGStage, false},
+}
+
+var KoreaTests = []TestItem{
+	{"Wavve", m.Wavve, false},
+	{"Tving", m.Tving, false},
+	{"Watcha", m.Watcha, false},
+	{"Coupang Play", m.CoupangPlay, false},
+	{"Spotv Now", m.SpotvNow, false},
+	{"Naver TV", m.NaverTV, false},
+	{"Afreeca", m.Afreeca, false},
+	{"KBS", m.KBS, false},
+	{"Panda TV", m.PandaTV, false},
+}
+
+var NorthAmericaTests = []TestItem{
+	{"Shudder", m.Shudder, true},
+	{"BritBox", m.BritBox, true},
+	{"SonyLiv", m.SonyLiv, true},
+	{"Hotstar", m.Hotstar, true},
+	{"NBA TV", m.NBA_TV, true},
+	{"Fubo TV", m.FuboTV, false},
+	{"Tubi TV", m.TubiTV, true},
+	{"Meta AI", m.MetaAI, true},
+	{"AMC+", m.AMCPlus, true},
+	{"Viaplay", m.Viaplay, true},
+	{"A&E TV", m.AETV, false},
+	{"FOX", m.Fox, true},
+	{"Hulu", m.Hulu, true},
+	{"NFL+", m.NFLPlus, false},
+	{"ESPN+", m.ESPNPlus, true},
+	{"MGM+", m.MGMPlus, false},
+	{"Starz", m.Starz, false},
+	{"Philo", m.Philo, false},
+	{"FXNOW", m.FXNOW, false},
+	{"TLC GO", m.TlcGo, true},
+	{"Max", m.HBOMax, true},
+	{"NBC TV", m.NBC_TV, true},
+	{"CW TV", m.CW_TV, true},
+	{"Sling TV", m.SlingTV, true},
+	{"Pluto TV", m.PlutoTV, false},
+	{"Acorn TV", m.AcornTV, false},
+	{"SHOWTIME", m.SHOWTIME, true},
+	{"encoreTVB", m.EncoreTVB, false},
+	{"Discovery+", m.DiscoveryPlus, false},
+	{"Paramount+", m.ParamountPlus, true},
+	{"Peacock TV", m.PeacockTV, true},
+	{"Crunchyroll", m.Crunchyroll, false},
+	{"DirecTV Stream", m.DirectvStream, true},
+	{"KOCOWA+", m.KOCOWA, false},
+	{"Crackle", m.Crackle, true},
+	{"MathsSpot Roblox", m.MathsSpotRoblox, false},
+	{"CBC Gem", m.CBCGem, false},
+	{"Crave", m.Crave, false},
+}
+
+var SouthAmericaTests = []TestItem{
+	{"DirecTV GO", m.DirecTVGO, false},
+	{"Max", m.HBOMax, true},
+}
+
+var EuropeTests = []TestItem{
+	{"Rakuten TV EU", m.RakutenTV_EU, false},
+	{"Setanta Sports", m.SetantaSports, true},
+	{"Sky Show Time", m.SkyShowTime, true},
+	{"Max", m.HBOMax, true},
+	{"SonyLiv", m.SonyLiv, true},
+	{"KOCOWA+", m.KOCOWA, false},
+	{"Viaplay", m.Viaplay, true},
+	{"BBC iPlayer", m.BBCiPlayer, false},
+	{"Channel 4", m.Channel4, false},
+	{"Channel 5", m.Channel5, false},
+	{"Sky Go", m.SkyGo, false},
+	{"ITVX", m.ITVX, false},
+	{"Hotstar", m.Hotstar, true},
+	{"MathsSpot Roblox", m.MathsSpotRoblox, false},
+	{"Rai Play", m.RaiPlay, false},
+	{"Canal+", m.CanalPlus, false},
+	{"ZDF", m.ZDF, false},
+	{"Joyn", m.Joyn, false},
+	{"Molotov", m.Molotov, true},
+	{"Sky DE", m.Sky_DE, false},
+	{"France TV", m.FranceTV, true},
+	{"NPO Start Plus", m.NPOStartPlus, false},
+	{"Video Land", m.VideoLand, true},
+	{"NLZIET", m.NLZIET, false},
+	{"Movistar Plus+", m.MoviStarPlus, false},
+	{"Eurosport RO", m.EurosportRO, false},
+	{"Sky CH", m.Sky_CH, false},
+	{"Amediateka", m.Amediateka, false},
+}
+
+var AfricaTests = []TestItem{
+	{"DSTV", m.DSTV, false},
+	{"Showmax", m.Showmax, true},
+	{"Meta AI", m.MetaAI, true},
+}
+
+var SouthEastAsiaTests = []TestItem{
+	{"Bilibili SouthEastAsia Only", m.BilibiliSEA, false},
+	{"SonyLiv", m.SonyLiv, true},
+	{"Hotstar", m.Hotstar, true},
+	{"CatchPlay+", m.Catchplay, false},
+	{"MeWatch", m.MeWatch, false},
+	{"Meta AI", m.MetaAI, true},
+	{"Bilibili Thailand Only", m.BilibiliTH, false},
+	{"AIS Play", m.AISPlay, false},
+	{"TrueID", m.TrueID, false},
+	{"Bilibili Indonesia Only", m.BilibiliID, false},
+	{"Bilibili Vietnam Only", m.BilibiliVN, false},
+}
+
+var OceaniaTests = []TestItem{
+	{"NBA TV", m.NBA_TV, true},
+	{"Acorn TV", m.AcornTV, false},
+	{"BritBox", m.BritBox, true},
+	{"Paramount+", m.ParamountPlus, true},
+	{"SonyLiv", m.SonyLiv, true},
+	{"Meta AI", m.MetaAI, true},
+	{"KOCOWA+", m.KOCOWA, false},
+	{"AMC+", m.AMCPlus, true},
+	{"Stan", m.Stan, false},
+	{"Binge", m.Binge, true},
+	{"Doc Play", m.DocPlay, false},
+	{"7Plus", m.SevenPlus, true},
+	{"Channel 9", m.Channel9, true},
+	{"10 Play", m.Channel10, false},
+	{"ABC iView", m.ABCiView, false},
+	{"Optus Sports", m.OptusSports, true},
+	{"SBS on Demand", m.SBSonDemand, false},
+	{"Kayo Sports", m.KayoSports, false},
+	{"Neon TV", m.NeonTV, false},
+	{"Three Now", m.ThreeNow, false},
+	{"Maori TV", m.MaoriTV, false},
+	{"Sky Go NZ", m.SkyGo_NZ, false},
+}
+
+func executeTests(tests []TestItem, client http.Client, ipType int) {
+	for _, test := range tests {
+		if ipType == 6 && !test.SupportsV6 {
+			continue
+		}
+		execute(test.Name, test.Func, client)
+	}
+	R = append(R, &result{Name: "", Divider: false})
+}
+
+func GetIPInfo(url string, ipType int, isCloudflare bool) (string, error) {
+	timeout := 6
+	if ipType == 6 {
+		timeout = 3
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
 	var client http.Client
@@ -457,28 +544,30 @@ func GetIPInfo(url string, ipType int, isCloudflare ...bool) (string, error) {
 	}
 
 	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0")
+	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+	req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+	req.Header.Set("cache-control", "no-cache")
+	req.Header.Set("dnt", "1")
+	req.Header.Set("pragma", "no-cache")
+	req.Header.Set("sec-ch-ua", `"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"`)
+	req.Header.Set("sec-ch-ua-mobile", "?0")
+	req.Header.Set("sec-ch-ua-platform", "Windows")
+	req.Header.Set("sec-fetch-dest", "document")
+	req.Header.Set("sec-fetch-mode", "navigate")
+	req.Header.Set("sec-fetch-site", "none")
+	req.Header.Set("sec-fetch-user", "?1")
+	req.Header.Set("upgrade-insecure-requests", "1")
 	resp, err := client.Do(req)
 	if err != nil {
-		if ipType == 6 {
-			IPV6 = false
-		} else {
-			IPV4 = false
-		}
 		return "", err
 	}
 	defer resp.Body.Close()
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		if ipType == 6 {
-			IPV6 = false
-		} else {
-			IPV4 = false
-		}
 		return "", err
 	}
-	if len(isCloudflare) > 0 && isCloudflare[0] {
+	if isCloudflare {
 		s := string(b)
 		i := strings.Index(s, "ip=")
 		s = s[i+3:]
@@ -706,7 +795,6 @@ var setSocketOptions = func(network, address string, c syscall.RawConn, interfac
 }
 
 func main() {
-	client := m.Ipv4HttpClient
 	Iface := ""
 	DnsServers := ""
 	httpProxy := ""
@@ -720,11 +808,10 @@ func main() {
 	flag.StringVar(&DnsServers, "dns-servers", "", "specify dns servers")
 	flag.StringVar(&httpProxy, "http-proxy", "", "http proxy")
 	flag.StringVar(&socksProxy, "socks-proxy", "", "socks5 proxy")
-	flag.BoolVar(&Force, "f", false, "force ipv6")
 	flag.BoolVar(&showVersion, "v", false, "show version")
 	flag.BoolVar(&update, "u", false, "update")
-	flag.BoolVar(&nf, "nf", false, "netflix")
-	flag.BoolVar(&test, "test", false, "test")
+	flag.BoolVar(&nf, "nf", false, "only test netflix")
+	flag.BoolVar(&test, "test", false, "test mode")
 	flag.BoolVar(&Debug, "debug", false, "debug mode")
 	flag.IntVar(&mode, "m", 0, "mode 0(default)/4/6")
 	flag.Uint64Var(&Conc, "conc", 0, "concurrency of tests")
@@ -787,17 +874,6 @@ func main() {
 		m.Ipv6Transport.SocksDialer = dialer
 		m.AutoHttpClient.Transport.(*m.CustomTransport).SocksDialer = dialer
 	}
-	if mode == 4 {
-		client = m.Ipv4HttpClient
-		IPV4 = true
-		IPV6 = false
-	}
-	if mode == 6 {
-		client = m.Ipv6HttpClient
-		IPV4 = true
-		IPV6 = true
-		M = true
-	}
 	if Conc > 0 {
 		sem = make(chan struct{}, Conc)
 	}
@@ -810,7 +886,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("TVer", ShowResult(m.TVer(m.AutoHttpClient)))
+		fmt.Println("aetv", ShowResult(m.AETV(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
@@ -820,170 +896,171 @@ func main() {
 	fmt.Println()
 
 	fmt.Println("正在从 ipw.cn 获取 IP...")
-	IP4_1, err := GetIPInfo("https://4.ipw.cn", 0)
-	if err != nil {
-		if Debug {
-			fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
+	var IP4_1, IP6_1, IP4_2, IP6_2 string
+	var err error
+	if mode == 0 || mode == 4 {
+		IP4_1, err = GetIPInfo("https://4.ipw.cn", mode, false)
+		if err != nil {
+			if Debug {
+				fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
+			} else {
+				fmt.Println(Red("No IPv4 address"))
+			}
 		} else {
-			fmt.Println(Red("No IPv4 address"))
+			fmt.Println(SkyBlue("IPv4 address: ") + Green(IP4_1))
 		}
-	} else {
-		fmt.Println(SkyBlue("IPv4 address: ") + Green(IP4_1))
 	}
-	IP6_1, err := GetIPInfo("https://6.ipw.cn", 0)
-	if err != nil {
-		if Debug {
-			fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
+	if mode == 0 || mode == 6 {
+		IP6_1, err = GetIPInfo("https://6.ipw.cn", mode, false)
+		if err != nil {
+			if Debug {
+				fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
+			} else {
+				fmt.Println(Red("No IPv6 address"))
+			}
 		} else {
-			fmt.Println(Red("No IPv6 address"))
+			fmt.Println(SkyBlue("IPv6 address: ") + Green(IP6_1))
 		}
-	} else {
-		fmt.Println(SkyBlue("IPv6 address: ") + Green(IP6_1))
-	}
-	fmt.Println()
-	fmt.Println("正在从 ip.sb 获取 IP...")
-	IP4_2, err := GetIPInfo("https://api-ipv4.ip.sb/ip", 0)
-	if err != nil {
-		if Debug {
-			fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
-		} else {
-			fmt.Println(Red("No IPv4 address"))
-		}
-	} else {
-		fmt.Println(SkyBlue("IPv4 address: ") + Green(IP4_2))
-	}
-	IP6_2, err := GetIPInfo("https://api-ipv6.ip.sb/ip", 0)
-	if err != nil {
-		if Debug {
-			fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
-		} else {
-			fmt.Println(Red("No IPv6 address"))
-		}
-	} else {
-		fmt.Println(SkyBlue("IPv6 address: ") + Green(IP6_2))
 	}
 
-	fmt.Println()
+	fmt.Println("正在从 ip.sb 获取 IP...")
+	if mode == 0 || mode == 4 {
+		IP4_2, err = GetIPInfo("https://api-ipv4.ip.sb/ip", mode, false)
+		if err != nil {
+			if Debug {
+				fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
+			} else {
+				fmt.Println(Red("No IPv4 address"))
+			}
+		} else {
+			fmt.Println(SkyBlue("IPv4 address: ") + Green(IP4_2))
+		}
+	}
+	if mode == 0 || mode == 6 {
+		IP6_2, err = GetIPInfo("https://api-ipv6.ip.sb/ip", mode, false)
+		if err != nil {
+			if Debug {
+				fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
+			} else {
+				fmt.Println(Red("No IPv6 address"))
+			}
+		} else {
+			fmt.Println(SkyBlue("IPv6 address: ") + Green(IP6_2))
+		}
+	}
+
 	fmt.Println("正在检测系统代理...")
 	isProxy := false
-	IP4, err := GetIPInfo("https://www.cloudflare.com/cdn-cgi/trace", 4, true)
-	if err != nil {
-		if IP4_1 != "" || IP4_2 != "" {
-			isProxy = true
-			fmt.Println(Yellow("正在使用系统代理，且无法通过 IPv4 连接代理"))
+	if mode == 0 || mode == 4 {
+		IP4, err := GetIPInfo("https://www.cloudflare.com/cdn-cgi/trace", 4, true)
+		if err != nil {
+			if IP4_1 != "" || IP4_2 != "" {
+				isProxy = true
+				fmt.Println(Yellow("正在使用系统代理，且无法通过 IPv4 连接代理"))
+			} else {
+				IPV4 = false
+				fmt.Println(Red("未使用 IPv4 代理，无 IPv4 网络"))
+			}
 		} else {
-			IPV4 = false
-			fmt.Println(Red("未使用 IPv4 代理，无 IPv4 网络"))
-		}
-	} else {
-		IPV4 = true
-		if IP4_1 != IP4_2 || IP4_1 != IP4 {
-			fmt.Println(Yellow("正在使用监听地址为 IPv4 的代理，出口 IP：") + Red(IP4))
-		} else if IP4 == IP4_1 {
-			fmt.Println(Green("未使用 IPv4 代理，有 IPv4 网络"))
+			IPV4 = true
+			if IP4_1 != IP4_2 || IP4_1 != IP4 {
+				isProxy = true
+				fmt.Println(Yellow("正在使用监听地址为 IPv4 的代理，出口 IP：") + Red(IP4))
+			} else if IP4 == IP4_1 {
+				fmt.Println(Green("未使用 IPv4 代理，有 IPv4 网络"))
+			} else {
+				fmt.Println(Red("无法强制使用 IPv4 网络测试，可能使用 IPv4 代理"))
+				IPV4 = false
+				if mode == 4 {
+					IPV6 = false
+				}
+			}
 		}
 	}
-	IP6, err := GetIPInfo("https://www.cloudflare.com/cdn-cgi/trace", 6, true)
-	if err != nil {
-		if IP6_1 != "" || IP6_2 != "" {
-			isProxy = true
-			fmt.Println(Yellow("正在使用系统代理，且无法通过 IPv6 连接代理"))
+	if mode == 0 || mode == 6 {
+		IP6, err := GetIPInfo("https://www.cloudflare.com/cdn-cgi/trace", 6, true)
+		if err != nil {
+			if IP6_1 != "" && IP6_2 != "" {
+				isProxy = true
+				fmt.Println(Yellow("正在使用系统代理，且无法通过 IPv6 连接代理"))
+			} else {
+				IPV6 = false
+				fmt.Println(Red("未使用 IPv6 代理，无 IPv6 网络"))
+			}
 		} else {
-			IPV6 = false
-			fmt.Println(Red("未使用 IPv4 代理，无 IPv6 网络"))
-		}
-	} else {
-		IPV6 = true
-		if IP6_1 != IP6_2 || IP6_1 != IP6 {
-			fmt.Println(Yellow("正在使用监听地址为 IPv6 的代理，出口 IP：") + Red(IP6))
-		} else if IP6 == IP6_1 {
-			fmt.Println(Green("未使用 IPv6 代理，有 IPv6 网络"))
+			IPV6 = true
+			if IP6_1 != IP6_2 && IP6_1 != IP6 {
+				isProxy = true
+				fmt.Println(Yellow("正在使用监听地址为 IPv6 的代理，出口 IP：") + Red(IP6))
+			} else if IP6 == IP6_1 {
+				fmt.Println(Green("未使用 IPv6 代理，有 IPv6 网络"))
+			} else {
+				fmt.Println(Red("无法强制使用 IPv6 网络测试，可能使用 IPv6 代理"))
+				IPV6 = false
+				if mode == 6 {
+					IPV4 = false
+				}
+			}
 		}
 	}
+
 	if isProxy {
 		fmt.Println(Red("提示：") + Yellow("正在使用系统代理，此时连接行为全部受代理控制"))
 	}
+	if mode != 0 {
+		if mode == 4 {
+			IPV6 = false
+		} else if mode == 6 {
+			IPV4 = false
+		}
+	}
 	fmt.Println()
 
-	if IPV4 || Force {
+	if IPV4 || IPV6 {
 		ReadSelect()
+	}
+	regions := []struct {
+		enabled bool
+		name    string
+		fn      func(http.Client, int)
+	}{
+		{M, "Globe", Globe},
+		{TW, "Taiwan", Taiwan},
+		{HK, "HongKong", HongKong},
+		{JP, "Japan", Japan},
+		{KR, "Korea", Korea},
+		{NA, "NorthAmerica", NorthAmerica},
+		{SA, "SouthAmerica", SouthAmerica},
+		{EU, "Europe", Europe},
+		{AFR, "Africa", Africa},
+		{SEA, "SouthEastAsia", SouthEastAsia},
+		{OCEA, "Oceania", Oceania},
 	}
 	wg = &sync.WaitGroup{}
 	bar = NewBar(0)
-	if IPV4 {
-		if M {
-			Multination(client)
+	if isProxy {
+		for _, region := range regions {
+			if region.enabled {
+				region.fn(m.AutoHttpClient, 0)
+			}
 		}
-		if TW {
-			Taiwan(client)
+	} else {
+		if IPV4 {
+			for _, region := range regions {
+				if region.enabled {
+					region.fn(m.Ipv4HttpClient, 4)
+				}
+			}
 		}
-		if HK {
-			HongKong(client)
-		}
-		if JP {
-			Japan(client)
-		}
-		if KR {
-			Korea(client)
-		}
-		if NA {
-			NorthAmerica(client)
-		}
-		if SA {
-			SouthAmerica(client)
-		}
-		if EU {
-			Europe(client)
-		}
-		if AFR {
-			Africa(client)
-		}
-		if SEA {
-			SouthEastAsia(client)
-		}
-		if OCEA {
-			Oceania(client)
+		if IPV6 {
+			for _, region := range regions {
+				if region.enabled {
+					region.fn(m.Ipv6HttpClient, 6)
+				}
+			}
 		}
 	}
-	if IPV6 {
-		if Force {
-			if M {
-				Multination(m.Ipv6HttpClient)
-			}
-			if TW {
-				Taiwan(m.Ipv6HttpClient)
-			}
-			if HK {
-				HongKong(m.Ipv6HttpClient)
-			}
-			if JP {
-				Japan(m.Ipv6HttpClient)
-			}
-			if KR {
-				Korea(m.Ipv6HttpClient)
-			}
-			if NA {
-				NorthAmerica(m.Ipv6HttpClient)
-			}
-			if SA {
-				SouthAmerica(m.Ipv6HttpClient)
-			}
-			if EU {
-				Europe(m.Ipv6HttpClient)
-			}
-			if AFR {
-				Africa(m.Ipv6HttpClient)
-			}
-			if SEA {
-				SouthEastAsia(m.Ipv6HttpClient)
-			}
-			if OCEA {
-				Oceania(m.Ipv6HttpClient)
-			}
-		} else {
-			Ipv6Multination()
-		}
-	}
+
 	bar.ChangeMax64(tot)
 
 	wg.Wait()
