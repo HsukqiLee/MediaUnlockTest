@@ -2,7 +2,6 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -103,7 +102,7 @@ func TVer(c http.Client) Result {
 			break
 		}
 	}
-	fmt.Println(EpisodeID)
+
 	resp3, err := GET(c, "https://statics.tver.jp/content/episode/"+EpisodeID+".json",
 		H{"origin", "https://tver.jp"},
 		H{"referer", "https://tver.jp/"},
