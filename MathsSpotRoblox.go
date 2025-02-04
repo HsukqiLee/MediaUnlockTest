@@ -2,7 +2,6 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
-	//"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -82,7 +81,6 @@ func MathsSpotRoblox(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	//fmt.Println(string(body2))
 
 	var res struct {
 		Status string `json:"status"`

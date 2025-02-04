@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	//"fmt"
 )
 
 func extractShowmaxRegion(body string) string {
@@ -26,7 +25,6 @@ func Showmax(c http.Client) Result {
 	defer resp.Body.Close()
 
 	cookie := resp.Header.Get("Set-Cookie")
-	//fmt.Println(cookie)
 	if cookie == "" {
 		return Result{Status: StatusNo}
 	}

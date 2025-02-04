@@ -1,7 +1,6 @@
 package mediaunlocktest
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -59,6 +58,5 @@ func Bing(c http.Client) Result {
 		return Result{Status: StatusBanned}
 	}
 
-	fmt.Println(resp.Header.Get("Location"))
 	return Result{Status: StatusUnexpected}
 }

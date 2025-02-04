@@ -216,7 +216,6 @@ func Japan(c http.Client, ipType int) {
 	}
 	R = append(R, &result{Name: fmt.Sprintf("%s Japan", ipTypeStr), Divider: true})
 	executeTests(JapanTests, c, ipType)
-
 }
 
 func Korea(c http.Client, ipType int) {
@@ -227,10 +226,8 @@ func Korea(c http.Client, ipType int) {
 	R = append(R, &result{Name: fmt.Sprintf("%s Korea", ipTypeStr), Divider: true})
 	if ipType == 6 {
 		R = append(R, &result{Name: "No Korean platform supports IPv6", Divider: false})
-	} else {
-		executeTests(KoreaTests, c, ipType)
 	}
-
+	executeTests(KoreaTests, c, ipType)
 }
 
 func NorthAmerica(c http.Client, ipType int) {
@@ -240,7 +237,6 @@ func NorthAmerica(c http.Client, ipType int) {
 	}
 	R = append(R, &result{Name: fmt.Sprintf("%s North America", ipTypeStr), Divider: true})
 	executeTests(NorthAmericaTests, c, ipType)
-
 }
 
 func SouthAmerica(c http.Client, ipType int) {
@@ -309,7 +305,7 @@ var MultinationTests = []TestItem{
 	{"Steam", m.Steam, false},
 	{"ChatGPT", m.ChatGPT, true},
 	{"Wikipedia", m.WikipediaEditable, true},
-	{"Reddit", m.Reddit, true},
+	{"Reddit", m.Reddit, false},
 	{"TikTok", m.TikTok, false},
 	{"Bing", m.Bing, true},
 	{"Instagram Audio", m.Instagram, true},
@@ -402,7 +398,7 @@ var NorthAmericaTests = []TestItem{
 	{"Tubi TV", m.TubiTV, true},
 	{"Meta AI", m.MetaAI, true},
 	{"AMC+", m.AMCPlus, true},
-	{"Viaplay", m.Viaplay, true},
+	{"Viaplay", m.Viaplay, false},
 	{"A&E TV", m.AETV, false},
 	{"FOX", m.Fox, true},
 	{"Hulu", m.Hulu, true},
@@ -886,7 +882,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("aetv", ShowResult(m.AETV(m.AutoHttpClient)))
+		fmt.Println("watcha", ShowResult(m.Watcha(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
