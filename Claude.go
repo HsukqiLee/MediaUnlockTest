@@ -7,7 +7,7 @@ import (
 )
 
 func SupportClaude(loc string) bool {
-	var GPT_SUPPORT_COUNTRY = []string{
+	var CLAUDE_SUPPORT_COUNTRY = []string{
 		"AL", "DZ", "AD", "AO", "AG", "AR", "AM", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BE", "BZ",
 		"BJ", "BT", "BO", "BA", "BW", "BR", "BN", "BG", "BF", "BI", "CV", "KH", "CM", "CA", "TD", "CL",
 		"CO", "KM", "CG", "CR", "CI", "HR", "CY", "CZ", "DK", "DJ", "DM", "DO", "EC", "EG", "SV", "GQ",
@@ -20,7 +20,7 @@ func SupportClaude(loc string) bool {
 		"ZA", "KR", "ES", "LK", "SR", "SE", "CH", "TW", "TJ", "TZ", "TH", "TL", "TG", "TO", "TT", "TN",
 		"TR", "TM", "TV", "UG", "UA", "AE", "GB", "US", "UY", "UZ", "VU", "VA", "VN", "ZM", "ZW",
 	}
-	for _, s := range GPT_SUPPORT_COUNTRY {
+	for _, s := range CLAUDE_SUPPORT_COUNTRY {
 		if loc == s {
 			return true
 		}
@@ -52,7 +52,7 @@ func Claude(c http.Client) Result {
 	if loc == "T1" {
 		return Result{Status: StatusOK, Region: "tor"}
 	}
-	if SupportGPT(loc) {
+	if SupportClaude(loc) {
 		return Result{Status: StatusOK, Region: strings.ToLower(loc)}
 	}
 	return Result{Status: StatusNo, Region: strings.ToLower(loc)}

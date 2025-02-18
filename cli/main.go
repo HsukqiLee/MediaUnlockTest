@@ -185,7 +185,7 @@ func Globe(c http.Client, ipType int) {
 		ipTypeStr = "Auto"
 	}
 	R = append(R, &result{Name: fmt.Sprintf("%s Globe", ipTypeStr), Divider: true})
-	executeTests(MultinationTests, c, ipType)
+	executeTests(GlobeTests, c, ipType)
 
 }
 
@@ -290,7 +290,7 @@ type TestItem struct {
 	SupportsV6 bool
 }
 
-var MultinationTests = []TestItem{
+var GlobeTests = []TestItem{
 	{"Dazn", m.Dazn, false},
 	{"Disney+", m.DisneyPlus, true},
 	{"Netflix", m.NetflixRegion, true},
@@ -313,6 +313,7 @@ var MultinationTests = []TestItem{
 	{"Google Play Store", m.GooglePlayStore, true},
 	{"Sora", m.Sora, true},
 	{"Claude", m.Claude, true},
+	{"Apple", m.Apple, true},
 }
 
 var HongKongTests = []TestItem{
@@ -882,7 +883,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("watcha", ShowResult(m.Watcha(m.AutoHttpClient)))
+		fmt.Println("spotv", ShowResult(m.SpotvNow(m.AutoHttpClient)))
 		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
 		return
 	}
@@ -919,9 +920,9 @@ func main() {
 		}
 	}
 
-	fmt.Println("正在从 ip.sb 获取 IP...")
+	fmt.Println("正在从 Cloudflare 获取 IP...")
 	if mode == 0 || mode == 4 {
-		IP4_2, err = GetIPInfo("https://api-ipv4.ip.sb/ip", mode, false)
+		IP4_2, err = GetIPInfo("https://1.1.1.1/cdn-cgi/trace", mode, true)
 		if err != nil {
 			if Debug {
 				fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
@@ -933,7 +934,7 @@ func main() {
 		}
 	}
 	if mode == 0 || mode == 6 {
-		IP6_2, err = GetIPInfo("https://api-ipv6.ip.sb/ip", mode, false)
+		IP6_2, err = GetIPInfo("https://[2606:4700:4700::1111]/cdn-cgi/trace", mode, true)
 		if err != nil {
 			if Debug {
 				fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
