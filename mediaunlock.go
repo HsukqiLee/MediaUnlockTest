@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	Version          = "1.6.1"
+	Version          = "1.6.2"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
@@ -328,7 +328,7 @@ func md5Sum(text string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-/*func twoToThreeCode(code string) string {
+func twoToThreeCode(code string) string {
 	countryCodes := map[string]string{
 		"AD": "AND", "AE": "ARE", "AF": "AFG", "AG": "ATG", "AI": "AIA", "AL": "ALB", "AM": "ARM", "AO": "AGO", "AQ": "ATA", "AR": "ARG",
 		"AS": "ASM", "AT": "AUT", "AU": "AUS", "AW": "ABW", "AX": "ALA", "AZ": "AZE", "BA": "BIH", "BB": "BRB", "BD": "BGD", "BE": "BEL",
@@ -357,7 +357,7 @@ func md5Sum(text string) string {
 		"VN": "VNM", "VU": "VUT", "WF": "WLF", "WS": "WSM", "YE": "YEM", "YT": "MYT", "ZA": "ZAF", "ZM": "ZMB", "ZW": "ZWE",
 	}
 	return countryCodes[strings.ToUpper(code)]
-}*/
+}
 
 func threeToTwoCode(code string) string {
 	countryCodes := map[string]string{
