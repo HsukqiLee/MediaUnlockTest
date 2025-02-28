@@ -23,6 +23,10 @@ func SkyShowTime(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == 403 {
+		return Result{Status: StatusBanned}
+	}
+
 	if resp.StatusCode == 307 {
 		if resp.Header.Get("Location") == "https://www.skyshowtime.com/where-can-i-stream" {
 			return Result{Status: StatusNo}

@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	Version          = "1.6.2"
+	Version          = "1.6.3"
 	StatusOK         = 1
 	StatusNetworkErr = -1
 	StatusErr        = -2
@@ -41,7 +41,7 @@ type Result struct {
 }
 
 var (
-	UA_Browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+	UA_Browser = "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_14_6; rv:120.0esr) Gecko/20010101 Firefox/120.0esr"
 	UA_Dalvik  = "Dalvik/2.1.0 (Linux; U; Android 9; ALP-AL00 Build/HUAWEIALP-AL00)"
 )
 
@@ -187,7 +187,7 @@ func NewAutoHttpClient() http.Client {
 	CipherSuites: append(defaultCipherSuites[8:], defaultCipherSuites[:8]...),
 }*/
 
-var c, _ = utls.UTLSIdToSpec(utls.HelloChrome_Auto)
+var c, _ = utls.UTLSIdToSpec(utls.HelloFirefox_Auto)
 
 var tlsConfig = &tls.Config{
 	InsecureSkipVerify: true,
@@ -211,9 +211,9 @@ func GET(c http.Client, url string, headers ...H) (*http.Response, error) {
 	req.Header.Set("cache-control", "no-cache")
 	req.Header.Set("dnt", "1")
 	req.Header.Set("pragma", "no-cache")
-	req.Header.Set("sec-ch-ua", `"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"`)
+	req.Header.Set("sec-ch-ua", `"Not(A:Brand";v="99", "Microsoft Edge";v="133", "Chromium";v="133"`)
 	req.Header.Set("sec-ch-ua-mobile", "?0")
-	req.Header.Set("sec-ch-ua-platform", "Windows")
+	req.Header.Set("sec-ch-ua-platform", "macOS")
 	req.Header.Set("sec-fetch-dest", "document")
 	req.Header.Set("sec-fetch-mode", "navigate")
 	req.Header.Set("sec-fetch-site", "none")
@@ -276,7 +276,7 @@ func PostJson(c http.Client, url string, data string, headers ...H) (*http.Respo
 	req.Header.Set("pragma", "no-cache")
 	req.Header.Set("sec-ch-ua", `"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"`)
 	req.Header.Set("sec-ch-ua-mobile", "?0")
-	req.Header.Set("sec-ch-ua-platform", "Windows")
+	req.Header.Set("sec-ch-ua-platform", "macOS")
 	req.Header.Set("sec-fetch-dest", "document")
 	req.Header.Set("sec-fetch-mode", "navigate")
 	req.Header.Set("sec-fetch-site", "none")
@@ -305,7 +305,7 @@ func PostForm(c http.Client, url string, data string, headers ...H) (*http.Respo
 	req.Header.Set("pragma", "no-cache")
 	req.Header.Set("sec-ch-ua", `"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"`)
 	req.Header.Set("sec-ch-ua-mobile", "?0")
-	req.Header.Set("sec-ch-ua-platform", "Windows")
+	req.Header.Set("sec-ch-ua-platform", "macOS")
 	req.Header.Set("sec-fetch-dest", "document")
 	req.Header.Set("sec-fetch-mode", "navigate")
 	req.Header.Set("sec-fetch-site", "none")

@@ -3,8 +3,9 @@ package mediaunlocktest
 import (
 	"encoding/json"
 	"io"
-	"net/http"
+
 	//"log"
+	"net/http"
 )
 
 func NowE(c http.Client) Result {
@@ -25,7 +26,7 @@ func NowE(c http.Client) Result {
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusUnexpected, Err: err}
 	}
-	if res.ResponseCode == "SUCCESS" || res.ResponseCode == "ASSET_MISSING" {
+	if res.ResponseCode == "SUCCESS" || res.ResponseCode == "ASSET_MISSING" || res.ResponseCode == "NOT_LOGIN" {
 		return Result{Status: StatusOK}
 	} else if res.ResponseCode == "GEO_CHECK_FAIL" {
 		return Result{Status: StatusNo}
