@@ -1,7 +1,6 @@
 package mediaunlocktest
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -26,8 +25,6 @@ func SpotvNow(c http.Client) Result {
 	if strings.Contains(string(b), "CLIENT_GEO") || resp.StatusCode == 403 {
 		return Result{Status: StatusNo}
 	}
-	fmt.Println(resp.StatusCode)
-	fmt.Println(string(b))
 	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}

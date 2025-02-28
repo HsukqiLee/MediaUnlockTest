@@ -1,7 +1,6 @@
 package mediaunlocktest
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -38,7 +37,6 @@ func Instagram(c http.Client) Result {
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
-	fmt.Println(bodyString)
 	if err != nil {
 		return Result{Status: StatusFailed}
 	}
