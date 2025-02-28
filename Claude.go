@@ -29,7 +29,7 @@ func SupportClaude(loc string) bool {
 }
 
 func Claude(c http.Client) Result {
-	resp, err := GET(c, "https://claude.com/cdn-cgi/trace")
+	resp, err := GET(c, "https://claude.ai/cdn-cgi/trace")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

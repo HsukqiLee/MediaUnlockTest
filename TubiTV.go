@@ -7,31 +7,38 @@ import (
 )
 
 func TubiTV(c http.Client) Result {
-	resp, err := GET(c, "https://tubitv.com")
+	resp1, err := GET(c, "https://tubitv.com")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == 302 {
+	if resp1.StatusCode == 503 {
+		b1, err := io.ReadAll(resp1.Body)
+		if err != nil {
+			return Result{Status: StatusNetworkErr, Err: err}
+		}
+		if strings.Contains(string(b1), "geoblock") {
+			return Result{Status: StatusNo}
+		}
+	}
+	if resp1.StatusCode == 302 {
 		resp2, err := GET(c, "https://gdpr.tubi.tv")
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}
 		defer resp2.Body.Close()
-		b, err := io.ReadAll(resp2.Body)
+		b2, err := io.ReadAll(resp2.Body)
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}
-		if strings.Contains(string(b), "Unfortunately") {
+		if strings.Contains(string(b2), "Unfortunately") {
 			return Result{Status: StatusNo}
 		}
 		return Result{Status: StatusOK}
 	}
-	if resp.StatusCode == 403 {
+	if resp1.StatusCode == 403 {
 		return Result{Status: StatusNo}
 	}
-	if resp.StatusCode == 200 {
+	if resp1.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}
 	return Result{Status: StatusUnexpected}
