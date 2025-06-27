@@ -11,18 +11,17 @@ func Amediateka(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	
-	if resp.StatusCode == 301 && resp.Header.Get("Location") == "https://www.amediateka.ru/unavailable/index.html" {
-		return Result{Status: StatusNo}
-	}
-	
-	if resp.StatusCode == 200  {
+	switch resp.StatusCode {
+	case 301:
+		if resp.Header.Get("Location") == "https://www.amediateka.ru/unavailable/index.html?page=https://www.amediateka.ru/" {
+			return Result{Status: StatusNo}
+		}
+		return Result{Status: StatusUnexpected}
+	case 200:
 		return Result{Status: StatusOK}
-	}
-	
-	if resp.StatusCode == 503  {
+	case 503, 445:
 		return Result{Status: StatusBanned}
+	default:
+		return Result{Status: StatusUnexpected}
 	}
-
-	return Result{Status: StatusUnexpected}
 }

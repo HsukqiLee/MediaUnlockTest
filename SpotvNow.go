@@ -25,8 +25,9 @@ func SpotvNow(c http.Client) Result {
 	if strings.Contains(string(b), "CLIENT_GEO") || resp.StatusCode == 403 {
 		return Result{Status: StatusNo}
 	}
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == 200 || resp.StatusCode == 404 {
 		return Result{Status: StatusOK}
 	}
+
 	return Result{Status: StatusUnexpected}
 }

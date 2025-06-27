@@ -7,7 +7,7 @@ import (
 )
 
 func Starz(c http.Client) Result {
-	resp, err := GET(c, "https://www.starz.com/sapi/header/v1/starz/us/09b397fc9eb64d5080687fc8a218775b", H{"Referer", "https://www.starz.com/us/en/"})
+	resp, err := GET(c, "https://www.starz.com/sapi/header/v1/starz/us/109448574b2147ccbc494b429ff5ef1b", H{"Referer", "https://www.starz.com/us/en/"})
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -17,7 +17,13 @@ func Starz(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	authorization := string(b)
-	resp2, err := GET(c, "https://auth.starz.com/api/v4/User/geolocation", H{"AuthTokenAuthorization", authorization})
+	resp2, err := GET(c, "https://auth.starz.com/api/v4/User/geolocation",
+		H{"AuthTokenAuthorization", authorization},
+		H{"BestAvailableToken", "true"},
+		H{"Origin", "https://www.starz.com"},
+		H{"Referer", "https://www.starz.com/"},
+		H{"X-Client-Features", "DeviceCount"},
+	)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

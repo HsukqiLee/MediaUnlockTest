@@ -31,6 +31,28 @@ func isValidTVerEpisodeID(id string) bool {
 }
 
 func TVer(c http.Client) Result {
+	useDeprecated := false
+	if useDeprecated {
+		return tver_deprecated(c)
+	}
+	resp, err := GET(c, "https://playback.api.streaks.jp/v1/projects/tver-simul-ntv/medias/ref:simul-ntv",
+		H{"x-streaks-api-key", "ntv"},
+	)
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case 200:
+		return Result{Status: StatusOK}
+	case 403:
+		return Result{Status: StatusNo}
+	}
+	return Result{Status: StatusUnexpected}
+}
+
+func tver_deprecated(c http.Client) Result {
 	resp1, err := PostForm(c, "https://platform-api.tver.jp/v2/api/platform_users/browser/create", "device_type=pc",
 		H{"origin", "https://s.tver.jp"},
 		H{"referer", "https://s.tver.jp/"},
@@ -102,7 +124,6 @@ func TVer(c http.Client) Result {
 			break
 		}
 	}
-
 	resp3, err := GET(c, "https://statics.tver.jp/content/episode/"+EpisodeID+".json",
 		H{"origin", "https://tver.jp"},
 		H{"referer", "https://tver.jp/"},
@@ -153,7 +174,7 @@ func TVer(c http.Client) Result {
 	DeliveryConfigID := extractTVerDeliveryConfigID(string(body4))
 
 	var resp5 *http.Response
-	if VideoRefID == "" {
+	if true { //VideoRefID == "" {
 		resp5, err = GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/"+VideoID+"?config_id="+DeliveryConfigID,
 			H{"accept", "application/json;pk=" + PolicyKey},
 			H{"origin", "https://tver.jp"},
@@ -180,7 +201,6 @@ func TVer(c http.Client) Result {
 
 	var res4a []struct {
 		ErrorSubcode string `json:"error_subcode"`
-		//ClientGeo    string `json:"client_geo"`
 	}
 	var res4b struct {
 		AccountID string `json:"account_id"`
@@ -197,6 +217,5 @@ func TVer(c http.Client) Result {
 	if res4a[0].ErrorSubcode == "CLIENT_GEO" {
 		return Result{Status: StatusNo}
 	}
-
 	return Result{Status: StatusUnexpected}
 }

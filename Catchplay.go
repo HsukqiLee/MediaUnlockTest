@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"time"
 	"strings"
+	"time"
 )
 
 func Catchplay(c http.Client) Result {
@@ -17,6 +17,9 @@ func Catchplay(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	req.Header.Set("authorization", "Basic NTQ3MzM0NDgtYTU3Yi00MjU2LWE4MTEtMzdlYzNkNjJmM2E0Ok90QzR3elJRR2hLQ01sSDc2VEoy")
+	req.Header.Set("accept", "application/json, text/plain, */*")
+	req.Header.Set("accept-language", "zh-TW,zh;q=0.9,en;q=0.8")
+	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
 
 	resp, err := cdo(c, req)
 	if err != nil {
@@ -30,7 +33,7 @@ func Catchplay(c http.Client) Result {
 	var res struct {
 		Code string `json:"code"`
 		Data struct {
-		    IsoCode string `json:"isoCode"`
+			IsoCode string `json:"isoCode"`
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
@@ -41,8 +44,8 @@ func Catchplay(c http.Client) Result {
 	}
 	region := res.Data.IsoCode
 	if region != "" {
-	    return Result{Status: StatusOK, Region: strings.ToLower(region)}
+		return Result{Status: StatusOK, Region: strings.ToLower(region)}
 	}
-	
+
 	return Result{Status: StatusUnexpected}
 }

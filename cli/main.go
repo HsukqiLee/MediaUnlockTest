@@ -54,33 +54,20 @@ var (
 	Purple  = color.New(color.FgMagenta).SprintFunc()
 	SkyBlue = color.New(color.FgCyan).SprintFunc()
 	White   = color.New(color.FgWhite).SprintFunc()
+
+	// 结果缓存，key格式: "testName_ipType"
+	resultCache = make(map[string]m.Result)
+	cacheMutex  sync.RWMutex
+
+	// 正在执行的测试，避免重复执行
+	runningTests = make(map[string]chan m.Result)
+	runningMutex sync.Mutex
 )
 
 type result struct {
 	Name    string
 	Divider bool
 	Value   m.Result
-}
-
-func execute(Name string, F func(client http.Client) m.Result, client http.Client) {
-	r := &result{Name: Name}
-	R = append(R, r)
-	wg.Add(1)
-	tot++
-	go func() {
-		if Conc > 0 {
-			sem <- struct{}{}
-			defer func() {
-				<-sem
-				wg.Done()
-			}()
-		} else {
-			defer wg.Done()
-		}
-		r.Value = F(client)
-		bar.Describe(Name + " " + ShowResult(r.Value))
-		bar.Add(1)
-	}()
 }
 
 func ShowResult(r m.Result) (s string) {
@@ -90,24 +77,44 @@ func ShowResult(r m.Result) (s string) {
 		if r.Region != "" {
 			s += Green(" (Region: " + strings.ToUpper(r.Region) + ")")
 		}
+		// Debug模式下显示缓存标记
+		if Debug && r.CachedResult {
+			s += " (Cached)"
+		}
 		return s
 
 	case m.StatusNetworkErr:
+		s = Red("ERR")
 		if Debug {
-			return Red("ERR") + Yellow(" (Network Err: "+r.Err.Error()+")")
+			s += Yellow(" (Network Err: " + r.Err.Error() + ")")
+		} else {
+			s += Yellow(" (Network Err)")
 		}
-		return Red("ERR") + Yellow(" (Network Err)")
+		// Debug模式下显示缓存标记
+		if Debug && r.CachedResult {
+			s += " (Cached)"
+		}
+		return s
 
 	case m.StatusRestricted:
+		s = Yellow("Restricted")
 		if r.Info != "" {
-			return Yellow("Restricted (" + r.Info + ")")
+			s = Yellow("Restricted (" + r.Info + ")")
 		}
-		return Yellow("Restricted")
+		// Debug模式下显示缓存标记
+		if Debug && r.CachedResult {
+			s += " (Cached)"
+		}
+		return s
 
 	case m.StatusErr:
 		s = Red("ERR")
 		if r.Err != nil && Debug {
 			s += Yellow(" (Err: " + r.Err.Error() + ")")
+		}
+		// Debug模式下显示缓存标记
+		if Debug && r.CachedResult {
+			s += " (Cached)"
 		}
 		return s
 
@@ -300,7 +307,6 @@ var GlobeTests = []TestItem{
 	{"Disney+", m.DisneyPlus, true},
 	{"Google Gemini", m.Gemini, true},
 	{"Google Play Store", m.GooglePlayStore, true},
-	//{"Instagram Audio", m.Instagram, true},
 	{"iQiYi", m.IQiYi, false},
 	{"Netflix", m.NetflixRegion, true},
 	{"Netflix CDN", m.NetflixCDN, true},
@@ -320,7 +326,7 @@ var HongKongTests = []TestItem{
 	{"Bahamut Anime", m.BahamutAnime, false},
 	{"Bilibili HongKong/Macau Only", m.BilibiliHKMO, false},
 	{"Hoy TV", m.HoyTV, true},
-	{"Max", m.HBOMax, true},
+	{"Max", m.Max, true},
 	{"MyTVSuper", m.MyTvSuper, false},
 	{"NBA TV", m.NBA_TV, true},
 	{"Now E", m.NowE, false},
@@ -338,7 +344,7 @@ var TaiwanTests = []TestItem{
 	{"KKTV", m.KKTV, false},
 	{"LiTV", m.LiTV, false},
 	{"LineTV", m.LineTV, false},
-	{"Max", m.HBOMax, true},
+	{"Max", m.Max, true},
 	{"MyVideo", m.MyVideo, false},
 	{"Ofiii", m.Ofiii, false},
 }
@@ -351,12 +357,10 @@ var JapanTests = []TestItem{
 	{"DMM TV", m.DMMTV, true},
 	{"EroGameSpace", m.EroGameSpace, false},
 	{"FOD(Fuji TV)", m.FOD, false},
-	{"GYAO!", m.GYAO, false},
 	{"Hulu Japan", m.HuluJP, false},
 	{"J:COM On Demand", m.J_COM_ON_DEMAND, false},
 	{"Kancolle", m.Kancolle, false},
 	{"Karaoke@DAM", m.Karaoke, false},
-	{"Konosuba Fantastic Days", m.KonosubaFD, false},
 	{"Lemino", m.Lemino, true},
 	{"MGStage", m.MGStage, false},
 	{"Mora", m.Mora, false},
@@ -395,7 +399,6 @@ var NorthAmericaTests = []TestItem{
 	{"AMC+", m.AMCPlus, true},
 	{"BritBox", m.BritBox, true},
 	{"CBC Gem", m.CBCGem, false},
-	{"Crackle", m.Crackle, true},
 	{"Crave", m.Crave, false},
 	{"Crunchyroll", m.Crunchyroll, false},
 	{"CW TV", m.CW_TV, true},
@@ -411,7 +414,7 @@ var NorthAmericaTests = []TestItem{
 	{"KOCOWA+", m.KOCOWA, false},
 	{"MGM+", m.MGMPlus, false},
 	{"MathsSpot Roblox", m.MathsSpotRoblox, false},
-	{"Max", m.HBOMax, true},
+	{"Max", m.Max, true},
 	{"Meta AI", m.MetaAI, true},
 	{"NBC TV", m.NBC_TV, true},
 	{"NFL+", m.NFLPlus, false},
@@ -432,7 +435,7 @@ var NorthAmericaTests = []TestItem{
 
 var SouthAmericaTests = []TestItem{
 	{"DirecTV GO", m.DirecTVGO, false},
-	{"Max", m.HBOMax, true},
+	{"Max", m.Max, true},
 }
 
 var EuropeTests = []TestItem{
@@ -448,7 +451,7 @@ var EuropeTests = []TestItem{
 	{"Joyn", m.Joyn, false},
 	{"KOCOWA+", m.KOCOWA, false},
 	{"MathsSpot Roblox", m.MathsSpotRoblox, false},
-	{"Max", m.HBOMax, true},
+	{"Max", m.Max, true},
 	{"Molotov", m.Molotov, true},
 	{"Movistar Plus+", m.MoviStarPlus, false},
 	{"NLZIET", m.NLZIET, false},
@@ -516,9 +519,104 @@ func executeTests(tests []TestItem, client http.Client, ipType int) {
 		if ipType == 6 && !test.SupportsV6 {
 			continue
 		}
-		execute(test.Name, test.Func, client)
+		execute(test.Name, test.Func, client, ipType)
 	}
 	R = append(R, &result{Name: "", Divider: false})
+}
+
+func execute(Name string, F func(client http.Client) m.Result, client http.Client, ipType int) {
+	// 为每个测试重置请求头，确保同一测试内部所有请求使用相同头部
+	m.ResetSessionHeaders()
+
+	// 生成缓存键 - 去掉重复标识符，使同一个测试可以共享缓存
+	cacheKey := fmt.Sprintf("%s_%d", Name, ipType)
+
+	// 首先检查缓存
+	cacheMutex.RLock()
+	if cachedResult, exists := resultCache[cacheKey]; exists {
+		cacheMutex.RUnlock()
+		// 使用缓存的结果
+		r := &result{Name: Name, Value: cachedResult}
+		// 显式标记为从缓存获取的结果
+		r.Value.CachedResult = true
+		R = append(R, r)
+		bar.Describe(Name + " " + ShowResult(r.Value))
+		bar.Add(1)
+		return
+	}
+	cacheMutex.RUnlock()
+
+	// 检查是否已经在运行中
+	runningMutex.Lock()
+	if resultChan, isRunning := runningTests[cacheKey]; isRunning {
+		// 已经在运行，等待结果
+		runningMutex.Unlock()
+
+		r := &result{Name: Name}
+		R = append(R, r)
+
+		// 等待正在运行的测试完成，并且加入到waitgroup中
+		wg.Add(1)
+		tot++
+		go func() {
+			defer wg.Done()
+			// 等待正在运行的测试完成
+			result := <-resultChan
+			// 标记为缓存结果
+			result.CachedResult = true
+			r.Value = result
+			bar.Describe(Name + " " + ShowResult(r.Value))
+			bar.Add(1)
+		}()
+		return
+	}
+
+	// 创建一个新的结果通道
+	resultChan := make(chan m.Result, 1)
+	runningTests[cacheKey] = resultChan
+	runningMutex.Unlock()
+
+	r := &result{Name: Name}
+	R = append(R, r)
+	wg.Add(1)
+	tot++
+	go func() {
+		defer wg.Done()
+		if Conc > 0 {
+			sem <- struct{}{}
+			defer func() {
+				<-sem
+			}()
+		}
+
+		// 执行测试
+		result := F(client)
+		// 确保首次执行时CachedResult为false
+		result.CachedResult = false
+		r.Value = result
+
+		// 保存结果到缓存
+		cacheMutex.Lock()
+		resultCache[cacheKey] = result
+		cacheMutex.Unlock()
+
+		// 通知等待的测试并清理
+		runningMutex.Lock()
+		if ch, exists := runningTests[cacheKey]; exists {
+			// 发送结果给等待者
+			select {
+			case ch <- result:
+			default:
+			}
+			close(ch)
+			delete(runningTests, cacheKey)
+		}
+		runningMutex.Unlock()
+
+		// 这是第一次执行的测试，不显示cached
+		bar.Describe(Name + " " + ShowResult(r.Value))
+		bar.Add(1)
+	}()
 }
 
 func GetIPInfo(url string, ipType int, isCloudflare bool) (string, error) {
@@ -530,13 +628,14 @@ func GetIPInfo(url string, ipType int, isCloudflare bool) (string, error) {
 	defer cancel()
 
 	var client http.Client
-	if ipType == 6 {
+	switch ipType {
+	case 6:
 		client = m.Ipv6HttpClient
-	} else if ipType == 4 {
+	case 4:
 		client = m.Ipv4HttpClient
-	} else if ipType == 0 {
+	case 0:
 		client = m.AutoHttpClient
-	} else {
+	default:
 		return "", fmt.Errorf("IP type %d is invalid", ipType)
 	}
 
@@ -883,8 +982,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("sptvm", ShowResult(m.SpotvNow(m.AutoHttpClient)))
-		//fmt.Println("DSTV", ShowResult(m.DSTV(m.AutoHttpClient)))
+		fmt.Println("bbc", ShowResult(m.BBCiPlayer(m.AutoHttpClient)))
 		return
 	}
 
@@ -892,11 +990,11 @@ func main() {
 	fmt.Println("使用方式: " + Yellow("bash <(curl -Ls unlock.icmp.ing/scripts/test.sh)"))
 	fmt.Println()
 
-	fmt.Println("正在从 ipw.cn 获取 IP...")
+	fmt.Println("正在从获取国内分流 IP...")
 	var IP4_1, IP6_1, IP4_2, IP6_2 string
 	var err error
 	if mode == 0 || mode == 4 {
-		IP4_1, err = GetIPInfo("https://4.ipw.cn", mode, false)
+		IP4_1, err = GetIPInfo("https://ipv4.tsinbei.cn", mode, false)
 		if err != nil {
 			if Debug {
 				fmt.Println(Red("No IPv4 address (") + Yellow(err.Error()) + Red(")"))
@@ -908,7 +1006,7 @@ func main() {
 		}
 	}
 	if mode == 0 || mode == 6 {
-		IP6_1, err = GetIPInfo("https://6.ipw.cn", mode, false)
+		IP6_1, err = GetIPInfo("https://ipv6.tsinbei.cn", mode, false)
 		if err != nil {
 			if Debug {
 				fmt.Println(Red("No IPv6 address (") + Yellow(err.Error()) + Red(")"))
@@ -920,7 +1018,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("正在从 Cloudflare 获取 IP...")
+	fmt.Println("正在获取国外分流 IP...")
 	if mode == 0 || mode == 4 {
 		IP4_2, err = GetIPInfo("https://1.1.1.1/cdn-cgi/trace", mode, true)
 		if err != nil {
@@ -1005,9 +1103,10 @@ func main() {
 		fmt.Println(Red("提示：") + Yellow("正在使用系统代理，此时连接行为全部受代理控制"))
 	}
 	if mode != 0 {
-		if mode == 4 {
+		switch mode {
+		case 4:
 			IPV6 = false
-		} else if mode == 6 {
+		case 6:
 			IPV4 = false
 		}
 	}
@@ -1033,35 +1132,29 @@ func main() {
 		{SEA, "SouthEastAsia", SouthEastAsia},
 		{OCEA, "Oceania", Oceania},
 	}
-	wg = &sync.WaitGroup{}
-	bar = NewBar(0)
+	// 串行执行每个地区，每个地区内部并发执行
 	if isProxy {
 		for _, region := range regions {
 			if region.enabled {
-				region.fn(m.AutoHttpClient, 0)
+				executeRegionSerially(region.name, region.fn, m.AutoHttpClient, 0)
 			}
 		}
 	} else {
 		if IPV4 {
 			for _, region := range regions {
 				if region.enabled {
-					region.fn(m.Ipv4HttpClient, 4)
+					executeRegionSerially(region.name, region.fn, m.Ipv4HttpClient, 4)
 				}
 			}
 		}
 		if IPV6 {
 			for _, region := range regions {
 				if region.enabled {
-					region.fn(m.Ipv6HttpClient, 6)
+					executeRegionSerially(region.name, region.fn, m.Ipv6HttpClient, 6)
 				}
 			}
 		}
 	}
-
-	bar.ChangeMax64(tot)
-
-	wg.Wait()
-	bar.Finish()
 	fmt.Println()
 	ShowR()
 	fmt.Println()
@@ -1069,4 +1162,42 @@ func main() {
 	showCounts()
 	fmt.Println()
 	showAd()
+}
+
+// executeRegionSerially 串行执行每个地区，每个地区内部并发执行
+func executeRegionSerially(regionName string, regionFunc func(http.Client, int), client http.Client, ipType int) {
+	// 为每个地区创建独立的等待组和进度条
+	currentWg := &sync.WaitGroup{}
+
+	// 暂存全局变量
+	oldWg := wg
+	oldTot := tot
+	oldBar := bar
+
+	// 设置当前地区的全局变量
+	wg = currentWg
+	tot = 0
+	bar = NewBar(0) // 先创建一个临时的进度条
+
+	fmt.Printf("\n=== 开始检测 %s ===\n", regionName)
+
+	// 执行地区检测
+	regionFunc(client, ipType)
+
+	// 重新创建进度条并设置正确的总数
+	if tot > 0 {
+		bar = NewBar(tot)
+		bar.Describe(fmt.Sprintf("Testing %s", regionName))
+
+		// 等待当前地区所有测试完成
+		wg.Wait()
+		bar.Finish()
+	}
+
+	fmt.Printf("=== %s 检测完毕 ===\n", regionName)
+
+	// 恢复全局变量（虽然后续不会用到，但保持一致性）
+	wg = oldWg
+	tot = oldTot
+	bar = oldBar
 }

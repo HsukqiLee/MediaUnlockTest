@@ -1,7 +1,6 @@
 package mediaunlocktest
 
 import (
-	//"fmt"
 	"io"
 	"net/http"
 	"regexp"
