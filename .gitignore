@@ -6,3 +6,4 @@ upload.sh
 /monitor/test.sh
 /cli/test.bat
 /monitor/test.bat
+*.exe
