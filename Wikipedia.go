@@ -1,7 +1,7 @@
 package mediaunlocktest
 
 import (
-    "io"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -13,20 +13,24 @@ func WikipediaEditable(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-    bodyBytes, err := io.ReadAll(resp.Body)
-    bodyString := string(bodyBytes)
-    
-    if err != nil {
+	bodyBytes, err := io.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+
+	if err != nil {
 		return Result{Status: StatusFailed}
 	}
-	
+
 	if strings.Contains(bodyString, "Banned") {
 		return Result{Status: StatusNo}
 	}
-	
+
 	if resp.StatusCode == 200 {
 		return Result{Status: StatusOK}
 	}
-	
+
+	if resp.StatusCode == 429 {
+		return Result{Status: StatusBanned}
+	}
+
 	return Result{Status: StatusUnexpected}
 }

@@ -11,13 +11,14 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	utls "github.com/refraction-networking/utls"
 
-	//"golang.org/x/net/http2"
+	"golang.org/x/net/http2"
 	"golang.org/x/net/proxy"
 )
 
@@ -34,15 +35,24 @@ var (
 )
 
 type Result struct {
-	Status int
-	Region string
-	Info   string
-	Err    error
+	Status       int
+	Region       string
+	Info         string
+	Err          error
+	CachedResult bool // 标记此结果是否来自缓存
 }
 
 var (
-	UA_Browser = "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_14_6; rv:120.0esr) Gecko/20010101 Firefox/120.0esr"
-	UA_Dalvik  = "Dalvik/2.1.0 (Linux; U; Android 9; ALP-AL00 Build/HUAWEIALP-AL00)"
+	UA_Browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
+	UA_Dalvik  = "Dalvik/2.1.0 (Linux; U; Android 11; M2006J10C Build/RP1A.200720.011)"
+
+	// 用于存储当前会话的请求头
+	sessionHeaders = &SessionHeaders{
+		UserAgent:      "",
+		SecChUA:        "",
+		AcceptLanguage: "",
+		DNT:            "0",
+	}
 )
 
 var Dialer = &net.Dialer{
@@ -99,6 +109,9 @@ func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	t.Base.DialContext = dialContext
 	t.Base.Proxy = t.Proxy
+	if err := http2.ConfigureTransport(t.Base); err == nil {
+		t.Base.ForceAttemptHTTP2 = true
+	}
 	return t.Base.RoundTrip(req)
 }
 
@@ -187,15 +200,31 @@ func NewAutoHttpClient() http.Client {
 	CipherSuites: append(defaultCipherSuites[8:], defaultCipherSuites[:8]...),
 }*/
 
-var c, _ = utls.UTLSIdToSpec(utls.HelloFirefox_Auto)
+// 生成基于Chromium的Edge浏览器指纹
+func createEdgeTLSConfig() *tls.Config {
+	// 使用基于Chromium的新版Edge浏览器特征
+	spec, _ := utls.UTLSIdToSpec(utls.HelloEdge_Auto)
 
-var tlsConfig = &tls.Config{
-	InsecureSkipVerify: true,
-	MinVersion:         c.TLSVersMin,
-	MaxVersion:         c.TLSVersMax,
-	CipherSuites:       c.CipherSuites,
-	ClientSessionCache: tls.NewLRUClientSessionCache(32),
+	return &tls.Config{
+		InsecureSkipVerify: true,
+		MinVersion:         spec.TLSVersMin,
+		MaxVersion:         spec.TLSVersMax,
+		CipherSuites:       spec.CipherSuites,
+		ClientSessionCache: tls.NewLRUClientSessionCache(32),
+		NextProtos:         []string{"h2", "http/1.1"},
+		CurvePreferences: []tls.CurveID{
+			tls.X25519,    // 现代浏览器优先
+			tls.CurveP256, // 广泛支持
+			tls.CurveP384,
+			tls.CurveP521,
+		},
+		// Edge浏览器特有的TLS配置
+		PreferServerCipherSuites: false,
+		SessionTicketsDisabled:   false,
+	}
 }
+
+var tlsConfig = createEdgeTLSConfig()
 
 type H [2]string
 
@@ -204,25 +233,22 @@ func GET(c http.Client, url string, headers ...H) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("user-agent", UA_Browser)
-	req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-	// req.Header.Set("accept-encoding", "gzip, deflate, br")
-	// req.Header.Set("accept-language", "zh-CN,zh;q=0.9")
-	req.Header.Set("cache-control", "no-cache")
-	req.Header.Set("dnt", "1")
-	req.Header.Set("pragma", "no-cache")
-	req.Header.Set("sec-ch-ua", `"Not(A:Brand";v="99", "Microsoft Edge";v="133", "Chromium";v="133"`)
-	req.Header.Set("sec-ch-ua-mobile", "?0")
-	req.Header.Set("sec-ch-ua-platform", "macOS")
-	req.Header.Set("sec-fetch-dest", "document")
+
+	// 使用改进的请求头设置
+	setRealisticHeaders(req, "html")
 	req.Header.Set("sec-fetch-mode", "navigate")
-	req.Header.Set("sec-fetch-site", "none")
+	req.Header.Set("sec-fetch-dest", "document")
 	req.Header.Set("sec-fetch-user", "?1")
 	req.Header.Set("upgrade-insecure-requests", "1")
+
+	// 应用自定义头部
 	for _, h := range headers {
 		req.Header.Set(h[0], h[1])
 	}
-	// return c.Do(req)
+
+	// 尽量减少随机延迟
+	addRandomDelay()
+
 	return cdo(c, req)
 }
 
@@ -238,11 +264,6 @@ func GET_Dalvik(c http.Client, url string) (*http.Response, error) {
 var ErrNetwork = errors.New("network error")
 
 func cdo(c http.Client, req *http.Request) (resp *http.Response, err error) {
-	// resp, err = c.Do(req)
-	// if err != nil {
-	// 	err = ErrNetwork
-	// }
-	// return
 	deadline := time.Now().Add(30 * time.Second)
 	for i := 0; i < 3; i++ {
 		if time.Now().After(deadline) {
@@ -258,7 +279,6 @@ func cdo(c http.Client, req *http.Request) (resp *http.Response, err error) {
 			break
 		}
 	}
-	// log.Println(err)
 	return nil, err
 }
 func PostJson(c http.Client, url string, data string, headers ...H) (*http.Response, error) {
@@ -266,26 +286,20 @@ func PostJson(c http.Client, url string, data string, headers ...H) (*http.Respo
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("content-type", "application/json")
-	req.Header.Set("user-agent", UA_Browser)
-	req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-	// req.Header.Set("accept-encoding", "gzip, deflate, br")
-	// req.Header.Set("accept-language", "zh-CN,zh;q=0.9")
-	req.Header.Set("cache-control", "no-cache")
-	req.Header.Set("dnt", "1")
-	req.Header.Set("pragma", "no-cache")
-	req.Header.Set("sec-ch-ua", `"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"`)
-	req.Header.Set("sec-ch-ua-mobile", "?0")
-	req.Header.Set("sec-ch-ua-platform", "macOS")
-	req.Header.Set("sec-fetch-dest", "document")
-	req.Header.Set("sec-fetch-mode", "navigate")
-	req.Header.Set("sec-fetch-site", "none")
-	req.Header.Set("sec-fetch-user", "?1")
-	req.Header.Set("upgrade-insecure-requests", "1")
 
+	// 设置JSON POST特有的头部
+	req.Header.Set("content-type", "application/json")
+
+	// 使用改进的请求头设置
+	setRealisticHeaders(req, "json")
+
+	// 应用自定义头部
 	for _, h := range headers {
 		req.Header.Set(h[0], h[1])
 	}
+
+	// 尽量减少随机延迟
+	addRandomDelay()
 
 	return cdo(c, req)
 }
@@ -295,26 +309,24 @@ func PostForm(c http.Client, url string, data string, headers ...H) (*http.Respo
 	if err != nil {
 		return nil, err
 	}
+
+	// 设置表单POST特有的头部
 	req.Header.Set("content-type", "application/x-www-form-urlencoded")
-	req.Header.Set("user-agent", UA_Browser)
-	req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-	// req.Header.Set("accept-encoding", "gzip, deflate, br")
-	// req.Header.Set("accept-language", "zh-CN,zh;q=0.9")
-	req.Header.Set("cache-control", "no-cache")
-	req.Header.Set("dnt", "1")
-	req.Header.Set("pragma", "no-cache")
-	req.Header.Set("sec-ch-ua", `"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"`)
-	req.Header.Set("sec-ch-ua-mobile", "?0")
-	req.Header.Set("sec-ch-ua-platform", "macOS")
-	req.Header.Set("sec-fetch-dest", "document")
+
+	// 使用改进的请求头设置
+	setRealisticHeaders(req, "html")
 	req.Header.Set("sec-fetch-mode", "navigate")
-	req.Header.Set("sec-fetch-site", "none")
+	req.Header.Set("sec-fetch-dest", "document")
 	req.Header.Set("sec-fetch-user", "?1")
 	req.Header.Set("upgrade-insecure-requests", "1")
 
+	// 应用自定义头部
 	for _, h := range headers {
 		req.Header.Set(h[0], h[1])
 	}
+
+	// 尽量减少随机延迟
+	addRandomDelay()
 
 	return cdo(c, req)
 }
@@ -398,3 +410,102 @@ func genRandomStr(length int) string {
 	}
 	return string(b)
 }
+
+// 生成动态的Edge User-Agent
+func generateEdgeUserAgent() string {
+	// Edge版本号范围 (136-140)
+	edgeVersion := rand.Intn(5) + 136
+	chromiumVersion := edgeVersion
+
+	return fmt.Sprintf("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%d.0.0.0 Safari/537.36 Edg/%d.0.0.0",
+		chromiumVersion, edgeVersion)
+}
+
+// 生成动态的sec-ch-ua值
+func generateSecChUA() string {
+	edgeVersion := rand.Intn(5) + 136
+	chromiumVersion := edgeVersion
+	notBrandVersion := rand.Intn(10) + 20
+
+	return fmt.Sprintf(`"Microsoft Edge";v="%d", "Chromium";v="%d", "Not/A)Brand";v="%d"`,
+		edgeVersion, chromiumVersion, notBrandVersion)
+}
+
+// 随机化Accept-Language
+func getRandomAcceptLanguage() string {
+	languages := []string{
+		"en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+		"en-US,en;q=0.9",
+		"zh-CN,zh;q=0.9,en;q=0.8",
+		"zh-CN,zh;q=0.9",
+		"en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,ja;q=0.6",
+	}
+	return languages[rand.Intn(len(languages))]
+}
+
+// 添加最小随机延迟，避免请求过于机械化
+func addRandomDelay() {
+	// 降低延迟时间并减小概率
+	if rand.Intn(10) == 0 { // 只有10%的请求会有延迟
+		delay := time.Duration(rand.Intn(100)+50) * time.Millisecond
+		time.Sleep(delay)
+	}
+}
+
+// 改进的请求头设置函数，使用会话级别的头部
+func setRealisticHeaders(req *http.Request, requestType string) {
+	// 确保会话头部已初始化
+	if sessionHeaders.UserAgent == "" {
+		ResetSessionHeaders()
+	}
+
+	// 使用会话中的固定头部
+	req.Header.Set("user-agent", sessionHeaders.UserAgent)
+
+	// 根据请求类型设置不同的Accept头
+	switch requestType {
+	case "json":
+		req.Header.Set("accept", "application/json, text/plain, */*")
+	case "html":
+		req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+	default:
+		req.Header.Set("accept", "*/*")
+	}
+
+	// 使用会话中的固定sec-ch-ua
+	req.Header.Set("sec-ch-ua", sessionHeaders.SecChUA)
+	req.Header.Set("sec-ch-ua-mobile", "?0")
+	req.Header.Set("sec-ch-ua-platform", `"Windows"`)
+
+	// 使用会话中的固定Accept-Language
+	req.Header.Set("accept-language", sessionHeaders.AcceptLanguage)
+
+	// 设置其他标准头部
+	req.Header.Set("cache-control", "no-cache")
+	req.Header.Set("pragma", "no-cache")
+	req.Header.Set("sec-fetch-site", "cross-site")
+	req.Header.Set("sec-fetch-mode", "cors")
+	req.Header.Set("sec-fetch-dest", "empty")
+
+	// 设置DNT头部
+	req.Header.Set("dnt", sessionHeaders.DNT)
+}
+
+// SessionHeaders 存储一次测试项中所有请求共享的头信息
+type SessionHeaders struct {
+	UserAgent      string
+	SecChUA        string
+	AcceptLanguage string
+	DNT            string // 直接存储"0"或"1"而不是布尔值
+}
+
+// ResetSessionHeaders 重置会话头部，为每个测试项目生成一次
+func ResetSessionHeaders() {
+	sessionHeaders.UserAgent = generateEdgeUserAgent()
+	sessionHeaders.SecChUA = generateSecChUA()
+	sessionHeaders.AcceptLanguage = getRandomAcceptLanguage()
+	sessionHeaders.DNT = strconv.Itoa(rand.Intn(2))
+}
+
+// ResetSessionHeaders 是公开的API，每个测试项目开始前调用
+// 以确保同一测试项目内使用相同的请求头

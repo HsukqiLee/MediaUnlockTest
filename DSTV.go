@@ -5,18 +5,16 @@ import (
 )
 
 func DSTV(c http.Client) Result {
-	resp, err := GET(c, "https://authentication.dstv.com/favicon.ico")
+	resp, err := GET(c, "https://now.dstv.com/")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
-	
-	if resp.StatusCode == 403 || resp.StatusCode == 451 {
+	switch resp.StatusCode {
+	case 451:
 		return Result{Status: StatusNo}
-	}
-	
-	if resp.StatusCode == 404  {
+	case 200:
 		return Result{Status: StatusOK}
 	}
 

@@ -5,7 +5,7 @@ import (
 )
 
 func CoupangPlay(c http.Client) Result {
-	resp, err := GET(c, "https://www.coupangplay.com/")
+	resp, err := GET_Dalvik(c, "https://www.coupangplay.com/")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}

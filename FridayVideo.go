@@ -2,7 +2,7 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 )
@@ -35,7 +35,7 @@ func FridayVideo(c http.Client) Result {
 		case "0000":
 			return Result{Status: StatusOK}
 		default:
-			return Result{Status: StatusErr, Err: fmt.Errorf("unknown code: %s", res.Code)}
+			return Result{Status: StatusErr, Err: errors.New("unknown code: " + res.Code)}
 		}
 	}
 

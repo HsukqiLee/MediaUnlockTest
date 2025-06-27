@@ -23,9 +23,10 @@ func ViuTV(c http.Client) Result {
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
-	if res.ResponseCode == "SUCCESS" {
+	switch res.ResponseCode {
+	case "SUCCESS":
 		return Result{Status: StatusOK}
-	} else if res.ResponseCode == "GEO_CHECK_FAIL" {
+	case "GEO_CHECK_FAIL":
 		return Result{Status: StatusNo}
 	}
 	return Result{Status: StatusUnexpected}
