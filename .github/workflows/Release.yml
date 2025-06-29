@@ -8,6 +8,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: write
+      actions: read
+    
     env:
       NDK_VERSION: "r26d"
       API_LEVEL: "21"
@@ -15,6 +19,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Download Android NDK
         run: |
@@ -30,6 +37,31 @@ jobs:
           echo "PATH=$PATH:$HOME/android-ndk/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_ENV
         shell: bash
 
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Extract version from tag and update file
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          VERSION=$(echo "$TAG_NAME" | sed -E 's/^v([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/')
+          echo "Extracted version: $VERSION"
+          CURRENT_VERSION=$(grep 'Version.*=' mediaunlock.go | sed -E 's/.*Version.*=.*"([^"]+)".*/\1/')
+          echo "Current version in file: $CURRENT_VERSION"
+          if [ "$VERSION" != "$CURRENT_VERSION" ]; then
+            echo "Version mismatch. Updating from $CURRENT_VERSION to $VERSION"
+            sed -i "s/Version\s*=\s*\"[^\"]*\"/Version          = \"$VERSION\"/" mediaunlock.go
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add mediaunlock.go
+            git commit -m "Update version to $VERSION"
+            git push
+            echo "Version updated and committed"
+          else
+            echo "Version is already up to date"
+          fi
+        shell: bash
 
       - name: Build unlock-test binaries
         run: |
