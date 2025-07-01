@@ -309,6 +309,7 @@ func (T *TEST) SouthEastAsia() {
 	T.excute("Tata Play", mt.TataPlay)
 	T.excute("NBA TV", mt.NBA_TV)
 	T.excute("Jio Cinema", mt.JioCinema)
+	T.excute("MX Player", mt.MXPlayer)
 }
 
 func (T *TEST) Oceania() {
