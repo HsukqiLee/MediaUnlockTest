@@ -422,6 +422,7 @@ var SouthEastAsiaTests = []TestItem{
 	{"Tata Play", m.TataPlay, true},
 	{"SonyLiv", m.SonyLiv, true},
 	{"JioCinema", m.JioCinema, true},
+	{"MX Player", m.MXPlayer, false},
 	{"Zee5", m.Zee5, true},
 }
 
