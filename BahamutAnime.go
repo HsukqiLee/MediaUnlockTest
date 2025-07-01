@@ -10,48 +10,74 @@ import (
 
 func BahamutAnime(c http.Client) Result {
 	c.Jar, _ = cookiejar.New(nil)
-	resp, err := GET(c, "https://ani.gamer.com.tw/ajax/getdeviceid.php")
+	type apiResponse struct {
+		AnimeSn  int    `json:"animeSn"`
+		Deviceid string `json:"deviceid"`
+	}
+	resp1, err := GET(c, "https://ani.gamer.com.tw/ajax/getdeviceid.php")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
+	defer resp1.Body.Close()
+	b1, err := io.ReadAll(resp1.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	var res struct {
-		AnimeSn  int
-		Deviceid string
-	}
-	if err := json.Unmarshal(b, &res); err != nil {
+
+	var res1 apiResponse
+	if err := json.Unmarshal(b1, &res1); err != nil {
 		if err.Error() == "invalid character '<' looking for beginning of value" {
 			return Result{Status: StatusNo}
 		}
 		return Result{Status: StatusErr, Err: err}
 	}
-	resp, err = GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=14667&device="+res.Deviceid)
+
+	resp2, err := GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=37783&device="+res1.Deviceid)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	defer resp.Body.Close()
-	b, err = io.ReadAll(resp.Body)
+	defer resp2.Body.Close()
+	b2, err := io.ReadAll(resp2.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	if err := json.Unmarshal(b, &res); err != nil {
+
+	var res2 apiResponse
+	if err := json.Unmarshal(b2, &res2); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
-	if res.AnimeSn != 0 {
-		resp, err = GET(c, "https://ani.gamer.com.tw/cdn-cgi/trace")
+
+	if res2.AnimeSn != 0 {
+		resp3, err := GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=38832&device="+res1.Deviceid)
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}
-		defer resp.Body.Close()
-		b, err = io.ReadAll(resp.Body)
+		defer resp3.Body.Close()
+		b3, err := io.ReadAll(resp3.Body)
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}
-		bodyString := string(b)
+
+		var res3 apiResponse
+		if err := json.Unmarshal(b3, &res3); err != nil {
+			return Result{Status: StatusErr, Err: err}
+		}
+
+		if res3.AnimeSn != 0 {
+			return Result{Status: StatusOK, Region: "tw"}
+		}
+
+		resp4, err := GET(c, "https://ani.gamer.com.tw/cdn-cgi/trace")
+		if err != nil {
+			return Result{Status: StatusNetworkErr, Err: err}
+		}
+		defer resp4.Body.Close()
+		b4, err := io.ReadAll(resp4.Body)
+		if err != nil {
+			return Result{Status: StatusNetworkErr, Err: err}
+		}
+
+		bodyString := string(b4)
 		index := strings.Index(bodyString, "loc=")
 		if index == -1 {
 			return Result{Status: StatusUnexpected}

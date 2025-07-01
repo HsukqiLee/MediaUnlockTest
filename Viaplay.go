@@ -25,7 +25,7 @@ func extractViaplayRegion2(url string) string {
 }
 
 func Viaplay(c http.Client) Result {
-	resp1, err := GET(c, "https://checkout.viaplay.pl/?recommended=viaplay")
+	resp1, err := GET(c, "https://viaplay.pl")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -39,7 +39,7 @@ func Viaplay(c http.Client) Result {
 		return Result{Status: StatusNo}
 	}
 
-	if resp1.StatusCode == 200 {
+	if resp1.StatusCode == 302 && resp1.Header.Get("Location") == "https://viaplay.pl/pl-pl/" {
 		resp2, err := GET(c, "https://viaplay.com/")
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
@@ -57,6 +57,5 @@ func Viaplay(c http.Client) Result {
 			}
 		}
 	}
-
 	return Result{Status: StatusUnexpected}
 }
