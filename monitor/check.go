@@ -19,6 +19,7 @@ var (
 	AFR  bool
 	SEA  bool
 	OCEA bool
+	AI   bool
 	Conc uint64 = 0
 	sem  chan struct{}
 )
@@ -75,6 +76,9 @@ func (T *TEST) Check() bool {
 	if OCEA {
 		T.Oceania()
 	}
+	if AI {
+		T.AI()
+	}
 
 	ch := make(chan struct{})
 	go func() {
@@ -114,7 +118,6 @@ func (T *TEST) excute(Name string, F func(client http.Client) mt.Result) {
 }
 
 func (T *TEST) Multination() {
-	// R = append(R, &result{Name: "Multination", Divider: true})
 	T.excute("Dazn", mt.Dazn)
 	T.excute("Disney+", mt.DisneyPlus)
 	T.excute("Netflix", mt.NetflixRegion)
@@ -127,21 +130,15 @@ func (T *TEST) Multination() {
 	T.excute("Viu.com", mt.ViuCom)
 	T.excute("Spotify", mt.Spotify)
 	T.excute("Steam", mt.Steam)
-	T.excute("ChatGPT", mt.ChatGPT)
 	T.excute("Wikipedia", mt.WikipediaEditable)
 	T.excute("Reddit", mt.Reddit)
 	T.excute("TikTok", mt.TikTok)
 	T.excute("Bing", mt.Bing)
-	//T.excute("Instagram Audio", mt.Instagram)
-	T.excute("Google Gemini", mt.Gemini)
 	T.excute("Google Play Store", mt.GooglePlayStore)
-	T.excute("Sora", mt.Sora)
-	T.excute("Claude", mt.Claude)
 	T.excute("Apple", mt.Apple)
 }
 
 func (T *TEST) HongKong() {
-	// R = append(R, &result{Name: "Hong Kong", Divider: true})
 	T.excute("Now E", mt.NowE)
 	T.excute("Viu.TV", mt.ViuTV)
 	T.excute("MyTVSuper", mt.MyTvSuper)
@@ -153,7 +150,6 @@ func (T *TEST) HongKong() {
 }
 
 func (T *TEST) Taiwan() {
-	// R = append(R, &result{Name: "Taiwan", Divider: true})
 	T.excute("KKTV", mt.KKTV)
 	T.excute("LiTV", mt.LiTV)
 	T.excute("MyVideo", mt.MyVideo)
@@ -169,7 +165,6 @@ func (T *TEST) Taiwan() {
 }
 
 func (T *TEST) Japan() {
-	// R = append(R, &result{Name: "Japan", Divider: true})
 	T.excute("DMM", mt.DMM)
 	T.excute("DMM TV", mt.DMMTV)
 	T.excute("Abema", mt.Abema)
@@ -178,7 +173,6 @@ func (T *TEST) Japan() {
 	T.excute("Telasa", mt.Telasa)
 	T.excute("U-NEXT", mt.U_NEXT)
 	T.excute("Hulu Japan", mt.HuluJP)
-	// T.excute("GYAO!", mt.GYAO)
 	T.excute("VideoMarket", mt.VideoMarket)
 	T.excute("FOD(Fuji TV)", mt.FOD)
 	T.excute("Radiko", mt.Radiko)
@@ -186,7 +180,6 @@ func (T *TEST) Japan() {
 	T.excute("J:COM On Demand", mt.J_COM_ON_DEMAND)
 	T.excute("Kancolle", mt.Kancolle)
 	T.excute("Pretty Derby Japan", mt.PrettyDerbyJP)
-	// T.excute("Konosuba Fantastic Days", mt.KonosubaFD)
 	T.excute("Princess Connect Re:Dive Japan", mt.PCRJP)
 	T.excute("Project Sekai: Colorful Stage", mt.PJSK)
 	T.excute("Rakuten TV", mt.RakutenTV_JP)
@@ -204,7 +197,6 @@ func (T *TEST) Japan() {
 }
 
 func (T *TEST) Korea() {
-	// R = append(R, &result{Name: "Korea", Divider: true})
 	T.excute("Wavve", mt.Wavve)
 	T.excute("Tving", mt.Tving)
 	T.excute("Watcha", mt.Watcha)
@@ -217,7 +209,6 @@ func (T *TEST) Korea() {
 }
 
 func (T *TEST) NorthAmerica() {
-	// R = append(R, &result{Name: "North America", Divider: true})
 	T.excute("A&E TV", mt.AETV)
 	T.excute("FOX", mt.Fox)
 	T.excute("Hulu", mt.Hulu)
@@ -248,25 +239,19 @@ func (T *TEST) NorthAmerica() {
 	T.excute("DirecTV Stream", mt.DirectvStream)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("Hotstar", mt.Hotstar)
-	T.excute("Meta AI", mt.MetaAI)
 	T.excute("AMC+", mt.AMCPlus)
-	// T.excute("Crackle", mt.Crackle)
 	T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
 	T.excute("KOCOWA+", mt.KOCOWA)
 	T.excute("Viaplay", mt.Viaplay)
-	// R = append(R, &result{Name: "CA", Divider: true})
 	T.excute("CBC Gem", mt.CBCGem)
 	T.excute("Crave", mt.Crave)
 }
 
 func (T *TEST) SouthAmerica() {
-	//R = append(R, &result{Name: "South America", Divider: true})
 	T.excute("DirecTV GO", mt.DirecTVGO)
-	T.excute("Meta AI", mt.MetaAI)
 }
 
 func (T *TEST) Europe() {
-	//R = append(R, &result{Name: "Europe", Divider: true})
 	T.excute("Rakuten TV", mt.RakutenTV_EU)
 	T.excute("Setanta Sports", mt.SetantaSports)
 	T.excute("Sky Show Time", mt.SkyShowTime)
@@ -293,35 +278,40 @@ func (T *TEST) Europe() {
 	T.excute("Hotstar", mt.Hotstar)
 	T.excute("MathsSpot Roblox", mt.MathsSpotRoblox)
 	T.excute("KOCOWA+", mt.KOCOWA)
-	T.excute("Meta AI", mt.MetaAI)
 	T.excute("France TV", mt.FranceTV)
 	T.excute("Viaplay", mt.Viaplay)
+	T.excute("Discovery+ UK", mt.DiscoveryPlus_UK)
+	T.excute("TNTSports", mt.TNTSports)
 }
 
 func (T *TEST) Africa() {
-	//R = append(R, &result{Name: "Europe", Divider: true})
 	T.excute("DSTV", mt.DSTV)
 	T.excute("Showmax", mt.Showmax)
-	T.excute("Meta AI", mt.MetaAI)
 }
 
 func (T *TEST) SouthEastAsia() {
-	//R = append(R, &result{Name: "South East Asia", Divider: true})
-	T.excute("Bilibili SouthEastAsia Only", mt.BilibiliSEA)
+	T.excute("Bilibili SEA Only", mt.BilibiliSEA)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("MeWatch", mt.MeWatch)
-	T.excute("Bilibili Thailand Only", mt.BilibiliTH)
+	T.excute("Bilibili TH Only", mt.BilibiliTH)
 	T.excute("AIS Play", mt.AISPlay)
 	T.excute("TrueID", mt.TrueID)
-	T.excute("Bilibili Indonesia Only", mt.BilibiliID)
-	T.excute("Bilibili Vietnam Only", mt.BilibiliVN)
+	T.excute("Bilibili ID Only", mt.BilibiliID)
+	T.excute("Bilibili VN Only", mt.BilibiliVN)
 	T.excute("Hotstar", mt.Hotstar)
-	T.excute("Meta AI", mt.MetaAI)
 	T.excute("CatchPlay+", mt.Catchplay)
+	T.excute("Max", mt.Max)
+	T.excute("Clip TV", mt.ClipTV)
+	T.excute("Galaxy Play", mt.GalaxyPlay)
+	T.excute("K+", mt.KPlus)
+	T.excute("Sooka", mt.Sooka)
+	T.excute("Zee5", mt.Zee5)
+	T.excute("Tata Play", mt.TataPlay)
+	T.excute("NBA TV", mt.NBA_TV)
+	T.excute("Jio Cinema", mt.JioCinema)
 }
 
 func (T *TEST) Oceania() {
-	//R = append(R, &result{Name: "Oceania", Divider: true})
 	T.excute("NBA TV", mt.NBA_TV)
 	T.excute("Acorn TV", mt.AcornTV)
 	T.excute("BritBox", mt.BritBox)
@@ -343,5 +333,13 @@ func (T *TEST) Oceania() {
 	T.excute("Sky Go NZ", mt.SkyGo_NZ)
 	T.excute("AMC+", mt.AMCPlus)
 	T.excute("KOCOWA+", mt.KOCOWA)
+}
+
+func (T *TEST) AI() {
+	T.excute("ChatGPT", mt.ChatGPT)
+	T.excute("Claude", mt.Claude)
+	T.excute("Copilot", mt.Copilot)
+	T.excute("Google Gemini", mt.Gemini)
 	T.excute("Meta AI", mt.MetaAI)
+	T.excute("Sora", mt.Sora)
 }

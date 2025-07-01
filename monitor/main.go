@@ -117,6 +117,7 @@ func main() {
 	flag.BoolVar(&AFR, "afr", false, "Africa")
 	flag.BoolVar(&SEA, "sea", false, "South East Asia")
 	flag.BoolVar(&OCEA, "ocea", false, "Oceania")
+	flag.BoolVar(&AI, "ai", true, "AI Platforms")
 	flag.BoolVar(&update, "u", false, "check update")
 	flag.BoolVar(&version, "v", false, "show version")
 	flag.BoolVar(&AutoUpdate, "auto-update", false, "set auto update")

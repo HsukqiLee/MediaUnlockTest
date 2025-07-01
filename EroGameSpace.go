@@ -15,7 +15,7 @@ func EroGameSpace(c http.Client) Result {
 	resp, err := c.Do(req)
 
 	if err != nil {
-		if err.Error() == `Get "https://erogamescape.org/~ap2/ero/toukei_kaiseki/": context deadline exceeded` {
+		if err.Error() == `Get "https://erogamescape.org/~ap2/ero/toukei_kaiseki/": context deadline exceeded` || err.Error() == `Get "https://erogamescape.org/~ap2/ero/toukei_kaiseki/": EOF` {
 			return Result{Status: StatusNo}
 		}
 		return Result{Status: StatusNetworkErr, Err: err}

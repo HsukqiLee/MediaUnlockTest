@@ -40,6 +40,7 @@ var (
 	AFR     bool
 	SEA     bool
 	OCEA    bool
+	AI      bool
 	Debug   bool   = false
 	Conc    uint64 = 0
 	sem     chan struct{}
@@ -186,109 +187,26 @@ func NewBar(count int64) *pb.ProgressBar {
 	)
 }
 
-func Globe(c http.Client, ipType int) {
+func RunRegionTests(regionName string, tests []TestItem, c http.Client, ipType int) {
 	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
 	if ipType == 0 {
 		ipTypeStr = "Auto"
 	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Globe", ipTypeStr), Divider: true})
-	executeTests(GlobeTests, c, ipType)
-
-}
-
-func HongKong(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Hong Kong", ipTypeStr), Divider: true})
-	executeTests(HongKongTests, c, ipType)
-
-}
-
-func Taiwan(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Taiwan", ipTypeStr), Divider: true})
-	executeTests(TaiwanTests, c, ipType)
-
-}
-
-func Japan(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Japan", ipTypeStr), Divider: true})
-	executeTests(JapanTests, c, ipType)
-}
-
-func Korea(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Korea", ipTypeStr), Divider: true})
-	if ipType == 6 {
+	R = append(R, &result{Name: fmt.Sprintf("%s (%s)", regionName, ipTypeStr), Divider: true})
+	if regionName == "Korea" && ipType == 6 {
 		R = append(R, &result{Name: "No Korean platform supports IPv6", Divider: false})
 	}
-	executeTests(KoreaTests, c, ipType)
-}
-
-func NorthAmerica(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
+	for _, test := range tests {
+		if test.Func == nil {
+			R = append(R, &result{Name: test.Name, Divider: true})
+			continue
+		}
+		if ipType == 6 && !test.SupportsV6 {
+			continue
+		}
+		execute(test.Name, test.Func, c, ipType)
 	}
-	R = append(R, &result{Name: fmt.Sprintf("%s North America", ipTypeStr), Divider: true})
-	executeTests(NorthAmericaTests, c, ipType)
-}
-
-func SouthAmerica(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s South America", ipTypeStr), Divider: true})
-	executeTests(SouthAmericaTests, c, ipType)
-}
-
-func Europe(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Europe", ipTypeStr), Divider: true})
-	executeTests(EuropeTests, c, ipType)
-}
-
-func Africa(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Africa", ipTypeStr), Divider: true})
-	executeTests(AfricaTests, c, ipType)
-}
-
-func SouthEastAsia(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s South East Asia", ipTypeStr), Divider: true})
-	executeTests(SouthEastAsiaTests, c, ipType)
-}
-
-func Oceania(c http.Client, ipType int) {
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-	R = append(R, &result{Name: fmt.Sprintf("%s Oceania", ipTypeStr), Divider: true})
-	executeTests(OceaniaTests, c, ipType)
+	R = append(R, &result{Name: "", Divider: false})
 }
 
 type TestItem struct {
@@ -301,17 +219,13 @@ var GlobeTests = []TestItem{
 	{"Amazon Prime Video", m.PrimeVideo, false},
 	{"Apple", m.Apple, true},
 	{"Bing", m.Bing, true},
-	{"ChatGPT", m.ChatGPT, true},
-	{"Claude", m.Claude, true},
 	{"Dazn", m.Dazn, false},
 	{"Disney+", m.DisneyPlus, true},
-	{"Google Gemini", m.Gemini, true},
 	{"Google Play Store", m.GooglePlayStore, true},
 	{"iQiYi", m.IQiYi, false},
 	{"Netflix", m.NetflixRegion, true},
 	{"Netflix CDN", m.NetflixCDN, true},
 	{"Reddit", m.Reddit, false},
-	{"Sora", m.Sora, true},
 	{"Spotify", m.Spotify, true},
 	{"Steam", m.Steam, false},
 	{"TikTok", m.TikTok, false},
@@ -415,7 +329,6 @@ var NorthAmericaTests = []TestItem{
 	{"MGM+", m.MGMPlus, false},
 	{"MathsSpot Roblox", m.MathsSpotRoblox, false},
 	{"Max", m.Max, true},
-	{"Meta AI", m.MetaAI, true},
 	{"NBC TV", m.NBC_TV, true},
 	{"NFL+", m.NFLPlus, false},
 	{"NBA TV", m.NBA_TV, true},
@@ -439,54 +352,77 @@ var SouthAmericaTests = []TestItem{
 }
 
 var EuropeTests = []TestItem{
-	{"Amediateka", m.Amediateka, false},
-	{"BBC iPlayer", m.BBCiPlayer, false},
-	{"Canal+", m.CanalPlus, false},
-	{"Channel 4", m.Channel4, false},
-	{"Channel 5", m.Channel5, false},
+	{"Rakuten TV EU", m.RakutenTV_EU, false},
+	{"Sky Show Time", m.SkyShowTime, true},
+	{"Viaplay", m.Viaplay, true},
+	{"TNTSports", m.TNTSports, false},
 	{"Eurosport RO", m.EurosportRO, false},
-	{"France TV", m.FranceTV, true},
-	{"Hotstar", m.Hotstar, true},
-	{"ITVX", m.ITVX, false},
-	{"Joyn", m.Joyn, false},
+	{"Setanta Sports", m.SetantaSports, true},
 	{"KOCOWA+", m.KOCOWA, false},
 	{"MathsSpot Roblox", m.MathsSpotRoblox, false},
 	{"Max", m.Max, true},
-	{"Molotov", m.Molotov, true},
-	{"Movistar Plus+", m.MoviStarPlus, false},
-	{"NLZIET", m.NLZIET, false},
-	{"NPO Start Plus", m.NPOStartPlus, false},
-	{"Rakuten TV EU", m.RakutenTV_EU, false},
-	{"Rai Play", m.RaiPlay, false},
-	{"Setanta Sports", m.SetantaSports, true},
-	{"Sky CH", m.Sky_CH, false},
-	{"Sky DE", m.Sky_DE, false},
-	{"Sky Go", m.SkyGo, false},
-	{"Sky Show Time", m.SkyShowTime, true},
 	{"SonyLiv", m.SonyLiv, true},
-	{"Viaplay", m.Viaplay, true},
-	{"Video Land", m.VideoLand, true},
+	{"GB", nil, false},
+	{"BBC iPlayer", m.BBCiPlayer, false},
+	{"BritBox", m.BritBox, true},
+	{"ITVX", m.ITVX, false},
+	{"Channel 4", m.Channel4, false},
+	{"Channel 5", m.Channel5, false},
+	{"Discovery+ UK", m.DiscoveryPlus_UK, false},
+	{"Sky Go", m.SkyGo, false},
+	{"FR", nil, false},
+	{"Canal+", m.CanalPlus, false},
+	{"Molotov", m.Molotov, true},
+	{"France TV", m.FranceTV, true},
+	{"DE", nil, false},
+	{"Joyn", m.Joyn, false},
+	{"Sky DE", m.Sky_DE, false},
 	{"ZDF", m.ZDF, false},
+	{"NL", nil, false},
+	{"NLZIET", m.NLZIET, false},
+	{"Video Land", m.VideoLand, true},
+	{"NPO Start Plus", m.NPOStartPlus, false},
+	{"ES", nil, false},
+	{"Movistar Plus+", m.MoviStarPlus, false},
+	{"IT", nil, false},
+	{"Rai Play", m.RaiPlay, false},
+	{"CH", nil, false},
+	{"Sky CH", m.Sky_CH, false},
+	{"RU", nil, false},
+	{"Amediateka", m.Amediateka, false},
 }
 
 var AfricaTests = []TestItem{
 	{"DSTV", m.DSTV, false},
-	{"Meta AI", m.MetaAI, true},
 	{"Showmax", m.Showmax, true},
 }
 
 var SouthEastAsiaTests = []TestItem{
-	{"AIS Play", m.AISPlay, false},
-	{"Bilibili Indonesia Only", m.BilibiliID, false},
-	{"Bilibili SouthEastAsia Only", m.BilibiliSEA, false},
-	{"Bilibili Thailand Only", m.BilibiliTH, false},
-	{"Bilibili Vietnam Only", m.BilibiliVN, false},
-	{"CatchPlay+", m.Catchplay, false},
+	{"Max", m.Max, true},
 	{"Hotstar", m.Hotstar, true},
+	{"Bilibili SouthEastAsia Only", m.BilibiliSEA, false},
+	{"SG", nil, false},
 	{"MeWatch", m.MeWatch, false},
-	{"Meta AI", m.MetaAI, true},
-	{"SonyLiv", m.SonyLiv, true},
+	{"CatchPlay+", m.Catchplay, false},
+	{"TH", nil, false},
+	{"AIS Play", m.AISPlay, false},
 	{"TrueID", m.TrueID, false},
+	{"Bilibili Thailand Only", m.BilibiliTH, false},
+	{"ID", nil, false},
+	{"Bilibili Indonesia Only", m.BilibiliID, false},
+	{"VN", nil, false},
+	{"Clip TV", m.ClipTV, false},
+	{"Galaxy Play", m.GalaxyPlay, false},
+	{"K+", m.KPlus, false},
+	{"Bilibili Vietnam Only", m.BilibiliVN, false},
+	{"MY", nil, false},
+	{"Sooka", m.Sooka, false},
+	{"IN", nil, false},
+	{"NBA TV", m.NBA_TV, true},
+	{"Tata Play", m.TataPlay, true},
+	{"SonyLiv", m.SonyLiv, true},
+	{"JioCinema", m.JioCinema, true},
+	{"Zee5", m.Zee5, true},
 }
 
 var OceaniaTests = []TestItem{
@@ -502,7 +438,6 @@ var OceaniaTests = []TestItem{
 	{"Kayo Sports", m.KayoSports, false},
 	{"KOCOWA+", m.KOCOWA, false},
 	{"Maori TV", m.MaoriTV, false},
-	{"Meta AI", m.MetaAI, true},
 	{"NBA TV", m.NBA_TV, true},
 	{"Neon TV", m.NeonTV, false},
 	{"Optus Sports", m.OptusSports, true},
@@ -514,30 +449,22 @@ var OceaniaTests = []TestItem{
 	{"Three Now", m.ThreeNow, false},
 }
 
-func executeTests(tests []TestItem, client http.Client, ipType int) {
-	for _, test := range tests {
-		if ipType == 6 && !test.SupportsV6 {
-			continue
-		}
-		execute(test.Name, test.Func, client, ipType)
-	}
-	R = append(R, &result{Name: "", Divider: false})
+var AITests = []TestItem{
+	{"ChatGPT", m.ChatGPT, true},
+	{"Claude", m.Claude, true},
+	{"Copilot", m.Copilot, true},
+	{"Google Gemini", m.Gemini, true},
+	{"Meta AI", m.MetaAI, true},
+	{"Sora", m.Sora, true},
 }
 
 func execute(Name string, F func(client http.Client) m.Result, client http.Client, ipType int) {
-	// 为每个测试重置请求头，确保同一测试内部所有请求使用相同头部
 	m.ResetSessionHeaders()
-
-	// 生成缓存键 - 去掉重复标识符，使同一个测试可以共享缓存
 	cacheKey := fmt.Sprintf("%s_%d", Name, ipType)
-
-	// 首先检查缓存
 	cacheMutex.RLock()
 	if cachedResult, exists := resultCache[cacheKey]; exists {
 		cacheMutex.RUnlock()
-		// 使用缓存的结果
 		r := &result{Name: Name, Value: cachedResult}
-		// 显式标记为从缓存获取的结果
 		r.Value.CachedResult = true
 		R = append(R, r)
 		bar.Describe(Name + " " + ShowResult(r.Value))
@@ -545,24 +472,18 @@ func execute(Name string, F func(client http.Client) m.Result, client http.Clien
 		return
 	}
 	cacheMutex.RUnlock()
-
-	// 检查是否已经在运行中
 	runningMutex.Lock()
 	if resultChan, isRunning := runningTests[cacheKey]; isRunning {
-		// 已经在运行，等待结果
 		runningMutex.Unlock()
 
 		r := &result{Name: Name}
 		R = append(R, r)
 
-		// 等待正在运行的测试完成，并且加入到waitgroup中
 		wg.Add(1)
 		tot++
 		go func() {
 			defer wg.Done()
-			// 等待正在运行的测试完成
 			result := <-resultChan
-			// 标记为缓存结果
 			result.CachedResult = true
 			r.Value = result
 			bar.Describe(Name + " " + ShowResult(r.Value))
@@ -571,7 +492,6 @@ func execute(Name string, F func(client http.Client) m.Result, client http.Clien
 		return
 	}
 
-	// 创建一个新的结果通道
 	resultChan := make(chan m.Result, 1)
 	runningTests[cacheKey] = resultChan
 	runningMutex.Unlock()
@@ -589,21 +509,16 @@ func execute(Name string, F func(client http.Client) m.Result, client http.Clien
 			}()
 		}
 
-		// 执行测试
 		result := F(client)
-		// 确保首次执行时CachedResult为false
 		result.CachedResult = false
 		r.Value = result
 
-		// 保存结果到缓存
 		cacheMutex.Lock()
 		resultCache[cacheKey] = result
 		cacheMutex.Unlock()
 
-		// 通知等待的测试并清理
 		runningMutex.Lock()
 		if ch, exists := runningTests[cacheKey]; exists {
-			// 发送结果给等待者
 			select {
 			case ch <- result:
 			default:
@@ -613,7 +528,6 @@ func execute(Name string, F func(client http.Client) m.Result, client http.Clien
 		}
 		runningMutex.Unlock()
 
-		// 这是第一次执行的测试，不显示cached
 		bar.Describe(Name + " " + ShowResult(r.Value))
 		bar.Add(1)
 	}()
@@ -687,6 +601,7 @@ func ReadSelect() {
 	fmt.Println("[8] :   非洲平台")
 	fmt.Println("[9] : 东南亚平台")
 	fmt.Println("[10]: 大洋洲平台")
+	fmt.Println("[11]:   ＡＩ平台")
 	fmt.Print("请输入对应数字，空格分隔（回车确认）: ")
 	r := bufio.NewReader(os.Stdin)
 	l, _, err := r.ReadLine()
@@ -718,8 +633,10 @@ func ReadSelect() {
 			SEA = true
 		case "10":
 			OCEA = true
+		case "11":
+			AI = true
 		default:
-			M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA = true, true, true, true, true, true, true, true, true, true, true
+			M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA, AI = true, true, true, true, true, true, true, true, true, true, true, true
 		}
 	}
 }
@@ -982,7 +899,7 @@ func main() {
 	if test {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("bbc", ShowResult(m.BBCiPlayer(m.AutoHttpClient)))
+		fmt.Println("Viaplay", ShowResult(m.Viaplay(m.AutoHttpClient)))
 		return
 	}
 
@@ -990,7 +907,7 @@ func main() {
 	fmt.Println("使用方式: " + Yellow("bash <(curl -Ls unlock.icmp.ing/scripts/test.sh)"))
 	fmt.Println()
 
-	fmt.Println("正在从获取国内分流 IP...")
+	fmt.Println("正在获取国内分流 IP...")
 	var IP4_1, IP6_1, IP4_2, IP6_2 string
 	var err error
 	if mode == 0 || mode == 4 {
@@ -1118,39 +1035,45 @@ func main() {
 	regions := []struct {
 		enabled bool
 		name    string
-		fn      func(http.Client, int)
+		tests   []TestItem
 	}{
-		{M, "Globe", Globe},
-		{TW, "Taiwan", Taiwan},
-		{HK, "HongKong", HongKong},
-		{JP, "Japan", Japan},
-		{KR, "Korea", Korea},
-		{NA, "NorthAmerica", NorthAmerica},
-		{SA, "SouthAmerica", SouthAmerica},
-		{EU, "Europe", Europe},
-		{AFR, "Africa", Africa},
-		{SEA, "SouthEastAsia", SouthEastAsia},
-		{OCEA, "Oceania", Oceania},
+		{M, "Globe", GlobeTests},
+		{TW, "Taiwan", TaiwanTests},
+		{HK, "HongKong", HongKongTests},
+		{JP, "Japan", JapanTests},
+		{KR, "Korea", KoreaTests},
+		{NA, "NorthAmerica", NorthAmericaTests},
+		{SA, "SouthAmerica", SouthAmericaTests},
+		{EU, "Europe", EuropeTests},
+		{AFR, "Africa", AfricaTests},
+		{SEA, "SouthEastAsia", SouthEastAsiaTests},
+		{OCEA, "Oceania", OceaniaTests},
+		{AI, "AI", AITests},
 	}
-	// 串行执行每个地区，每个地区内部并发执行
 	if isProxy {
 		for _, region := range regions {
 			if region.enabled {
-				executeRegionSerially(region.name, region.fn, m.AutoHttpClient, 0)
+				executeRegionSerially(region.name, func(client http.Client, ipType int) {
+					RunRegionTests(region.name, region.tests, client, ipType)
+				}, m.AutoHttpClient, 0)
 			}
 		}
 	} else {
 		if IPV4 {
 			for _, region := range regions {
 				if region.enabled {
-					executeRegionSerially(region.name, region.fn, m.Ipv4HttpClient, 4)
+					executeRegionSerially(region.name, func(client http.Client, ipType int) {
+						RunRegionTests(region.name, region.tests, client, ipType)
+					}, m.Ipv4HttpClient, 4)
 				}
 			}
 		}
 		if IPV6 {
 			for _, region := range regions {
 				if region.enabled {
-					executeRegionSerially(region.name, region.fn, m.Ipv6HttpClient, 6)
+					executeRegionSerially(region.name, func(client http.Client, ipType int) {
+						RunRegionTests(region.name, region.tests, client, ipType)
+					}, m.Ipv6HttpClient, 6)
 				}
 			}
 		}
@@ -1164,39 +1087,24 @@ func main() {
 	showAd()
 }
 
-// executeRegionSerially 串行执行每个地区，每个地区内部并发执行
 func executeRegionSerially(regionName string, regionFunc func(http.Client, int), client http.Client, ipType int) {
-	// 为每个地区创建独立的等待组和进度条
 	currentWg := &sync.WaitGroup{}
-
-	// 暂存全局变量
 	oldWg := wg
 	oldTot := tot
 	oldBar := bar
-
-	// 设置当前地区的全局变量
 	wg = currentWg
 	tot = 0
-	bar = NewBar(0) // 先创建一个临时的进度条
-
+	bar = NewBar(0)
 	fmt.Printf("\n=== 开始检测 %s ===\n", regionName)
-
-	// 执行地区检测
 	regionFunc(client, ipType)
-
-	// 重新创建进度条并设置正确的总数
 	if tot > 0 {
 		bar = NewBar(tot)
 		bar.Describe(fmt.Sprintf("Testing %s", regionName))
 
-		// 等待当前地区所有测试完成
 		wg.Wait()
 		bar.Finish()
 	}
-
 	fmt.Printf("=== %s 检测完毕 ===\n", regionName)
-
-	// 恢复全局变量（虽然后续不会用到，但保持一致性）
 	wg = oldWg
 	tot = oldTot
 	bar = oldBar

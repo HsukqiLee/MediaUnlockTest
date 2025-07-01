@@ -2,17 +2,18 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
 
 func DiscoveryPlus(c http.Client) Result {
-	resp, err := GET(c, "https://us1-prod-direct.discoveryplus.com/token?deviceId=d1a4a5d25212400d1e6985984604d740&realm=go&shortlived=true")
+	resp1, err := GET(c, "https://us1-prod-direct.discoveryplus.com/token?deviceId=d1a4a5d25212400d1e6985984604d740&realm=go&shortlived=true")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
+	defer resp1.Body.Close()
+	b, err := io.ReadAll(resp1.Body)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -48,5 +49,55 @@ func DiscoveryPlus(c http.Client) Result {
 	if res2.Data.Attributes.CurrentLocationTerritory == "us" {
 		return Result{Status: StatusOK}
 	}
+	return Result{Status: StatusNo}
+}
+
+func DiscoveryPlus_UK(c http.Client) Result {
+	resp1, err := GET(c, "https://disco-api.discoveryplus.co.uk/token?realm=questuk&deviceId=61ee588b07c4df08c02861ecc1366a592c4ad02d08e8228ecfee67501d98bf47&shortlived=true")
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp1.Body.Close()
+	b, err := io.ReadAll(resp1.Body)
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+
+	var res struct {
+		Data struct {
+			Attributes struct {
+				Token string `json:"token"`
+			}
+		}
+	}
+	if err := json.Unmarshal(b, &res); err != nil {
+		return Result{Status: StatusFailed, Err: err}
+	}
+
+	resp2, err := GET(c, "https://disco-api.discoveryplus.co.uk/users/me", H{"Cookie", "st=" + res.Data.Attributes.Token})
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp2.Body.Close()
+	b2, err := io.ReadAll(resp2.Body)
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+
+	var res2 struct {
+		Data struct {
+			Attributes struct {
+				CurrentLocationTerritory string `json:"currentLocationTerritory"`
+			}
+		}
+	}
+	if err := json.Unmarshal(b2, &res2); err != nil {
+		return Result{Status: StatusFailed, Err: err}
+	}
+
+	if res2.Data.Attributes.CurrentLocationTerritory == "gb" {
+		return Result{Status: StatusOK}
+	}
+	fmt.Println(string(b2))
 	return Result{Status: StatusNo}
 }
