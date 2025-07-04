@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	mt "MediaUnlockTest"
+	mt "MediaUnlockTest/checks"
 
 	"github.com/kardianos/service"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -76,7 +76,6 @@ func (p *program) run() {
 }
 
 func (p *program) Stop(s service.Service) error {
-	//log.Println("Service is stopping...")
 	return nil
 }
 
@@ -85,15 +84,17 @@ var setSocketOptions = func(network, address string, c syscall.RawConn, interfac
 }
 
 func main() {
-	var install bool
-	var uninstall bool
-	var start bool
-	var stop bool
-	var restart bool
-	var update bool
-	var authToken string
-	var metricsPath string
-	var version bool
+	var (
+		install     bool
+		uninstall   bool
+		start       bool
+		stop        bool
+		restart     bool
+		update      bool
+		authToken   string
+		metricsPath string
+		version     bool
+	)
 
 	flag.Uint64Var(&Interval, "interval", 60, "check interval (s)")
 	flag.Uint64Var(&UpdateInterval, "update-interval", 0, "update check interval (s)")

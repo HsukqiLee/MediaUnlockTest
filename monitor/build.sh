@@ -1,9 +1,7 @@
 # #!/bin/sh
 # mkdir build
 tp="-gcflags=-trimpath="$GOPATH" -asmflags=-trimpath="$GOPATH
-flags="-w -s -X 'update.buildTime=$(date '+%Y-%m-%d %H:%M:%S')'"
-
-# exit
+flags="-w -s -X 'main.buildTime=$(date '+%Y-%m-%d %H:%M:%SZ')'"
 
 echo "build android 386 ..."
 CGO_ENABLED=1 GOOS=android GOARCH=386 CC=i686-linux-android$API_LEVEL-clang CXX=i686-linux-android$API_LEVEL-clang++ go build -tags netcgo -ldflags="$flags" $tp -o build/unlock-monitor_android_386
@@ -23,9 +21,6 @@ CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="$flags" $tp -o build/u
 echo "build darwin arm64 ..."
 CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_darwin_arm64
 
-#echo "build dragonfly amd64 ..."
-#CGO_ENABLED=0 GOOS=dragonfly GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_dragonfly_amd64
-
 echo "build freebsd 386 ..."
 CGO_ENABLED=0 GOOS=freebsd GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-monitor_freebsd_386
 echo "build freebsd amd64 ..."
@@ -40,9 +35,6 @@ echo "build freebsd arm64 ..."
 CGO_ENABLED=0 GOOS=freebsd GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_freebsd_arm64
 echo "build freebsd riscv64 ..."
 CGO_ENABLED=0 GOOS=freebsd GOARCH=riscv64 go build -ldflags="$flags" $tp -o build/unlock-monitor_freebsd_riscv64
-
-#echo "build illumos amd64 ..."
-#CGO_ENABLED=0 GOOS=illumos GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_illumos_amd64
 
 echo "build linux 386 ..."
 CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-monitor_linux_386
@@ -102,20 +94,6 @@ echo "build openbsd arm64 ..."
 CGO_ENABLED=0 GOOS=openbsd GOARCH=arm64 go build -ldflags="$flags" $tp -o build/unlock-monitor_openbsd_arm64
 echo "build openbsd ppc64 ..."
 CGO_ENABLED=0 GOOS=openbsd GOARCH=ppc64 go build -ldflags="$flags" $tp -o build/unlock-monitor_openbsd_ppc64
-
-#echo "build plan9 386 ..."
-#CGO_ENABLED=0 GOOS=plan9 GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-monitor_plan9_386
-#echo "build plan9 amd64 ..."
-#CGO_ENABLED=0 GOOS=plan9 GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_plan9_amd64
-#echo "build plan9 arm7 ..."
-#CGO_ENABLED=0 GOOS=plan9 GOARCH=arm GOARM=7 go build -ldflags="$flags" $tp -o build/unlock-monitor_plan9_arm7
-#echo "build plan9 arm6 ..."
-#CGO_ENABLED=0 GOOS=plan9 GOARCH=arm GOARM=6 go build -ldflags="$flags" $tp -o build/unlock-monitor_plan9_arm6
-#echo "build plan9 arm5 ..."
-#CGO_ENABLED=0 GOOS=plan9 GOARCH=arm GOARM=5 go build -ldflags="$flags" $tp -o build/unlock-monitor_plan9_arm5
-
-#echo "build solaris amd64 ..."
-#CGO_ENABLED=0 GOOS=solaris GOARCH=amd64 go build -ldflags="$flags" $tp -o build/unlock-monitor_solaris_amd64
 
 echo "build windows 386 ..."
 CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags="$flags" $tp -o build/unlock-monitor_windows_386.exe
