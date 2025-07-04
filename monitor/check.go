@@ -1,7 +1,7 @@
 package main
 
 import (
-	mt "MediaUnlockTest"
+	mt "MediaUnlockTest/checks"
 	"net/http"
 	"sync"
 	"time"

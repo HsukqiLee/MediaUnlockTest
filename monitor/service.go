@@ -16,9 +16,17 @@ func serviceIsActive(s service.Service) bool {
 	return err == nil && status == service.StatusRunning
 }
 
-func restartService(s service.Service) {
+func validateServiceExists(s service.Service, action string) bool {
 	if !serviceExists(s) {
-		log.Println("[ERR] unlock-monitor服务不存在")
+		log.Printf("[ERR] unlock-monitor服务不存在，无法执行%s操作\n", action)
+		return false
+	}
+	return true
+}
+
+func restartService(s service.Service) {
+	if !validateServiceExists(s, "重启") {
+		return
 	} else if err := service.Control(s, "restart"); err != nil {
 		log.Fatal("[ERR] 重启unlock-monitor服务失败", err)
 	} else {
@@ -53,8 +61,8 @@ func uninstallService(s service.Service) {
 }
 
 func startService(s service.Service) {
-	if !serviceExists(s) {
-		log.Println("[ERR] unlock-monitor服务不存在")
+	if !validateServiceExists(s, "启动") {
+		return
 	} else if err := service.Control(s, "start"); err != nil {
 		log.Fatal("[ERR] 启动unlock-monitor服务失败", err)
 	} else {
@@ -63,11 +71,12 @@ func startService(s service.Service) {
 }
 
 func stopService(s service.Service) {
-	if !serviceExists(s) {
-		log.Println("[ERR] unlock-monitor服务不存在")
-	} else if err := service.Control(s, "stop"); err != nil {
-		log.Println("[OK] 停止unlock-monitor服务失败:", err)
+	if !validateServiceExists(s, "停止") {
+		return
+	}
+	if err := service.Control(s, "stop"); err != nil {
+		log.Println("[ERR] 停止unlock-monitor服务失败:", err)
 	} else {
-		log.Println("[OK] 停止unlock-monitor服务成功:", err)
+		log.Println("[OK] 停止unlock-monitor服务成功")
 	}
 }
