@@ -1,6 +1,6 @@
 # #!/bin/sh
 # mkdir build
-tp="-gcflags=-trimpath="$GOPATH" -asmflags=-trimpath="$GOPATH
+tp="-gcflags=-trimpath=\"$GOPATH\" -asmflags=-trimpath=\"$GOPATH\""
 flags="-w -s"
 
 echo "build android 386 ..."

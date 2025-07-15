@@ -7,3 +7,6 @@ upload.sh
 /cli/test.bat
 /monitor/test.bat
 *.exe
+
+#Ignore vscode AI rules
+.github\copilot-instructions.md
