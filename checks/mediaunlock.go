@@ -3,11 +3,11 @@ package mediaunlocktest
 import (
 	"context"
 	"crypto/md5"
+	"crypto/rand"
 	"crypto/tls"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
@@ -359,13 +359,13 @@ func genRandomStr(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, length)
 	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
+		b[i] = charset[secureRandInt(len(charset))]
 	}
 	return string(b)
 }
 
 func generateEdgeUserAgent() string {
-	edgeVersion := rand.Intn(5) + 136
+	edgeVersion := secureRandInRange(136, 140) // secureRandInt(5) + 136
 	chromiumVersion := edgeVersion
 
 	return fmt.Sprintf("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%d.0.0.0 Safari/537.36 Edg/%d.0.0.0",
@@ -373,9 +373,9 @@ func generateEdgeUserAgent() string {
 }
 
 func generateSecChUA() string {
-	edgeVersion := rand.Intn(5) + 136
+	edgeVersion := secureRandInRange(136, 140) // secureRandInt(5) + 136
 	chromiumVersion := edgeVersion
-	notBrandVersion := rand.Intn(10) + 20
+	notBrandVersion := secureRandInRange(20, 29) // secureRandInt(10) + 20
 
 	return fmt.Sprintf(`"Microsoft Edge";v="%d", "Chromium";v="%d", "Not/A)Brand";v="%d"`,
 		edgeVersion, chromiumVersion, notBrandVersion)
@@ -389,12 +389,12 @@ func getRandomAcceptLanguage() string {
 		"zh-CN,zh;q=0.9",
 		"en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,ja;q=0.6",
 	}
-	return languages[rand.Intn(len(languages))]
+	return languages[secureRandInt(len(languages))]
 }
 
 func addRandomDelay() {
-	if rand.Intn(10) == 0 {
-		delay := time.Duration(rand.Intn(100)+50) * time.Millisecond
+	if secureRandInt(10) == 0 {
+		delay := time.Duration(secureRandInRange(50, 149)) * time.Millisecond // secureRandInt(100)+50
 		time.Sleep(delay)
 	}
 }
@@ -435,5 +435,32 @@ func ResetSessionHeaders() {
 	ClientSessionHeaders.UserAgent = generateEdgeUserAgent()
 	ClientSessionHeaders.SecChUA = generateSecChUA()
 	ClientSessionHeaders.AcceptLanguage = getRandomAcceptLanguage()
-	ClientSessionHeaders.DNT = strconv.Itoa(rand.Intn(2))
+	ClientSessionHeaders.DNT = strconv.Itoa(secureRandInt(2))
+}
+
+// secureRandInt generates a cryptographically secure random integer in range [0, max)
+func secureRandInt(max int) int {
+	if max <= 0 {
+		return 0
+	}
+
+	// Calculate the number of bytes needed
+	maxBytes := make([]byte, 4) // Using 4 bytes for 32-bit int
+	_, err := rand.Read(maxBytes)
+	if err != nil {
+		// Fallback to a simple approach if crypto/rand fails
+		return 0
+	}
+
+	// Convert bytes to uint32 and then to int
+	randUint32 := uint32(maxBytes[0])<<24 | uint32(maxBytes[1])<<16 | uint32(maxBytes[2])<<8 | uint32(maxBytes[3])
+	return int(randUint32) % max
+}
+
+// secureRandInRange generates a cryptographically secure random integer in range [min, max]
+func secureRandInRange(min, max int) int {
+	if min >= max {
+		return min
+	}
+	return secureRandInt(max-min+1) + min
 }
