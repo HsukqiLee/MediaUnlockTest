@@ -7,10 +7,7 @@ import (
 	"fmt"
 	"net"
 	"syscall"
-	"unsafe"
 )
-
-const SIO_RCVALL = 0x98000001 // 控制代码，用于接收所有数据包
 
 func init() {
 	setSocketOptions = func(network, address string, c syscall.RawConn, interfaceName string) (err error) {
@@ -39,14 +36,50 @@ func init() {
 				return
 			}
 
-			// 绑定到特定接口
+			// 绑定到特定接口 - 使用更安全的方法
 			if interfaceName != "" {
-				var ifreq [256]byte
-				copy(ifreq[:], interfaceName)
-				var bytesReturned uint32
-				innerErr = syscall.WSAIoctl(syscall.Handle(fd), SIO_RCVALL, (*byte)(unsafe.Pointer(&ifreq[0])), uint32(len(interfaceName)), nil, 0, &bytesReturned, nil, 0)
-				if innerErr != nil {
+				// 查找指定接口的信息
+				iface, err := net.InterfaceByName(interfaceName)
+				if err != nil {
+					innerErr = fmt.Errorf("interface %s not found: %v", interfaceName, err)
 					return
+				}
+
+				// 获取接口的IP地址
+				addrs, err := iface.Addrs()
+				if err != nil {
+					innerErr = fmt.Errorf("failed to get interface addresses: %v", err)
+					return
+				}
+
+				// 寻找第一个可用的IP地址进行绑定
+				for _, addr := range addrs {
+					if ipnet, ok := addr.(*net.IPNet); ok {
+						var sockaddr syscall.Sockaddr
+						if ip4 := ipnet.IP.To4(); ip4 != nil {
+							// IPv4地址
+							sa := &syscall.SockaddrInet4{}
+							copy(sa.Addr[:], ip4)
+							sockaddr = sa
+						} else if ip6 := ipnet.IP.To16(); ip6 != nil {
+							// IPv6地址
+							sa := &syscall.SockaddrInet6{}
+							copy(sa.Addr[:], ip6)
+							sockaddr = sa
+						}
+
+						if sockaddr != nil {
+							// 使用标准的bind方法
+							innerErr = syscall.Bind(syscall.Handle(fd), sockaddr)
+							if innerErr == nil {
+								return // 成功绑定
+							}
+						}
+					}
+				}
+
+				if innerErr == nil {
+					innerErr = fmt.Errorf("no suitable address found for interface %s", interfaceName)
 				}
 			}
 		})
