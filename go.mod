@@ -8,7 +8,7 @@ require (
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/kardianos/service v1.2.2
 	github.com/prometheus/client_golang v1.17.0
-	github.com/refraction-networking/utls v1.6.6
+	github.com/refraction-networking/utls v1.7.3
 	github.com/schollz/progressbar/v3 v3.14.1
 	golang.org/x/net v0.38.0
 	golang.org/x/sys v0.31.0
@@ -18,7 +18,7 @@ require (
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/cloudflare/circl v1.5.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
