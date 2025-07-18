@@ -24,8 +24,7 @@ func Afreeca(c http.Client) Result {
 		return Result{Status: StatusNo}
 	}
 
-	if resp.StatusCode == 200 {
-		return Result{Status: StatusOK}
-	}
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusOK: {Status: StatusOK},
+	}, Result{Status: StatusUnexpected})
 }

@@ -7,16 +7,8 @@ import (
 
 func DirectvStream(c http.Client) Result {
 	c.Jar, _ = cookiejar.New(nil)
-	resp, err := GET(c, "https://stream.directv.com/watchnow")
-	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
-	}
-	if resp.StatusCode == 200 {
-		return Result{Status: StatusOK}
-	}
-	return Result{Status: StatusUnexpected}
+	return CheckGETStatus(c, "https://stream.directv.com/watchnow", ResultMap{
+		http.StatusForbidden: {Status: StatusNo},
+		http.StatusOK:        {Status: StatusOK},
+	}, Result{Status: StatusUnexpected})
 }

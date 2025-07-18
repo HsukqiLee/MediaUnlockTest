@@ -17,7 +17,10 @@ func HboGoAsia(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	var res hboRes
+	var res struct {
+		Country   string
+		Territory string
+	}
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
@@ -25,9 +28,4 @@ func HboGoAsia(c http.Client) Result {
 		return Result{Status: StatusNo}
 	}
 	return Result{Status: StatusOK, Region: strings.ToLower(res.Country)}
-}
-
-type hboRes struct {
-	Country   string
-	Territory string
 }

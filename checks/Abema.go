@@ -19,7 +19,9 @@ func Abema(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	var res abemaRes
+	var res struct {
+		IsoCountryCode string
+	}
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
@@ -27,8 +29,4 @@ func Abema(c http.Client) Result {
 		return Result{Status: StatusOK}
 	}
 	return Result{Status: StatusRestricted, Info: "Oversea Only"}
-}
-
-type abemaRes struct {
-	IsoCountryCode string
 }

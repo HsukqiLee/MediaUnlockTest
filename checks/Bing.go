@@ -54,9 +54,7 @@ func Bing(c http.Client) Result {
 		return Result{Status: StatusNo, Region: "cn"}
 	}
 
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusForbidden: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

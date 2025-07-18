@@ -5,20 +5,8 @@ import (
 )
 
 func ITVX(c http.Client) Result {
-	resp, err := GET(c, "https://simulcast.itv.com/playlist/itvonline/ITV", H{"connection", "keep-alive"})
-	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-	defer resp.Body.Close()
-
-	
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
-	}
-	
-	if resp.StatusCode == 404  {
-		return Result{Status: StatusOK}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return CheckGETStatus(c, "https://simulcast.itv.com/playlist/itvonline/ITV", ResultMap{
+		http.StatusForbidden: {Status: StatusNo},
+		http.StatusNotFound:  {Status: StatusOK},
+	}, Result{Status: StatusUnexpected}, H{"connection", "keep-alive"})
 }

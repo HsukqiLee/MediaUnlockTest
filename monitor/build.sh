@@ -1,6 +1,6 @@
 # #!/bin/sh
 # mkdir build
-tp="-gcflags=-trimpath=\"$GOPATH\" -asmflags=-trimpath=\"$GOPATH\""
+tp="-gcflags=-trimpath="$GOPATH" -asmflags=-trimpath="$GOPATH
 flags="-w -s -X 'main.buildTime=$(date '+%Y-%m-%d %H:%M:%SZ')'"
 
 echo "build android 386 ..."
