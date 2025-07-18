@@ -921,7 +921,7 @@ func main() {
 	if TestMode {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("Viaplay", ShowSingleResult(m.Viaplay(m.AutoHttpClient)))
+		fmt.Println("dazn", ShowSingleResult(m.Dazn(m.AutoHttpClient)))
 		return
 	}
 

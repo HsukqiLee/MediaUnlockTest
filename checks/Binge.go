@@ -5,19 +5,8 @@ import (
 )
 
 func Binge(c http.Client) Result {
-	resp, err := GET(c, "https://auth.streamotion.com.au")
-	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
-	}
-	
-	if resp.StatusCode == 302 {
-		return Result{Status: StatusOK}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return CheckGETStatus(c, "https://auth.streamotion.com.au", ResultMap{
+		http.StatusOK:        {Status: StatusOK},
+		http.StatusForbidden: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

@@ -31,17 +31,14 @@ func Channel5(c http.Client) Result {
 		}
 		return Result{Status: StatusFailed, Err: err}
 	}
-	if res.Code == "3000" {
+	switch res.Code {
+	case "3000":
 		return Result{Status: StatusNo}
-	}
-
-	if res.Code == "3001" {
+	case "3001":
 		return Result{Status: StatusNo, Info: "Proxy Detected"}
-	}
-
-	if res.Code == "4003" {
+	case "4003":
 		return Result{Status: StatusOK}
+	default:
+		return Result{Status: StatusUnexpected}
 	}
-
-	return Result{Status: StatusUnexpected}
 }

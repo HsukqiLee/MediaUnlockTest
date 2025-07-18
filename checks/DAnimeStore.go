@@ -24,9 +24,7 @@ func DAnimeStore(c http.Client) Result {
 		return Result{Status: StatusNo}
 	}
 
-	if resp.StatusCode == 302 {
-		return Result{Status: StatusOK}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusForbidden: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

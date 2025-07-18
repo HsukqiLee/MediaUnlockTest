@@ -21,7 +21,15 @@ func Dazn(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
-	var res daznRes
+	var res struct {
+		Region struct {
+			IsAllowed             bool   `json:"isAllowed"`
+			DisallowedReason      string `json:"disallowedReason"`
+			GeolocatedCountry     string `json:"geolocatedCountry"`
+			GeolocatedCountryName string `json:"geolocatedCountryName"`
+		} `json:"region"`
+	}
+
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
@@ -35,15 +43,4 @@ func Dazn(c http.Client) Result {
 		Status: StatusNo,
 		Info:   res.Region.DisallowedReason,
 	}
-}
-
-type daznRegion struct {
-	IsAllowed             bool
-	DisallowedReason      string
-	GeolocatedCountry     string
-	GeolocatedCountryName string
-}
-
-type daznRes struct {
-	Region daznRegion
 }

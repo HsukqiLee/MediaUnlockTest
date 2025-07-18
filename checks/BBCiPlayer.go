@@ -20,9 +20,6 @@ func BBCiPlayer(c http.Client) Result {
 	if err != nil {
 		return Result{Status: StatusFailed}
 	}
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
-	}
 
 	if resp.StatusCode == 200 {
 		if strings.Contains(bodyString, "geolocation") {
@@ -31,5 +28,7 @@ func BBCiPlayer(c http.Client) Result {
 		return Result{Status: StatusOK}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusForbidden: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

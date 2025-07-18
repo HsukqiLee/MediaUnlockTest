@@ -22,13 +22,13 @@ func bilibili(c http.Client, url string) Result {
 	if err := json.Unmarshal(b, &res); err != nil {
 		return Result{Status: StatusErr, Err: err}
 	}
-	if res.Code == -10403 || res.Code == 10004001 || res.Code == 10003003 {
-		return Result{Status: StatusNo}
-	}
 	if resp.StatusCode == 412 {
 		return Result{Status: StatusFailed}
 	}
-	if res.Code == 0 {
+	switch res.Code {
+	case -10403, 10004001, 10003003:
+		return Result{Status: StatusNo}
+	case 0:
 		return Result{Status: StatusOK}
 	}
 	return Result{Status: StatusUnexpected}

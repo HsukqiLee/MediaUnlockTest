@@ -14,10 +14,6 @@ func Copilot(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
-	}
-
 	if resp.StatusCode == 200 {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -33,5 +29,7 @@ func Copilot(c http.Client) Result {
 			return Result{Status: StatusOK, Region: strings.ToLower(res.RegionCode)}
 		}
 	}
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusForbidden: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

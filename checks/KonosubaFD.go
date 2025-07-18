@@ -21,11 +21,8 @@ func KonosubaFD(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case 200:
-		return Result{Status: StatusOK}
-	case 403:
-		return Result{Status: StatusNo}
-	}
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusOK:        {Status: StatusOK},
+		http.StatusForbidden: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

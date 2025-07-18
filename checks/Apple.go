@@ -45,9 +45,9 @@ func Apple(c http.Client) Result {
 	}
 	s := string(b)
 	loc := twoToThreeCode(s)
-
+	region := strings.ToLower(s)
 	if SupportApple(loc) {
-		return Result{Status: StatusOK, Region: strings.ToLower(s)}
+		return Result{Status: StatusOK, Region: region}
 	}
-	return Result{Status: StatusNo, Region: strings.ToLower(s)}
+	return Result{Status: StatusNo, Region: region}
 }

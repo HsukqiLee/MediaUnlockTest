@@ -11,17 +11,12 @@ func CoupangPlay(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
-	}
-
 	if resp.StatusCode == 302 && resp.Header.Get("Location") == "https://www.coupangplay.com/not-available" {
 		return Result{Status: StatusNo}
 	}
 
-	if resp.StatusCode == 200 {
-		return Result{Status: StatusOK}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusOK:        {Status: StatusOK},
+		http.StatusForbidden: {Status: StatusBanned},
+	}, Result{Status: StatusUnexpected})
 }

@@ -6,8 +6,10 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -438,29 +440,70 @@ func ResetSessionHeaders() {
 	ClientSessionHeaders.DNT = strconv.Itoa(secureRandInt(2))
 }
 
-// secureRandInt generates a cryptographically secure random integer in range [0, max)
 func secureRandInt(max int) int {
 	if max <= 0 {
 		return 0
 	}
-
-	// Calculate the number of bytes needed
-	maxBytes := make([]byte, 4) // Using 4 bytes for 32-bit int
+	maxBytes := make([]byte, 4)
 	_, err := rand.Read(maxBytes)
 	if err != nil {
-		// Fallback to a simple approach if crypto/rand fails
 		return 0
 	}
-
-	// Convert bytes to uint32 and then to int
 	randUint32 := uint32(maxBytes[0])<<24 | uint32(maxBytes[1])<<16 | uint32(maxBytes[2])<<8 | uint32(maxBytes[3])
 	return int(randUint32) % max
 }
 
-// secureRandInRange generates a cryptographically secure random integer in range [min, max]
 func secureRandInRange(min, max int) int {
 	if min >= max {
 		return min
 	}
 	return secureRandInt(max-min+1) + min
+}
+
+// ResultMap 支持完整 Result 值的映射
+type ResultMap map[int]Result
+
+// ResultFromMapping 根据 statusCode 从映射获得 Result，缺省返回 defaultRes[0] 或 StatusUnexpected
+func ResultFromMapping(statusCode int, m ResultMap, defaultResult Result) Result {
+	if r, ok := m[statusCode]; ok {
+		return r
+	}
+	return defaultResult
+}
+
+// CheckStatus 使用 GET 请求，并通过 ResultMap 返回对应 Result，支持默认 Result 及可选 headers
+func CheckGETStatus(c http.Client, url string, mapping ResultMap, defaultResult Result, headers ...H) Result {
+	resp, err := GET(c, url, headers...)
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp.Body.Close()
+	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
+}
+
+// CheckDalvikStatus 使用 GET_Dalvik 请求，并通过 ResultMap 返回对应 Result，支持默认 Result
+func CheckDalvikStatus(c http.Client, url string, mapping ResultMap, defaultResult Result) Result {
+	resp, err := GET_Dalvik(c, url)
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp.Body.Close()
+	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
+}
+
+func PostFormBoolSuccess(c http.Client, url, data string, headers ...H) (bool, error) {
+	resp, err := PostForm(c, url, data, headers...)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, err
+	}
+	var res struct{ Success bool }
+	if err := json.Unmarshal(b, &res); err != nil {
+		return false, err
+	}
+	return res.Success, nil
 }

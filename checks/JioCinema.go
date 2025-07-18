@@ -5,18 +5,8 @@ import (
 )
 
 func JioCinema(c http.Client) Result {
-	resp, err := GET(c, "https://content-jiovoot.voot.com/psapi/")
-	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-	defer resp.Body.Close()
-
-	switch resp.StatusCode {
-	case 474:
-		return Result{Status: StatusNo}
-	case 200:
-		return Result{Status: StatusOK}
-	default:
-		return Result{Status: StatusUnexpected}
-	}
+	return CheckGETStatus(c, "https://content-jiovoot.voot.com/psapi/", ResultMap{
+		http.StatusOK: {Status: StatusOK},
+		474:           {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }
