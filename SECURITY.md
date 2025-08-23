@@ -90,7 +90,3 @@
 
 - **安全问题：** [安全邮箱地址]
 - **一般问题：** [GitHub Issues](https://github.com/HsukqiLee/MediaUnlockTest/issues)
-
----
-
-*最后更新：2024年12月*

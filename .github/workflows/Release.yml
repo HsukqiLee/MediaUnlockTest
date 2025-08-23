@@ -5,37 +5,337 @@ on:
     types: [prereleased,released] 
     
 jobs:
+  # 并行构建不同平台的二进制文件
+  build:
+    strategy:
+      matrix:
+        project: [cli, monitor]
+        platform: [
+          # 主要平台
+          linux-amd64, linux-arm64, linux-386, linux-arm7, linux-arm6, linux-arm5,
+          linux-loong64, linux-mips, linux-mips64, linux-mips64le, linux-mipsle,
+          linux-ppc64, linux-ppc64le, linux-riscv64, linux-s390x,
+          darwin-amd64, darwin-arm64,
+          windows-amd64, windows-arm64, windows-386, windows-arm7, windows-arm6, windows-arm5,
+          freebsd-amd64, freebsd-arm64, freebsd-386, freebsd-arm7, freebsd-arm6, freebsd-arm5, freebsd-riscv64,
+          netbsd-amd64, netbsd-arm64, netbsd-386, netbsd-arm7, netbsd-arm6, netbsd-arm5,
+          openbsd-amd64, openbsd-arm64, openbsd-386, openbsd-arm7, openbsd-arm6, openbsd-arm5, openbsd-ppc64
+        ]
+        include:
+          # Android平台需要CGO支持
+          - project: cli
+            platform: android-arm64
+            os: android
+            arch: arm64
+            cgo: true
+            api_level: 21
+          - project: cli
+            platform: android-amd64
+            os: android
+            arch: amd64
+            cgo: true
+            api_level: 21
+          - project: cli
+            platform: android-arm7
+            os: android
+            arch: arm
+            cgo: true
+            api_level: 21
+            goarm: 7
+          - project: cli
+            platform: android-arm6
+            os: android
+            arch: arm
+            cgo: true
+            api_level: 21
+            goarm: 6
+          - project: cli
+            platform: android-arm5
+            os: android
+            arch: arm
+            cgo: true
+            api_level: 21
+            goarm: 5
+          - project: cli
+            platform: android-386
+            os: android
+            arch: 386
+            cgo: true
+            api_level: 21
+          - project: monitor
+            platform: android-arm64
+            os: android
+            arch: arm64
+            cgo: true
+            api_level: 21
+          - project: monitor
+            platform: android-amd64
+            os: android
+            arch: amd64
+            cgo: true
+            api_level: 21
+          - project: monitor
+            platform: android-arm7
+            os: android
+            arch: arm
+            cgo: true
+            api_level: 21
+            goarm: 7
+          - project: monitor
+            platform: android-arm6
+            os: android
+            arch: arm
+            cgo: true
+            api_level: 21
+            goarm: 6
+          - project: monitor
+            platform: android-arm5
+            os: android
+            arch: arm
+            cgo: true
+            api_level: 21
+            goarm: 5
+          - project: monitor
+            platform: android-386
+            os: android
+            arch: 386
+            cgo: true
+            api_level: 21
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Setup Android NDK (for Android builds)
+        if: matrix.cgo == true
+        run: |
+          mkdir -p $HOME/android-ndk
+          wget https://dl.google.com/android/repository/android-ndk-r26d-linux.zip
+          unzip -q android-ndk-r26d-linux.zip -d $HOME/android-ndk
+          mv $HOME/android-ndk/android-ndk-r26d $HOME/android-ndk/ndk
+          echo "NDK_ROOT=$HOME/android-ndk/ndk" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/android-ndk/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_ENV
+
+      - name: Build binary
+        run: |
+          cd ${{ matrix.project }}
+          mkdir -p build
+          
+          # 设置构建参数
+          if [ "${{ matrix.platform }}" = "android-arm64" ]; then
+            export GOOS=android GOARCH=arm64 CGO_ENABLED=1
+            export CC=aarch64-linux-android${{ matrix.api_level }}-clang CXX=aarch64-linux-android${{ matrix.api_level }}-clang++
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_android_arm64"
+          elif [ "${{ matrix.platform }}" = "android-amd64" ]; then
+            export GOOS=android GOARCH=amd64 CGO_ENABLED=1
+            export CC=x86_64-linux-android${{ matrix.api_level }}-clang CXX=x86_64-linux-android${{ matrix.api_level }}-clang++
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_android_amd64"
+          elif [ "${{ matrix.platform }}" = "android-arm7" ]; then
+            export GOOS=android GOARCH=arm CGO_ENABLED=1 GOARM=7
+            export CC=armv7a-linux-androideabi${{ matrix.api_level }}-clang CXX=armv7a-linux-androideabi${{ matrix.api_level }}-clang++
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_android_arm7"
+          elif [ "${{ matrix.platform }}" = "android-arm6" ]; then
+            export GOOS=android GOARCH=arm CGO_ENABLED=1 GOARM=6
+            export CC=armv7a-linux-androideabi${{ matrix.api_level }}-clang CXX=armv7a-linux-androideabi${{ matrix.api_level }}-clang++
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_android_arm6"
+          elif [ "${{ matrix.platform }}" = "android-arm5" ]; then
+            export GOOS=android GOARCH=arm CGO_ENABLED=1 GOARM=5
+            export CC=armv7a-linux-androideabi${{ matrix.api_level }}-clang CXX=armv7a-linux-androideabi${{ matrix.api_level }}-clang++
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_android_arm5"
+          elif [ "${{ matrix.platform }}" = "android-386" ]; then
+            export GOOS=android GOARCH=386 CGO_ENABLED=1
+            export CC=i686-linux-android${{ matrix.api_level }}-clang CXX=i686-linux-android${{ matrix.api_level }}-clang++
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_android_386"
+          elif [ "${{ matrix.platform }}" = "linux-amd64" ]; then
+            export GOOS=linux GOARCH=amd64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_amd64"
+          elif [ "${{ matrix.platform }}" = "linux-arm64" ]; then
+            export GOOS=linux GOARCH=arm64 CGO_ENABLED=0
+            export GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_arm64"
+          elif [ "${{ matrix.platform }}" = "linux-386" ]; then
+            export GOOS=linux GOARCH=386 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_386"
+          elif [ "${{ matrix.platform }}" = "linux-arm7" ]; then
+            export GOOS=linux GOARCH=arm CGO_ENABLED=0 GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_arm7"
+          elif [ "${{ matrix.platform }}" = "linux-arm6" ]; then
+            export GOOS=linux GOARCH=arm CGO_ENABLED=0 GOARM=6
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_arm6"
+          elif [ "${{ matrix.platform }}" = "linux-arm5" ]; then
+            export GOOS=linux GOARCH=arm CGO_ENABLED=0 GOARM=5
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_arm5"
+          elif [ "${{ matrix.platform }}" = "linux-loong64" ]; then
+            export GOOS=linux GOARCH=loong64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_loong64"
+          elif [ "${{ matrix.platform }}" = "linux-mips" ]; then
+            export GOOS=linux GOARCH=mips CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_mips"
+          elif [ "${{ matrix.platform }}" = "linux-mips64" ]; then
+            export GOOS=linux GOARCH=mips64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_mips64"
+          elif [ "${{ matrix.platform }}" = "linux-mips64le" ]; then
+            export GOOS=linux GOARCH=mips64le CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_mips64le"
+          elif [ "${{ matrix.platform }}" = "linux-mipsle" ]; then
+            export GOOS=linux GOARCH=mipsle CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_mipsle"
+          elif [ "${{ matrix.platform }}" = "linux-ppc64" ]; then
+            export GOOS=linux GOARCH=ppc64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_ppc64"
+          elif [ "${{ matrix.platform }}" = "linux-ppc64le" ]; then
+            export GOOS=linux GOARCH=ppc64le CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_ppc64le"
+          elif [ "${{ matrix.platform }}" = "linux-riscv64" ]; then
+            export GOOS=linux GOARCH=riscv64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_riscv64"
+          elif [ "${{ matrix.platform }}" = "linux-s390x" ]; then
+            export GOOS=linux GOARCH=s390x CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_linux_s390x"
+          elif [ "${{ matrix.platform }}" = "darwin-amd64" ]; then
+            export GOOS=darwin GOARCH=amd64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_darwin_amd64"
+          elif [ "${{ matrix.platform }}" = "darwin-arm64" ]; then
+            export GOOS=darwin GOARCH=arm64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_darwin_arm64"
+          elif [ "${{ matrix.platform }}" = "windows-amd64" ]; then
+            export GOOS=windows GOARCH=amd64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_windows_amd64.exe"
+          elif [ "${{ matrix.platform }}" = "windows-arm64" ]; then
+            export GOOS=windows GOARCH=arm64 CGO_ENABLED=0
+            export GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_windows_arm64.exe"
+          elif [ "${{ matrix.platform }}" = "windows-386" ]; then
+            export GOOS=windows GOARCH=386 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_windows_386.exe"
+          elif [ "${{ matrix.platform }}" = "windows-arm7" ]; then
+            export GOOS=windows GOARCH=arm CGO_ENABLED=0 GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_windows_arm7.exe"
+          elif [ "${{ matrix.platform }}" = "windows-arm6" ]; then
+            export GOOS=windows GOARCH=arm CGO_ENABLED=0 GOARM=6
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_windows_arm6.exe"
+          elif [ "${{ matrix.platform }}" = "windows-arm5" ]; then
+            export GOOS=windows GOARCH=arm CGO_ENABLED=0 GOARM=5
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_windows_arm5.exe"
+          elif [ "${{ matrix.platform }}" = "freebsd-amd64" ]; then
+            export GOOS=freebsd GOARCH=amd64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_freebsd_amd64"
+          elif [ "${{ matrix.platform }}" = "freebsd-arm64" ]; then
+            export GOOS=freebsd GOARCH=arm64 CGO_ENABLED=0
+            export GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_freebsd_arm64"
+          elif [ "${{ matrix.platform }}" = "freebsd-386" ]; then
+            export GOOS=freebsd GOARCH=386 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_freebsd_386"
+          elif [ "${{ matrix.platform }}" = "freebsd-arm7" ]; then
+            export GOOS=freebsd GOARCH=arm CGO_ENABLED=0 GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_freebsd_arm7"
+          elif [ "${{ matrix.platform }}" = "freebsd-arm6" ]; then
+            export GOOS=freebsd GOARCH=arm CGO_ENABLED=0 GOARM=6
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_freebsd_arm6"
+          elif [ "${{ matrix.platform }}" = "freebsd-arm5" ]; then
+            export GOOS=freebsd GOARCH=arm CGO_ENABLED=0 GOARM=5
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_freebsd_arm5"
+          elif [ "${{ matrix.platform }}" = "freebsd-riscv64" ]; then
+            export GOOS=freebsd GOARCH=riscv64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_freebsd_riscv64"
+          elif [ "${{ matrix.platform }}" = "netbsd-amd64" ]; then
+            export GOOS=netbsd GOARCH=amd64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_netbsd_amd64"
+          elif [ "${{ matrix.platform }}" = "netbsd-arm64" ]; then
+            export GOOS=netbsd GOARCH=arm64 CGO_ENABLED=0
+            export GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_netbsd_arm64"
+          elif [ "${{ matrix.platform }}" = "netbsd-386" ]; then
+            export GOOS=netbsd GOARCH=386 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_netbsd_386"
+          elif [ "${{ matrix.platform }}" = "netbsd-arm7" ]; then
+            export GOOS=netbsd GOARCH=arm CGO_ENABLED=0 GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_netbsd_arm7"
+          elif [ "${{ matrix.platform }}" = "netbsd-arm6" ]; then
+            export GOOS=netbsd GOARCH=arm CGO_ENABLED=0 GOARM=6
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_netbsd_arm6"
+          elif [ "${{ matrix.platform }}" = "netbsd-arm5" ]; then
+            export GOOS=netbsd GOARCH=arm CGO_ENABLED=0 GOARM=5
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_netbsd_arm5"
+          elif [ "${{ matrix.platform }}" = "openbsd-amd64" ]; then
+            export GOOS=openbsd GOARCH=amd64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_openbsd_amd64"
+          elif [ "${{ matrix.platform }}" = "openbsd-arm64" ]; then
+            export GOOS=openbsd GOARCH=arm64 CGO_ENABLED=0
+            export GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_openbsd_arm64"
+          elif [ "${{ matrix.platform }}" = "openbsd-386" ]; then
+            export GOOS=openbsd GOARCH=386 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_openbsd_386"
+          elif [ "${{ matrix.platform }}" = "openbsd-arm7" ]; then
+            export GOOS=openbsd GOARCH=arm CGO_ENABLED=0 GOARM=7
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_openbsd_arm7"
+          elif [ "${{ matrix.platform }}" = "openbsd-arm6" ]; then
+            export GOOS=openbsd GOARCH=arm CGO_ENABLED=0 GOARM=6
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_openbsd_arm6"
+          elif [ "${{ matrix.platform }}" = "openbsd-arm5" ]; then
+            export GOOS=openbsd GOARCH=arm CGO_ENABLED=0 GOARM=5
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_openbsd_arm5"
+          elif [ "${{ matrix.platform }}" = "openbsd-ppc64" ]; then
+            export GOOS=openbsd GOARCH=ppc64 CGO_ENABLED=0
+            BINARY_NAME="unlock-${{ matrix.project == 'cli' && 'test' || 'monitor' }}_openbsd_ppc64"
+          else
+            echo "❌ Unsupported platform: ${{ matrix.platform }}"
+            exit 1
+          fi
+          
+          # 构建标志
+          FLAGS="-w -s"
+          if [ "${{ matrix.project }}" = "monitor" ]; then
+            FLAGS="$FLAGS -X 'main.buildTime=$(date '+%Y-%m-%d %H:%M:%SZ')'"
+          fi
+          
+          # 执行构建
+          echo "🔨 Building ${{ matrix.project }} for ${{ matrix.platform }}..."
+          echo "Environment: GOOS=$GOOS, GOARCH=$GOARCH, CGO_ENABLED=$CGO_ENABLED"
+          if [ "$GOARM" != "" ]; then
+            echo "GOARM=$GOARM"
+          fi
+          
+          if [ "${{ matrix.cgo }}" = "true" ]; then
+            go build -tags netcgo -ldflags="$FLAGS" -o "build/$BINARY_NAME" .
+          else
+            go build -ldflags="$FLAGS" -o "build/$BINARY_NAME" .
+          fi
+          
+          echo "✅ Built: $BINARY_NAME"
+          ls -la build/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.project }}-${{ matrix.platform }}
+          path: ${{ matrix.project }}/build/
+          retention-days: 1
+
+  # 版本更新和发布
   release:
+    needs: build
     runs-on: ubuntu-latest
     
     permissions:
       contents: write
       actions: read
     
-    env:
-      NDK_VERSION: "r26d"
-      API_LEVEL: "21"
-    
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-
-      - name: Download Android NDK
-        run: |
-          mkdir -p $HOME/android-ndk
-          wget https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux.zip
-          unzip -q android-ndk-$NDK_VERSION-linux.zip -d $HOME/android-ndk
-          mv $HOME/android-ndk/android-ndk-$NDK_VERSION $HOME/android-ndk/ndk
-        shell: bash
-
-      - name: Set up NDK environment
-        run: |
-          echo "NDK_ROOT=$HOME/android-ndk/ndk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-ndk/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_ENV
-        shell: bash
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -64,30 +364,48 @@ jobs:
           fi
         shell: bash
 
-      - name: Build unlock-test binaries
-        run: |
-          cd cli
-          mkdir build
-          bash build.sh
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
 
-      - name: Build unlock-monitor binaries
+      - name: Upload to release
         run: |
-          cd monitor
-          mkdir build
-          bash build.sh
-      
-      - name: Upload unlock-test binaries
-        run: |
-          cd cli/build
-          for file in *; do
-            echo "Uploading $file"
-            curl -s --fail --retry 3 --retry-delay 0 -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
+          echo "📤 Uploading all binaries to release..."
+          
+          # 遍历所有下载的artifacts
+          for artifact_dir in artifacts/*/; do
+            if [ -d "$artifact_dir" ]; then
+              echo "Processing $artifact_dir"
+              for file in "$artifact_dir"*; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  echo "Uploading $filename..."
+                  
+                  response=$(curl -s --fail --retry 3 --retry-delay 0 -X POST \
+                    -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Content-Type: application/octet-stream" \
+                    --data-binary "@$file" \
+                    "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$filename")
+                  
+                  if [ $? -eq 0 ]; then
+                    echo "✅ Successfully uploaded $filename"
+                  else
+                    echo "❌ Failed to upload $filename: $response"
+                    exit 1
+                  fi
+                fi
+              done
+            fi
           done
-      
-      - name: Upload unlock-monitor binaries
+          
+          echo "🎉 All binaries uploaded successfully!"
+
+      - name: Build Summary
         run: |
-          cd monitor/build
-          for file in *; do
-            echo "Uploading $file"
-            curl -s --fail --retry 3 --retry-delay 0 -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/octet-stream" --data-binary "@$file" "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=$file"
-          done
+          echo "📊 Build Summary:"
+          echo "=================="
+          echo "Total artifacts downloaded:"
+          ls -la artifacts/
+          echo "=================="
+          echo "🎯 Release build and upload completed successfully!"
