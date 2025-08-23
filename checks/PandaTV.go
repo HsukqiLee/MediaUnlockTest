@@ -11,13 +11,8 @@ func PandaTV(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
-	}
-
-	if resp.StatusCode == 400 {
-		return Result{Status: StatusOK}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusBadRequest: {Status: StatusOK},
+		http.StatusForbidden:  {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

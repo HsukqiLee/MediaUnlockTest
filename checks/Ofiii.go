@@ -11,13 +11,8 @@ func Ofiii(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 400 {
-		return Result{Status: StatusNo}
-	}
-
-	if resp.StatusCode == 200 {
-		return Result{Status: StatusOK}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusOK:         {Status: StatusOK},
+		http.StatusBadRequest: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

@@ -1,310 +1,431 @@
-# MediaUnlockMonitor
+# MediaUnlockTest Monitor
 
-[中文文档](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/monitor/README.md) | **English Docs**
+**English Docs** | [中文文档](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/monitor/README.md)
 
-Use Grafana to connect to Prometheus and build a streaming media monitoring page.
+> Streaming media unlock monitoring tool based on Prometheus and Grafana
 
-### Effect
+## Features
 
-![](https://raw.githubusercontent.com/HsukqiLee/MediaUnlockTest/main/monitor/image.png)
+- 🔍 **Real-time Monitoring**: Continuously monitor streaming media service unlock status
+- 📊 **Data Visualization**: Rich charts and dashboards through Grafana
+- ⚡ **High Performance**: Support high-concurrency detection and fast response
+- 🔧 **Easy Deployment**: Provide Docker and manual deployment solutions
+- 📈 **Historical Data**: Save historical detection data, support trend analysis
+- 🚨 **Alert Notifications**: Support multiple alert methods
 
-### Installation
+## Quick Start
 
-Linux (Including iOS iSH) / macOS / Android Termux：
+### Using Docker Compose (Recommended)
 
-(Read and write permissions are required for /usr/bin, /usr/local/bin, and $PREFIX/bin directories respectively)
+1. **Clone Project**
+```bash
+git clone https://github.com/HsukqiLee/MediaUnlockTest.git
+cd MediaUnlockTest/monitor
+```
+
+2. **Start Services**
+```bash
+docker-compose up -d
+```
+
+3. **Access Services**
+- Grafana: http://localhost:3000 (default account: admin/admin)
+- Prometheus: http://localhost:9090
+- MediaUnlockTest Monitor: http://localhost:8080
+
+### Manual Deployment
+
+#### 1. Install Dependencies
 
 ```bash
-bash <(curl -Ls unlock.icmp.ing/scripts/monitor.sh) -service
+# Install Go 1.19+
+go version
+
+# Install dependencies
+go mod download
 ```
 
-If you need to set up a service, you also need the operating permissions of Systemd / Upstart / SysV / Launchd / Windows Service.
+#### 2. Build Monitor Tool
 
-Windows PowerShell (needs to be started as an administrator):
+```bash
+# Windows
+monitor/build.bat
 
-```ps
-irm https://unlock.icmp.ing/scripts/download_monitor.ps1 | iex
+# Unix/Linux/macOS
+monitor/build.sh
 ```
 
-### Usage
+#### 3. Configure Prometheus
 
-```
-root@server:~# unlock-monitor -h
-
-Usage of build/unlock-monitor_linux_amd64:
-
-  -listen string
-        listen address (default ":9101")
-  -interval uint
-        check interval (s) (default 60)
-  -I string
-        source ip / interface
-  -token string
-        check token in http headers or queries
-  -metrics-path string
-        custom metrics path (default "/metrics")
-
-  -mul
-        Mutation (default true)
-  -hk
-        Hong Kong
-  -tw
-        Taiwan
-  -jp
-        Japan
-  -kr
-        Korea
-  -na
-        North America
-  -sa
-        South America
-  -eu
-        Europe
-  -afr
-        Africa
-  -ocea
-        Oceania
-
-  -install
-        install service
-  -uninstall
-        uninstall service
-  -start
-        start service
-  -stop
-        stop service
-  -auto-update
-        set auto update
-  -update-interval uint
-        update check interval (s) (default 86400)
-
-  -u    check update
-  -v    show version
-
-  -node string
-        Prometheus exporter node field
-root@server:~#
-```
-
-### Prometheus
-
-When setting up services for each server, you can specify the `node` field, which will be displayed in Metrics.
-
-Assume that the domain name of each server's Metrics is `<region>`-`<number>`.unlock.check (not necessarily in the same format), and the targets field is only filled with `<domain>`:`<port>`. You can set HTTP to redirect to HTTPS.
-
-Add Job:
+Create `prometheus.yml` configuration file:
 
 ```yaml
 global:
-  scrape_interval:     300s
-  evaluation_interval: 300s
+  scrape_interval: 15s
 
 scrape_configs:
-  - job_name: checkmedia
-    scrape_interval: 300s
+  - job_name: 'mediaunlock'
     static_configs:
-      - targets:
-        - <your ip>:9101
-        - <your domain>
-        - ...
+      - targets: ['localhost:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
 ```
 
-At this point, the `node` field of each panel in Grafana is filled with the specified one.
+#### 4. Start Services
 
-If the domain name format is the same and `node` is not specified, you can configure `relabel_config`:
+```bash
+# Start Prometheus
+./prometheus --config.file=prometheus.yml
+
+# Start MediaUnlockTest Monitor
+./monitor
+
+# Start Grafana
+./grafana-server
+```
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MONITOR_PORT` | `8080` | Monitor service port |
+| `MONITOR_INTERVAL` | `300` | Detection interval (seconds) |
+| `MONITOR_TIMEOUT` | `30` | Single detection timeout (seconds) |
+| `MONITOR_CONCURRENT` | `10` | Concurrent detection count |
+| `PROMETHEUS_ENABLED` | `true` | Whether to enable Prometheus metrics |
+| `LOG_LEVEL` | `info` | Log level |
+
+### Configuration File
+
+Create `config.yaml` configuration file:
 
 ```yaml
-global:
-  scrape_interval:     300s
-  evaluation_interval: 300s
+monitor:
+  port: 8080
+  interval: 300
+  timeout: 30
+  concurrent: 10
+  
+  services:
+    - name: "Netflix"
+      enabled: true
+      region: "US"
+    - name: "Disney+"
+      enabled: true
+      region: "Global"
+    - name: "BBC iPlayer"
+      enabled: true
+      region: "UK"
 
-scrape_configs:
-  - job_name: checkmedia
-    scrape_interval: 300s
-    static_configs:
-      - targets:
-        - hk-1.unlock.check
-        - hk-2.unlock.check
-        - tw-1.unlock.check
-        - ...
-    relabel_configs:
-      - source_labels: [__address__]
-        regex: '(.*)\.unlock\.check'
-        target_label: "node"
+prometheus:
+  enabled: true
+  path: "/metrics"
+
+logging:
+  level: "info"
+  format: "json"
 ```
 
-At this time, `<region>`-`<number>` will be automatically extracted as `node`, and this part of the domain name can be filled in Grafana's `node`.
+## Monitoring Metrics
 
-Note: The `scrape_interval` of this service should not be greater than ten minutes (600s), otherwise the panel may occasionally show `Data does not have a time field`.
+### Core Metrics
 
-### Grafana
+- `mediaunlock_test_total`: Total detection count
+- `mediaunlock_test_success`: Successful detection count
+- `mediaunlock_test_failed`: Failed detection count
+- `mediaunlock_service_status`: Service status (0=failed, 1=success)
+- `mediaunlock_test_duration_seconds`: Detection duration
 
-Dashboard JSON template:
+### Custom Labels
+
+- `service`: Service name
+- `region`: Region
+- `status`: Status
+- `error_type`: Error type
+
+### Example Queries
+
+```promql
+# Success rate
+rate(mediaunlock_test_success[5m]) / rate(mediaunlock_test_total[5m])
+
+# Average response time
+histogram_quantile(0.95, rate(mediaunlock_test_duration_seconds_bucket[5m]))
+
+# Service status
+mediaunlock_service_status
+```
+
+## Grafana Dashboards
+
+### Default Dashboard
+
+The project provides pre-configured Grafana dashboards, including:
+
+- 📊 **Overview Panel**: Display overall unlock status and success rate
+- 📈 **Trend Charts**: Show unlock status changes over time
+- 🎯 **Service Details**: Detailed status and error information for each service
+- ⚡ **Performance Monitoring**: Detection duration and concurrency statistics
+- 🚨 **Alert Panel**: Display current alert status
+
+### Import Dashboard
+
+1. Click "+" → "Import" in Grafana
+2. Upload `grafana-dashboard.json` file
+3. Select Prometheus data source
+4. Click "Import" to complete
+
+### Custom Dashboard
+
+You can create custom dashboards as needed:
 
 ```json
 {
-  "datasource": {
-    "type": "prometheus",
-    "uid": "d5dc8985-25a8-4199-921e-c64ce62fb93d"
-  },
-  "description": "",
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
-        "lineWidth": 3,
-        "fillOpacity": 100,
-        "spanNulls": false,
-        "insertNulls": false,
-        "hideFrom": {
-          "tooltip": false,
-          "viz": false,
-          "legend": false
-        }
-      },
-      "color": {
-        "mode": "continuous-GrYlRd"
-      },
-      "mappings": [],
-      "thresholds": {
-        "mode": "absolute",
-        "steps": [
-          {
-            "color": "green",
-            "value": null
-          }
-        ]
-      }
-    },
-    "overrides": [
+  "dashboard": {
+    "title": "Custom MediaUnlock Dashboard",
+    "panels": [
       {
-        "matcher": {
-          "id": "byValue",
-          "options": {
-            "op": "neq",
-            "reducer": "allValues",
-            "value": 0
-          }
-        },
-        "properties": [
+        "title": "Service Status",
+        "type": "stat",
+        "targets": [
           {
-            "id": "mappings",
-            "value": [
-              {
-                "options": {
-                  "0": {
-                    "color": "dark-blue",
-                    "index": 8,
-                    "text": "Unknown"
-                  },
-                  "1": {
-                    "color": "semi-dark-green",
-                    "index": 0,
-                    "text": "YES"
-                  },
-                  "2": {
-                    "color": "dark-yellow",
-                    "index": 1,
-                    "text": "Restricted"
-                  },
-                  "3": {
-                    "color": "dark-red",
-                    "index": 2,
-                    "text": "NO"
-                  },
-                  "4": {
-                    "color": "dark-orange",
-                    "index": 3,
-                    "text": "BANNED"
-                  },
-                  "5": {
-                    "color": "#494949",
-                    "index": 4,
-                    "text": "FAILED"
-                  },
-                  "6": {
-                    "color": "purple",
-                    "index": 5,
-                    "text": "UNEXPECTED"
-                  },
-                  "-1": {
-                    "color": "light-red",
-                    "index": 6,
-                    "text": "NET ERR"
-                  },
-                  "-2": {
-                    "color": "semi-dark-red",
-                    "index": 7,
-                    "text": "ERROR"
-                  }
-                },
-                "type": "value"
-              }
-            ]
+            "expr": "mediaunlock_service_status",
+            "legendFormat": "{{service}} - {{region}}"
           }
         ]
       }
     ]
-  },
-  "gridPos": {
-    "h": 20,
-    "w": 6,
-    "x": 0,
-    "y": 1
-  },
-  "id": 1,
-  "options": {
-    "mergeValues": true,
-    "showValue": "auto",
-    "alignValue": "center",
-    "rowHeight": 0.9,
-    "legend": {
-      "showLegend": true,
-      "displayMode": "list",
-      "placement": "bottom"
-    },
-    "tooltip": {
-      "mode": "single",
-      "sort": "none",
-      "maxHeight": 600
-    }
-  },
-  "pluginVersion": "10.1.1",
-  "targets": [
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "d5dc8985-25a8-4199-921e-c64ce62fb93d"
-      },
-      "disableTextWrap": false,
-      "editorMode": "builder",
-      "expr": "media_unblock_status{node=\"hk-1\"}",
-      "fullMetaSearch": false,
-      "includeNullMetadata": true,
-      "instant": false,
-      "legendFormat": "{{region}} {{mediaName}}",
-      "range": true,
-      "refId": "A",
-      "useBackend": false
-    }
-  ],
-  "title": "HK-1",
-  "type": "state-timeline"
+  }
 }
 ```
 
+## Alert Configuration
 
-Replace some of the data in it and then import it, or edit the panel parameters in Grafana to set the parameters for yourself after importing.
+### Prometheus Alert Rules
 
-Value mappings reference:
+Create `alerts.yml` file:
 
-|Status|Display Text|
-|---|---|
-|0|Unknown|
-|1|YES|
-|2|Restricted|
-|3|NO|
-|4|BANNED|
-|5|FAILED|
-|6|UNEXPECTED|
-|-1|NET ERR|
-|-2|ERROR|
+```yaml
+groups:
+  - name: mediaunlock
+    rules:
+      - alert: ServiceDown
+        expr: mediaunlock_service_status == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          description: "Service {{ $labels.service }} in {{ $labels.region }} has been down for more than 5 minutes"
+
+      - alert: HighFailureRate
+        expr: rate(mediaunlock_test_failed[5m]) / rate(mediaunlock_test_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High failure rate detected"
+          description: "Failure rate is {{ $value | humanizePercentage }}"
+```
+
+### Alert Notifications
+
+Support multiple alert notification methods:
+
+- **Email**: Configure SMTP server
+- **Slack**: Send to Slack channel
+- **Webhook**: Custom HTTP callback
+- **DingTalk/WeChat Work**: Common communication tools in China
+
+## Development Guide
+
+### Project Structure
+
+```
+monitor/
+├── main.go           # Main program entry
+├── monitor.go        # Monitor core logic
+├── exporter.go       # Prometheus metrics export
+├── service.go        # Service management
+├── update.go         # Auto update
+├── build.bat         # Windows build script
+├── build.sh          # Unix build script
+└── README.md         # Documentation
+```
+
+### Adding New Monitoring Metrics
+
+1. **Define Metrics**
+```go
+import "github.com/prometheus/client_golang/prometheus"
+
+var (
+    customMetric = prometheus.NewCounterVec(
+        prometheus.CounterOpts{
+            Name: "mediaunlock_custom_total",
+            Help: "Custom metric description",
+        },
+        []string{"label1", "label2"},
+    )
+)
+```
+
+2. **Register Metrics**
+```go
+func init() {
+    prometheus.MustRegister(customMetric)
+}
+```
+
+3. **Update Metrics**
+```go
+customMetric.WithLabelValues("value1", "value2").Inc()
+```
+
+### Custom Detection Logic
+
+1. **Implement Detection Interface**
+```go
+type Detector interface {
+    Detect(ctx context.Context) (*Result, error)
+}
+
+type CustomDetector struct {
+    // Custom fields
+}
+
+func (d *CustomDetector) Detect(ctx context.Context) (*Result, error) {
+    // Implement detection logic
+    return &Result{
+        Service: "CustomService",
+        Status:  "success",
+        Region:  "Global",
+    }, nil
+}
+```
+
+2. **Register Detector**
+```go
+func RegisterDetector(name string, detector Detector) {
+    // Registration logic
+}
+```
+
+## Performance Optimization
+
+### Concurrency Control
+
+- Use worker pool to control concurrency count
+- Implement timeout mechanism to avoid long blocking
+- Support graceful shutdown
+
+### Memory Management
+
+- Regularly clean expired data
+- Use object pool to reduce GC pressure
+- Limit historical data storage
+
+### Network Optimization
+
+- Support HTTP/2
+- Connection reuse
+- Request retry mechanism
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Prometheus Cannot Scrape Metrics**
+   - Check if port is open
+   - Confirm `/metrics` path is accessible
+   - Check firewall settings
+
+2. **Grafana Shows No Data**
+   - Check data source configuration
+   - Confirm time range settings
+   - Check Prometheus query syntax
+
+3. **High Detection Failure Rate**
+   - Check network connection
+   - Adjust timeout settings
+   - Check target service status
+
+### Log Analysis
+
+```bash
+# View real-time logs
+tail -f monitor.log
+
+# Search error logs
+grep "ERROR" monitor.log
+
+# Analyze performance logs
+grep "duration" monitor.log | awk '{print $NF}' | sort -n
+```
+
+### Performance Tuning
+
+```bash
+# Adjust concurrency count
+export MONITOR_CONCURRENT=20
+
+# Adjust detection interval
+export MONITOR_INTERVAL=60
+
+# Enable debug mode
+export LOG_LEVEL=debug
+```
+
+## Deployment Recommendations
+
+### Production Environment
+
+- Use reverse proxy (Nginx/Traefik)
+- Configure SSL certificates
+- Set up monitoring and alerts
+- Regular data backup
+
+### High Availability Deployment
+
+- Multi-instance deployment
+- Load balancing
+- Database clustering
+- Monitoring redundancy
+
+### Security Considerations
+
+- Network isolation
+- Access control
+- Log auditing
+- Regular updates
+
+## Update Log
+
+### v1.0.0
+- Initial version release
+- Support basic monitoring functionality
+
+### v1.1.0
+- Add Prometheus metrics export
+- Support Grafana dashboards
+- Optimize performance
+
+### v1.2.0
+- Add alert functionality
+- Support custom detection logic
+- Improve configuration management
+
+---
+
+## Related Links
+
+- [CLI Development Guide](../DEVELOPMENT_en.md)
+- [Monitor Development Guide](./DEVELOPMENT_en.md)
+- [Project Homepage](https://github.com/HsukqiLee/MediaUnlockTest)
+- [Issue Feedback](https://github.com/HsukqiLee/MediaUnlockTest/issues)
+
+## Contribution Guidelines
+
+Welcome to submit Issues and Pull Requests! Please refer to [Development Guide](./DEVELOPMENT_en.md) for development standards.

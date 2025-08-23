@@ -57,8 +57,8 @@ var (
 )
 
 var Dialer = &net.Dialer{
-	Timeout:   30 * time.Second,
-	KeepAlive: 30 * time.Second,
+	Timeout:   15 * time.Second, // 从30秒减少到15秒
+	KeepAlive: 30 * time.Second, // 从30秒减少到30秒（保持不变）
 	// Resolver:  &net.Resolver{},
 }
 
@@ -120,17 +120,20 @@ var Ipv4Transport = &CustomTransport{
 	Network:  "tcp4",
 	Proxy:    ClientProxy,
 	Base: &http.Transport{
-		MaxIdleConns:           100,
-		IdleConnTimeout:        90 * time.Second,
-		TLSHandshakeTimeout:    30 * time.Second,
+		MaxIdleConns:           200,              // 从100增加到200
+		MaxIdleConnsPerHost:    20,               // 新增：每个主机的最大空闲连接数
+		IdleConnTimeout:        60 * time.Second, // 从90秒减少到60秒
+		TLSHandshakeTimeout:    20 * time.Second, // 从30秒减少到20秒
 		ExpectContinueTimeout:  1 * time.Second,
 		TLSClientConfig:        tlsConfig,
 		MaxResponseHeaderBytes: 262144,
+		DisableCompression:     true, // 新增：禁用压缩以提升速度
+		ForceAttemptHTTP2:      true, // 新增：强制尝试HTTP/2
 	},
 }
 
 var Ipv4HttpClient = http.Client{
-	Timeout:       30 * time.Second,
+	Timeout:       20 * time.Second, // 从30秒减少到20秒
 	CheckRedirect: UseLastResponse,
 	Transport:     Ipv4Transport,
 }
@@ -141,17 +144,20 @@ var Ipv6Transport = &CustomTransport{
 	Network:  "tcp6",
 	Proxy:    ClientProxy,
 	Base: &http.Transport{
-		MaxIdleConns:           100,
-		IdleConnTimeout:        90 * time.Second,
-		TLSHandshakeTimeout:    30 * time.Second,
+		MaxIdleConns:           200,              // 从100增加到200
+		MaxIdleConnsPerHost:    20,               // 新增：每个主机的最大空闲连接数
+		IdleConnTimeout:        60 * time.Second, // 从90秒减少到60秒
+		TLSHandshakeTimeout:    20 * time.Second, // 从30秒减少到20秒
 		ExpectContinueTimeout:  1 * time.Second,
 		TLSClientConfig:        tlsConfig,
 		MaxResponseHeaderBytes: 262144,
+		DisableCompression:     true, // 新增：禁用压缩以提升速度
+		ForceAttemptHTTP2:      true, // 新增：强制尝试HTTP/2
 	},
 }
 
 var Ipv6HttpClient = http.Client{
-	Timeout:       30 * time.Second,
+	Timeout:       20 * time.Second, // 从30秒减少到20秒
 	CheckRedirect: UseLastResponse,
 	Transport:     Ipv6Transport,
 }
@@ -165,19 +171,22 @@ func AutoTransport() *CustomTransport {
 		Network:  "tcp",
 		Proxy:    ClientProxy,
 		Base: &http.Transport{
-			MaxIdleConns:           100,
-			IdleConnTimeout:        90 * time.Second,
-			TLSHandshakeTimeout:    30 * time.Second,
+			MaxIdleConns:           200,              // 从100增加到200
+			MaxIdleConnsPerHost:    20,               // 新增：每个主机的最大空闲连接数
+			IdleConnTimeout:        60 * time.Second, // 从90秒减少到60秒
+			TLSHandshakeTimeout:    20 * time.Second, // 从30秒减少到20秒
 			ExpectContinueTimeout:  1 * time.Second,
 			TLSClientConfig:        tlsConfig,
 			MaxResponseHeaderBytes: 262144,
+			DisableCompression:     true, // 新增：禁用压缩以提升速度
+			ForceAttemptHTTP2:      true, // 新增：强制尝试HTTP/2
 		},
 	}
 }
 
 func NewAutoHttpClient() http.Client {
 	return http.Client{
-		Timeout:       30 * time.Second,
+		Timeout:       20 * time.Second, // 从30秒减少到20秒
 		CheckRedirect: UseLastResponse,
 		Transport:     AutoTransport(),
 	}
@@ -506,4 +515,24 @@ func PostFormBoolSuccess(c http.Client, url, data string, headers ...H) (bool, e
 		return false, err
 	}
 	return res.Success, nil
+}
+
+// CheckPostFormStatus 使用 POST 表单请求，并通过 ResultMap 返回对应 Result，支持默认 Result 及可选 headers
+func CheckPostFormStatus(c http.Client, url, data string, mapping ResultMap, defaultResult Result, headers ...H) Result {
+	resp, err := PostForm(c, url, data, headers...)
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp.Body.Close()
+	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
+}
+
+// CheckPostJsonStatus 使用 POST JSON 请求，并通过 ResultMap 返回对应 Result，支持默认 Result 及可选 headers
+func CheckPostJsonStatus(c http.Client, url, data string, mapping ResultMap, defaultResult Result, headers ...H) Result {
+	resp, err := PostJson(c, url, data, headers...)
+	if err != nil {
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp.Body.Close()
+	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
 }
