@@ -5,8 +5,51 @@ on:
     types: [prereleased,released] 
     
 jobs:
+  # 版本更新（在构建之前）
+  update-version:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      actions: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Extract version from tag and update file
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          VERSION=$(echo "$TAG_NAME" | sed -E 's/^v([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/')
+          echo "Extracted version: $VERSION"
+          CURRENT_VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
+          echo "Current version in file: $CURRENT_VERSION"
+          if [ "$VERSION" != "$CURRENT_VERSION" ]; then
+            echo "Version mismatch. Updating from $CURRENT_VERSION to $VERSION"
+            git checkout main || git checkout master
+            sed -i "s/Version\s*=\s*\"[^\"]*\"/Version          = \"$VERSION\"/" checks/mediaunlock.go
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add checks/mediaunlock.go
+            git commit -m "Update version to $VERSION"
+            git push origin HEAD
+            echo "Version updated and committed"
+          else
+            echo "Version is already up to date"
+          fi
+        shell: bash
+
   # 并行构建不同平台的二进制文件
   build:
+    needs: update-version
     strategy:
       matrix:
         project: [cli, monitor]
@@ -321,7 +364,7 @@ jobs:
           path: ${{ matrix.project }}/build/
           retention-days: 1
 
-  # 版本更新和发布
+  # 发布阶段
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -341,28 +384,6 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-
-      - name: Extract version from tag and update file
-        run: |
-          TAG_NAME="${{ github.event.release.tag_name }}"
-          VERSION=$(echo "$TAG_NAME" | sed -E 's/^v([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/')
-          echo "Extracted version: $VERSION"
-          CURRENT_VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
-          echo "Current version in file: $CURRENT_VERSION"
-          if [ "$VERSION" != "$CURRENT_VERSION" ]; then
-            echo "Version mismatch. Updating from $CURRENT_VERSION to $VERSION"
-            git checkout main || git checkout master
-            sed -i "s/Version\s*=\s*\"[^\"]*\"/Version          = \"$VERSION\"/" checks/mediaunlock.go
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git add checks/mediaunlock.go
-            git commit -m "Update version to $VERSION"
-            git push origin HEAD
-            echo "Version updated and committed"
-          else
-            echo "Version is already up to date"
-          fi
-        shell: bash
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
