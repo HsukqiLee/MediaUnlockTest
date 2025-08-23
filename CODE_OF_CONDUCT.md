@@ -96,7 +96,3 @@
 
 - **行为准则问题：** [在此处添加联系邮箱]
 - **一般问题：** [GitHub Issues](https://github.com/HsukqiLee/MediaUnlockTest/issues)
-
----
-
-*最后更新：2024年12月*
