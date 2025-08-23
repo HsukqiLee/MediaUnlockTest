@@ -10,14 +10,9 @@ func RakutenMagazine(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
-	}
-	
-	if resp.StatusCode == 404 {
-		return Result{Status: StatusOK}
-	}
 
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusNotFound:  {Status: StatusOK},
+		http.StatusForbidden: {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

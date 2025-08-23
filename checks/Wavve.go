@@ -11,18 +11,10 @@ func Wavve(c http.Client) Result {
 	}
 	defer resp.Body.Close()
 
-	
-	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
-	}
-	
-	if resp.StatusCode == 550 || resp.StatusCode == 421 {
-		return Result{Status: StatusNo}
-	}
-	
-	if resp.StatusCode == 200  {
-		return Result{Status: StatusOK}
-	}
-
-	return Result{Status: StatusUnexpected}
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusOK:        {Status: StatusOK},
+		http.StatusForbidden: {Status: StatusBanned},
+		421:                  {Status: StatusNo},
+		550:                  {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }

@@ -8,11 +8,10 @@ func SlingTV(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode == 403 || resp.StatusCode == 302 {
-		return Result{Status: StatusNo}
-	}
-	if resp.StatusCode == 200 {
-		return Result{Status: StatusOK}
-	}
-	return Result{Status: StatusUnexpected}
+
+	return ResultFromMapping(resp.StatusCode, ResultMap{
+		http.StatusOK:        {Status: StatusOK},
+		http.StatusForbidden: {Status: StatusNo},
+		http.StatusFound:     {Status: StatusNo},
+	}, Result{Status: StatusUnexpected})
 }
