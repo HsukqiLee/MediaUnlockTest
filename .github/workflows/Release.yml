@@ -30,8 +30,12 @@ jobs:
           TAG_NAME="${{ github.event.release.tag_name }}"
           VERSION=$(echo "$TAG_NAME" | sed -E 's/^v([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/')
           echo "Extracted version: $VERSION"
+          IS_PRERELEASE="${{ github.event.release.prerelease }}"
+          echo "Is prerelease: $IS_PRERELEASE"
+          
           CURRENT_VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
           echo "Current version in file: $CURRENT_VERSION"
+          
           if [ "$VERSION" != "$CURRENT_VERSION" ]; then
             echo "Version mismatch. Updating from $CURRENT_VERSION to $VERSION"
             git checkout main || git checkout master
@@ -44,6 +48,19 @@ jobs:
             echo "Version updated and committed"
           else
             echo "Version is already up to date"
+          fi
+          
+          # Update VERSION file only if it's not a prerelease
+          if [ "$IS_PRERELEASE" = "false" ]; then
+            echo "Not a prerelease, updating VERSION file with $TAG_NAME"
+            echo "$TAG_NAME" > VERSION
+            echo "VERSION file content: $(cat VERSION)"
+            git add VERSION
+            git commit -m "Update VERSION file to $TAG_NAME"
+            git push origin HEAD
+            echo "VERSION file updated and committed"
+          else
+            echo "Prerelease detected, skipping VERSION file update"
           fi
         shell: bash
 
