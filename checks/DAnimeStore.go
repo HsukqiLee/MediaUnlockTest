@@ -20,11 +20,11 @@ func DAnimeStore(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 
-	if resp.StatusCode == 403 && strings.Contains(bodyString, "海外") {
+	if strings.Contains(bodyString, "海外") {
 		return Result{Status: StatusNo}
 	}
 
 	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
+		http.StatusFound: {Status: StatusOK},
 	}, Result{Status: StatusUnexpected})
 }

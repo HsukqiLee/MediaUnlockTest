@@ -10,11 +10,15 @@ import (
 
 func BahamutAnime(c http.Client) Result {
 	c.Jar, _ = cookiejar.New(nil)
+
+	headers := getRealisticHeaders("html")
+	headers = append(headers, H{"x-custom-headers", "true"})
+
 	type apiResponse struct {
 		AnimeSn  int    `json:"animeSn"`
 		Deviceid string `json:"deviceid"`
 	}
-	resp1, err := GET(c, "https://ani.gamer.com.tw/ajax/getdeviceid.php")
+	resp1, err := GET(c, "https://ani.gamer.com.tw/ajax/getdeviceid.php", headers...)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -32,7 +36,7 @@ func BahamutAnime(c http.Client) Result {
 		return Result{Status: StatusErr, Err: err}
 	}
 
-	resp2, err := GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=37783&device="+res1.Deviceid)
+	resp2, err := GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=37783&device="+res1.Deviceid, headers...)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -48,7 +52,7 @@ func BahamutAnime(c http.Client) Result {
 	}
 
 	if res2.AnimeSn != 0 {
-		resp3, err := GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=38832&device="+res1.Deviceid)
+		resp3, err := GET(c, "https://ani.gamer.com.tw/ajax/token.php?adID=89422&sn=38832&device="+res1.Deviceid, headers...)
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}
@@ -67,7 +71,7 @@ func BahamutAnime(c http.Client) Result {
 			return Result{Status: StatusOK, Region: "tw"}
 		}
 
-		resp4, err := GET(c, "https://ani.gamer.com.tw/cdn-cgi/trace")
+		resp4, err := GET(c, "https://ani.gamer.com.tw/cdn-cgi/trace", headers...)
 		if err != nil {
 			return Result{Status: StatusNetworkErr, Err: err}
 		}

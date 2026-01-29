@@ -840,7 +840,7 @@ var HongKongTests = []testItem{
 	{"Max", m.Max, true},
 	{"MyTVSuper", m.MyTvSuper, false},
 	{"NBA TV", m.NBA_TV, true},
-	{"Now E", m.NowE, false},
+	//{"Now TV", m.NowTV, false},
 	{"SonyLiv", m.SonyLiv, false},
 	{"Viu.TV", m.ViuTV, false},
 }
@@ -1458,7 +1458,9 @@ func main() {
 	if TestMode {
 		//GetIpv4Info()
 		//GetIpv6Info()
-		fmt.Println("dazn", ShowSingleResult(m.Dazn(m.AutoHttpClient)))
+
+		fmt.Println("itvx", ShowSingleResult(m.ITVX(m.AutoHttpClient)))
+
 		return
 	}
 
