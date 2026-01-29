@@ -139,7 +139,7 @@ func (T *TEST) Multination() {
 }
 
 func (T *TEST) HongKong() {
-	T.excute("Now E", mt.NowE)
+	//T.excute("Now TV", mt.NowTV)
 	T.excute("Viu.TV", mt.ViuTV)
 	T.excute("MyTVSuper", mt.MyTvSuper)
 	T.excute("Max", mt.Max)

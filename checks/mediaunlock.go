@@ -222,11 +222,18 @@ func GET(c http.Client, url string, headers ...H) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	setRealisticHeaders(req, "html")
-	req.Header.Set("sec-fetch-mode", "navigate")
-	req.Header.Set("sec-fetch-dest", "document")
-	req.Header.Set("sec-fetch-user", "?1")
-	req.Header.Set("upgrade-insecure-requests", "1")
+	hasCustomHeaders := false
+	for i := 0; i < len(headers); i++ {
+		if headers[i][0] == "x-custom-headers" && headers[i][1] == "true" {
+			hasCustomHeaders = true
+			headers = append(headers[:i], headers[i+1:]...)
+			break
+		}
+	}
+	if !hasCustomHeaders {
+		setRealisticHeaders(req, "html")
+	}
+
 	for _, h := range headers {
 		req.Header.Set(h[0], h[1])
 	}
@@ -284,10 +291,7 @@ func PostForm(c http.Client, url string, data string, headers ...H) (*http.Respo
 	}
 	req.Header.Set("content-type", "application/x-www-form-urlencoded")
 	setRealisticHeaders(req, "html")
-	req.Header.Set("sec-fetch-mode", "navigate")
-	req.Header.Set("sec-fetch-dest", "document")
-	req.Header.Set("sec-fetch-user", "?1")
-	req.Header.Set("upgrade-insecure-requests", "1")
+
 	for _, h := range headers {
 		req.Header.Set(h[0], h[1])
 	}
@@ -297,6 +301,15 @@ func PostForm(c http.Client, url string, data string, headers ...H) (*http.Respo
 
 func genUUID() string {
 	return uuid.New().String()
+}
+
+func genBase36(n int) string {
+	const letters = "0123456789abcdefghijklmnopqrstuvwxyz"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[secureRandInt(len(letters))]
+	}
+	return string(b)
 }
 
 func md5Sum(text string) string {
@@ -376,7 +389,7 @@ func genRandomStr(length int) string {
 }
 
 func generateEdgeUserAgent() string {
-	edgeVersion := secureRandInRange(136, 140) // secureRandInt(5) + 136
+	edgeVersion := secureRandInRange(136, 140)
 	chromiumVersion := edgeVersion
 
 	return fmt.Sprintf("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%d.0.0.0 Safari/537.36 Edg/%d.0.0.0",
@@ -384,9 +397,9 @@ func generateEdgeUserAgent() string {
 }
 
 func generateSecChUA() string {
-	edgeVersion := secureRandInRange(136, 140) // secureRandInt(5) + 136
+	edgeVersion := secureRandInRange(136, 140)
 	chromiumVersion := edgeVersion
-	notBrandVersion := secureRandInRange(20, 29) // secureRandInt(10) + 20
+	notBrandVersion := secureRandInRange(20, 29)
 
 	return fmt.Sprintf(`"Microsoft Edge";v="%d", "Chromium";v="%d", "Not/A)Brand";v="%d"`,
 		edgeVersion, chromiumVersion, notBrandVersion)
@@ -410,29 +423,46 @@ func addRandomDelay() {
 	}
 }
 
-func setRealisticHeaders(req *http.Request, requestType string) {
-	if ClientSessionHeaders.UserAgent == "" {
-		ResetSessionHeaders()
-	}
-	req.Header.Set("user-agent", ClientSessionHeaders.UserAgent)
+func getRealisticHeaders(requestType string) []H {
+	headers := make([]H, 0)
+	ua := generateEdgeUserAgent()
+	secChUa := generateSecChUA()
+	acceptLanguage := getRandomAcceptLanguage()
+	dnt := strconv.Itoa(secureRandInt(2))
+	headers = append(headers, H{"user-agent", ua})
+	secFetchMode := "cors"
+	secFetchDest := "empty"
 	switch requestType {
 	case "json":
-		req.Header.Set("accept", "application/json, text/plain, */*")
+		headers = append(headers, H{"accept", "application/json, text/plain, */*"})
 	case "html":
-		req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+		headers = append(headers, H{"accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"})
+		secFetchMode = "navigate"
+		secFetchDest = "document"
+		headers = append(headers, H{"sec-fetch-user", "?1"})
+		headers = append(headers, H{"upgrade-insecure-requests", "1"})
 	default:
-		req.Header.Set("accept", "*/*")
+		headers = append(headers, H{"accept", "*/*"})
 	}
-	req.Header.Set("sec-ch-ua", ClientSessionHeaders.SecChUA)
-	req.Header.Set("sec-ch-ua-mobile", "?0")
-	req.Header.Set("sec-ch-ua-platform", `"Windows"`)
-	req.Header.Set("accept-language", ClientSessionHeaders.AcceptLanguage)
-	req.Header.Set("cache-control", "no-cache")
-	req.Header.Set("pragma", "no-cache")
-	req.Header.Set("sec-fetch-site", "cross-site")
-	req.Header.Set("sec-fetch-mode", "cors")
-	req.Header.Set("sec-fetch-dest", "empty")
-	req.Header.Set("dnt", ClientSessionHeaders.DNT)
+	headers = append(headers, H{"sec-ch-ua", secChUa})
+	headers = append(headers, H{"sec-ch-ua-mobile", "?0"})
+	headers = append(headers, H{"sec-ch-ua-platform", `"Windows"`})
+	headers = append(headers, H{"accept-language", acceptLanguage})
+	headers = append(headers, H{"cache-control", "no-cache"})
+	headers = append(headers, H{"pragma", "no-cache"})
+	headers = append(headers, H{"sec-fetch-site", "cross-site"})
+	headers = append(headers, H{"sec-fetch-mode", secFetchMode})
+	headers = append(headers, H{"sec-fetch-dest", secFetchDest})
+	headers = append(headers, H{"dnt", dnt})
+	return headers
+}
+
+func setRealisticHeaders(req *http.Request, requestType string) {
+	// Generate fresh headers for each request (default behavior)
+	headers := getRealisticHeaders(requestType)
+	for _, header := range headers {
+		req.Header.Set(header[0], header[1])
+	}
 }
 
 type SessionHeaders struct {
@@ -447,6 +477,24 @@ func ResetSessionHeaders() {
 	ClientSessionHeaders.SecChUA = generateSecChUA()
 	ClientSessionHeaders.AcceptLanguage = getRandomAcceptLanguage()
 	ClientSessionHeaders.DNT = strconv.Itoa(secureRandInt(2))
+}
+
+func NewSessionHeaders() *SessionHeaders {
+	return &SessionHeaders{
+		UserAgent:      generateEdgeUserAgent(),
+		SecChUA:        generateSecChUA(),
+		AcceptLanguage: getRandomAcceptLanguage(),
+		DNT:            strconv.Itoa(secureRandInt(2)),
+	}
+}
+
+func (s *SessionHeaders) Headers() []H {
+	return []H{
+		{"user-agent", s.UserAgent},
+		{"sec-ch-ua", s.SecChUA},
+		{"accept-language", s.AcceptLanguage},
+		{"dnt", s.DNT},
+	}
 }
 
 func secureRandInt(max int) int {

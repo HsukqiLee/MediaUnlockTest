@@ -2,13 +2,14 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	//"log"
 	"net/http"
 )
 
-func NowE(c http.Client) Result {
+func NowTV(c http.Client) Result {
 	resp, err := PostJson(c, "https://webtvapi.nowe.com/16/1/getVodURL",
 		`{"contentId":"202403181904703","contentType":"Vod","pin":"","deviceName":"Browser","deviceId":"w-663bcc51-913c-913c-913c-913c913c","deviceType":"WEB","secureCookie":null,"callerReferenceNo":"W17151951620081575","profileId":null,"mupId":null}`,
 	)
@@ -31,6 +32,7 @@ func NowE(c http.Client) Result {
 	case "GEO_CHECK_FAIL":
 		return Result{Status: StatusNo}
 	}
+	fmt.Printf("DEBUG NowE: %+v\n", res)
 	return Result{Status: StatusUnexpected}
 }
 
