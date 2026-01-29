@@ -11,7 +11,7 @@ require (
 	github.com/refraction-networking/utls v1.8.0
 	github.com/schollz/progressbar/v3 v3.18.0
 	golang.org/x/net v0.47.0
-	golang.org/x/sys v0.38.0
+	golang.org/x/sys v0.40.0
 )
 
 require (
