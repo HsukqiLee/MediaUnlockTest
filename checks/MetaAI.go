@@ -7,7 +7,7 @@ import (
 )
 
 func MetaAI(c http.Client) Result {
-	resp, err := GET(c, "https://www.meta.ai/")
+	resp, err := GET(c, "https://www.meta.ai/ajax")
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
@@ -24,7 +24,7 @@ func MetaAI(c http.Client) Result {
 		return Result{Status: StatusNo}
 	}
 
-	if strings.Contains(bodyString, "HomeRootQuery") {
+	if resp.StatusCode == 404 {
 		return Result{Status: StatusOK}
 	}
 	return Result{Status: StatusUnexpected}
