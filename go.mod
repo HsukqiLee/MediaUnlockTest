@@ -8,7 +8,7 @@ require (
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/kardianos/service v1.2.4
 	github.com/prometheus/client_golang v1.23.0
-	github.com/refraction-networking/utls v1.8.0
+	github.com/refraction-networking/utls v1.8.2
 	github.com/schollz/progressbar/v3 v3.18.0
 	golang.org/x/net v0.49.0
 	golang.org/x/sys v0.40.0
