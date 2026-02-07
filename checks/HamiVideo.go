@@ -25,5 +25,8 @@ func HamiVideo(c http.Client) Result {
 	if res.Code == "06001-107" {
 		return Result{Status: StatusOK}
 	}
-	return Result{Status: StatusNo}
+	if res.Code == "06001-106" {
+		return Result{Status: StatusNo}
+	}
+	return Result{Status: StatusUnexpected}
 }
