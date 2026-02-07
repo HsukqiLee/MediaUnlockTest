@@ -32,35 +32,55 @@ jobs:
           echo "Extracted version: $VERSION"
           IS_PRERELEASE="${{ github.event.release.prerelease }}"
           echo "Is prerelease: $IS_PRERELEASE"
+
+          # Switch to branch to allow pushing
+          git checkout main || git checkout master
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
+          CHANGES=0
+
+          # 1. Check and update mediaunlock.go
           CURRENT_VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
           echo "Current version in file: $CURRENT_VERSION"
           
           if [ "$VERSION" != "$CURRENT_VERSION" ]; then
             echo "Version mismatch. Updating from $CURRENT_VERSION to $VERSION"
-            git checkout main || git checkout master
             sed -i "s/Version\s*=\s*\"[^\"]*\"/Version          = \"$VERSION\"/" checks/mediaunlock.go
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add checks/mediaunlock.go
+            CHANGES=1
+          else
+            echo "Version in mediaunlock.go is already up to date"
+          fi
+          
+          # 2. Update VERSION file only if it's not a prerelease
+          if [ "$IS_PRERELEASE" = "false" ]; then
+            if [ -f VERSION ]; then
+              FILE_TAG=$(cat VERSION)
+            else
+              FILE_TAG=""
+            fi
+
+            if [ "$TAG_NAME" != "$FILE_TAG" ]; then
+              echo "Not a prerelease, updating VERSION file with $TAG_NAME"
+              echo "$TAG_NAME" > VERSION
+              echo "VERSION file content: $(cat VERSION)"
+              git add VERSION
+              CHANGES=1
+            else
+              echo "VERSION file is already up to date"
+            fi
+          else
+            echo "Prerelease detected, skipping VERSION file update"
+          fi
+
+          # 3. Commit and push if any changes were made
+          if [ "$CHANGES" -eq 1 ]; then
             git commit -m "Update version to $VERSION"
             git push origin HEAD
             echo "Version updated and committed"
           else
-            echo "Version is already up to date"
-          fi
-          
-          # Update VERSION file only if it's not a prerelease
-          if [ "$IS_PRERELEASE" = "false" ]; then
-            echo "Not a prerelease, updating VERSION file with $TAG_NAME"
-            echo "$TAG_NAME" > VERSION
-            echo "VERSION file content: $(cat VERSION)"
-            git add VERSION
-            git commit -m "Update VERSION file to $TAG_NAME"
-            git push origin HEAD
-            echo "VERSION file updated and committed"
-          else
-            echo "Prerelease detected, skipping VERSION file update"
+            echo "Nothing to commit, all versions are up to date."
           fi
         shell: bash
 

@@ -308,7 +308,6 @@ func (T *TEST) SouthEastAsia() {
 	T.excute("Zee5", mt.Zee5)
 	T.excute("Tata Play", mt.TataPlay)
 	T.excute("NBA TV", mt.NBA_TV)
-	T.excute("Jio Cinema", mt.JioCinema)
 	T.excute("MX Player", mt.MXPlayer)
 }
 
@@ -319,7 +318,6 @@ func (T *TEST) Oceania() {
 	T.excute("Paramount+", mt.ParamountPlus)
 	T.excute("SonyLiv", mt.SonyLiv)
 	T.excute("Stan", mt.Stan)
-	T.excute("Binge", mt.Binge)
 	T.excute("Doc Play", mt.DocPlay)
 	T.excute("7Plus", mt.SevenPlus)
 	T.excute("Channel 9", mt.Channel9)

@@ -2,10 +2,7 @@ package mediaunlocktest
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-
-	//"log"
 	"net/http"
 )
 
@@ -32,7 +29,6 @@ func NowTV(c http.Client) Result {
 	case "GEO_CHECK_FAIL":
 		return Result{Status: StatusNo}
 	}
-	fmt.Printf("DEBUG NowE: %+v\n", res)
 	return Result{Status: StatusUnexpected}
 }
 

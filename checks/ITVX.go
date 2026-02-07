@@ -1,8 +1,6 @@
 package mediaunlocktest
 
 import (
-	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -27,13 +25,6 @@ func ITVX(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
-	}
-
-	fmt.Printf("ITVX Status: %d\nBody: %s\n", resp.StatusCode, string(b))
 
 	if resp.StatusCode == 403 {
 		return Result{Status: StatusNo}

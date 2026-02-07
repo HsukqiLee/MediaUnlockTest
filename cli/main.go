@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -25,7 +26,8 @@ import (
 
 	"github.com/fatih/color"
 	selfUpdate "github.com/inconshreveable/go-update"
-	pb "github.com/schollz/progressbar/v3"
+	"github.com/mattn/go-runewidth"
+	"github.com/schollz/progressbar/v3"
 	"golang.org/x/net/proxy"
 )
 
@@ -46,10 +48,10 @@ var (
 	AI          bool
 	Debug       bool   = false
 	Conc        uint64 = 0
-	Cache       bool   = false // 新增：是否启用缓存和串行地区执行
+	Cache       bool   = false
 	sem         chan struct{}
 	ResultLines []*result
-	bar         *pb.ProgressBar
+	bar         *progressbar.ProgressBar
 	Red         = color.New(color.FgRed).SprintFunc()
 	Green       = color.New(color.FgGreen).SprintFunc()
 	Yellow      = color.New(color.FgYellow).SprintFunc()
@@ -73,6 +75,10 @@ var (
 
 	// 新增：进度条描述缓存，避免重复更新
 	progressDescriptionCache string
+
+	// 进度条更新协程控制
+	updaterStopChan chan struct{}
+	updaterMutex    sync.Mutex
 )
 
 type testItem struct {
@@ -97,7 +103,7 @@ type Downloader struct {
 	io.Reader
 	Total   uint64
 	Current uint64
-	Pb      *pb.ProgressBar
+	Pb      *progressbar.ProgressBar
 	done    bool
 }
 
@@ -271,18 +277,41 @@ func sortTestItemsInGroup(group []*result) []*result {
 	return sortedGroup
 }
 
-func NewBar(count int64) *pb.ProgressBar {
-	return pb.NewOptions64(
-		count,
-		pb.OptionSetDescription("正在测试..."),
-		pb.OptionSetWriter(os.Stderr),
-		pb.OptionSetWidth(60),                   // 增加宽度以显示更多信息
-		pb.OptionThrottle(200*time.Millisecond), // 减少刷新频率以提升性能
-		pb.OptionShowCount(),
-		pb.OptionClearOnFinish(),
-		pb.OptionEnableColorCodes(true),
-		pb.OptionSpinnerType(14),
-		pb.OptionSetRenderBlankState(false), // 防止空白状态渲染
+func NewBar(count int64) *progressbar.ProgressBar {
+	return progressbar.NewOptions64(count,
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionSetWidth(30),
+		progressbar.OptionSetDescription("正在测试..."),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]█[reset]",
+			SaucerHead:    "[green]█[reset]",
+			SaucerPadding: "░",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Fprint(os.Stderr, "\n")
+		}),
+	)
+}
+
+func NewDownloadBar(count int64, prefix string) *progressbar.ProgressBar {
+	return progressbar.NewOptions64(count,
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionSetWidth(30),
+		progressbar.OptionSetDescription(prefix),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]█[reset]",
+			SaucerHead:    "[green]█[reset]",
+			SaucerPadding: "░",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Fprint(os.Stderr, "\n")
+		}),
 	)
 }
 
@@ -306,14 +335,53 @@ func updateProgressBarDescription() {
 	}
 	activeTestsMutex.RUnlock()
 
-	// 缓存上一次的描述，避免重复更新
 	var newDesc string
 	if len(activeList) == 0 {
 		newDesc = "等待测试开始..."
-	} else if len(activeList) <= 3 {
-		newDesc = "正在测试: " + strings.Join(activeList, ", ")
 	} else {
-		newDesc = fmt.Sprintf("正在测试: %s 等 %d 个测试", strings.Join(activeList[:3], ", "), len(activeList))
+		// 动态构建描述，限制长度防止换行
+		maxLen := 40 // 描述最大长度
+		currentLen := 0
+		var displayNames []string
+
+		for _, name := range activeList {
+			// +2 是为了 ", "
+			if currentLen+len(name)+2 > maxLen {
+				break
+			}
+			displayNames = append(displayNames, name)
+			currentLen += len(name) + 2
+		}
+
+		if len(displayNames) < len(activeList) {
+			newDesc = fmt.Sprintf("正在测试: %s 等 %d 个测试", strings.Join(displayNames, ", "), len(activeList))
+		} else {
+			newDesc = "正在测试: " + strings.Join(displayNames, ", ")
+		}
+	}
+
+	// 强制截断或补位到固定视觉宽度 45 (稍微宽一点)
+	targetWidth := 45
+	descWidth := runewidth.StringWidth(newDesc)
+
+	if descWidth > targetWidth {
+		// 需要截断
+		runes := []rune(newDesc)
+		width := 0
+		for i, r := range runes {
+			w := runewidth.RuneWidth(r)
+			if width+w > targetWidth-3 {
+				newDesc = string(runes[:i]) + "..."
+				break
+			}
+			width += w
+		}
+	}
+
+	// 重新计算宽度并在末尾补空格
+	currentWidth := runewidth.StringWidth(newDesc)
+	if currentWidth < targetWidth {
+		newDesc += strings.Repeat(" ", targetWidth-currentWidth)
 	}
 
 	// 只有当描述发生变化时才更新，减少不必要的刷新
@@ -330,17 +398,35 @@ func startProgressUpdater() {
 		return
 	}
 
+	stopProgressUpdater()
+
+	updaterMutex.Lock()
+	updaterStopChan = make(chan struct{})
+	ch := updaterStopChan
+	updaterMutex.Unlock()
+
 	go func() {
-		ticker := time.NewTicker(1000 * time.Millisecond) // 减少更新频率到1秒，减少多行输出
+		ticker := time.NewTicker(1000 * time.Millisecond) // 保持1秒更新，不仅仅是为了性能，也是为了视觉稳定
 		defer ticker.Stop()
 
 		for {
 			select {
 			case <-ticker.C:
 				updateProgressBarDescription()
+			case <-ch:
+				return
 			}
 		}
 	}()
+}
+
+func stopProgressUpdater() {
+	updaterMutex.Lock()
+	defer updaterMutex.Unlock()
+	if updaterStopChan != nil {
+		close(updaterStopChan)
+		updaterStopChan = nil
+	}
 }
 
 // ExecuteTestsParallel 并行执行所有测试（不按地区分组）
@@ -485,28 +571,26 @@ func ExecuteTestsParallel(regions []regionItem, client http.Client, ipType int) 
 	// 收集结果
 	resultsByRegion := make(map[string][]*result)
 	for completedTests < len(allTests) {
-		select {
-		case r, ok := <-resultChan:
-			if !ok {
+		r, ok := <-resultChan
+		if !ok {
+			break
+		}
+		// 根据测试名称找到对应的地区
+		var testRegion string
+		for _, testWithRegion := range allTests {
+			if testWithRegion.test.Name == r.Name {
+				testRegion = testWithRegion.region
 				break
 			}
-			// 根据测试名称找到对应的地区
-			var testRegion string
-			for _, testWithRegion := range allTests {
-				if testWithRegion.test.Name == r.Name {
-					testRegion = testWithRegion.region
-					break
-				}
-			}
+		}
 
-			if testRegion != "" {
-				resultsByRegion[testRegion] = append(resultsByRegion[testRegion], r)
-			}
-			completedTests++
+		if testRegion != "" {
+			resultsByRegion[testRegion] = append(resultsByRegion[testRegion], r)
+		}
+		completedTests++
 
-			if bar != nil {
-				bar.Add(1)
-			}
+		if bar != nil {
+			bar.Add(1)
 		}
 	}
 
@@ -542,6 +626,7 @@ func ExecuteTestsParallel(regions []regionItem, client http.Client, ipType int) 
 	}
 
 	// 清理
+	stopProgressUpdater()
 	if bar != nil {
 		bar.Finish()
 		fmt.Fprint(os.Stderr, "\r\033[K")
@@ -776,6 +861,7 @@ func ExecuteTests(regions []regionItem, client http.Client, ipType int) {
 		fmt.Printf("%s (%s) 检测完毕 (%d/%d) - 耗时: %v\n",
 			region.Name, ipTypeStr, completedTests, totalTests, regionDuration)
 		if bar != nil {
+			stopProgressUpdater()
 			bar.Finish()
 			// 确保进度条完全清理，防止空白行
 			fmt.Fprint(os.Stderr, "\r\033[K")
@@ -1018,7 +1104,6 @@ var SouthEastAsiaTests = []testItem{
 	{"IN", nil, true},
 	{"Tata Play", m.TataPlay, true},
 	{"SonyLiv", m.SonyLiv, true},
-	{"JioCinema", m.JioCinema, true},
 	{"MX Player", m.MXPlayer, false},
 	{"Zee5", m.Zee5, true},
 }
@@ -1029,7 +1114,6 @@ var OceaniaTests = []testItem{
 	{"ABC iView", m.ABCiView, false},
 	{"Acorn TV", m.AcornTV, false},
 	{"AMC+", m.AMCPlus, true},
-	{"Binge", m.Binge, true},
 	{"BritBox", m.BritBox, true},
 	{"Channel 9", m.Channel9, true},
 	{"Doc Play", m.DocPlay, false},
@@ -1054,6 +1138,58 @@ var AITests = []testItem{
 	{"Google Gemini", m.Gemini, true},
 	{"Meta AI", m.MetaAI, true},
 	{"Sora", m.Sora, true},
+}
+
+type IPInfo struct {
+	IP           string `json:"ip"`
+	Country      string `json:"country"`
+	Region       string `json:"region"`
+	City         string `json:"city"`
+	Timezone     string `json:"timezone"`
+	ASN          int    `json:"asn"`
+	Organization string `json:"organization"`
+}
+
+func GetDetailedIPInfo(url string, ipType int) (*IPInfo, error) {
+	timeout := 6
+	if ipType == 6 {
+		timeout = 3
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
+	var client http.Client
+	switch ipType {
+	case 6:
+		client = m.Ipv6HttpClient
+	case 4:
+		client = m.Ipv4HttpClient
+	case 0:
+		client = m.AutoHttpClient
+	default:
+		return nil, fmt.Errorf("IP type %d is invalid", ipType)
+	}
+
+	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+	req.Header.Set("accept", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var info IPInfo
+	if err := json.Unmarshal(b, &info); err != nil {
+		return nil, err
+	}
+	return &info, nil
 }
 
 func GetIPInfo(url string, ipType int, isCloudflare bool) (string, error) {
@@ -1207,6 +1343,14 @@ func (d *Downloader) Read(p []byte) (n int, err error) {
 	return
 }
 
+type BarWriter struct {
+	bar *progressbar.ProgressBar
+}
+
+func (bw *BarWriter) Write(p []byte) (n int, err error) {
+	return bw.bar.Write(p)
+}
+
 func checkUpdate() {
 	resp, err := http.Get("https://unlock.icmp.ing/test/latest/version")
 	if err != nil {
@@ -1265,7 +1409,7 @@ func checkUpdate() {
 		downloader := &Downloader{
 			Reader: resp.Body,
 			Total:  uint64(resp.ContentLength),
-			Pb:     pb.DefaultBytes(resp.ContentLength, "下载进度"),
+			Pb:     NewDownloadBar(resp.ContentLength, "下载进度"),
 		}
 		if _, err := io.Copy(out, downloader); err != nil {
 			log.Fatal("[ERR] 下载unlock-test时出错:", err)
@@ -1294,12 +1438,13 @@ func checkUpdate() {
 		}
 		defer resp.Body.Close()
 
-		bar := pb.DefaultBytes(
+		bar := NewDownloadBar(
 			resp.ContentLength,
 			"下载进度",
 		)
+		barWrapper := &BarWriter{bar: bar}
 
-		body := io.TeeReader(resp.Body, bar)
+		body := io.TeeReader(resp.Body, barWrapper)
 
 		if resp.StatusCode != http.StatusOK {
 			log.Fatal("[ERR] 下载unlock-test时出错: 非预期的状态码", resp.StatusCode)
@@ -1312,7 +1457,6 @@ func checkUpdate() {
 			return
 		}
 	}
-
 	fmt.Println("[OK] unlock-test后端更新成功")
 }
 
@@ -1459,7 +1603,7 @@ func main() {
 		//GetIpv4Info()
 		//GetIpv6Info()
 
-		fmt.Println("itvx", ShowSingleResult(m.ITVX(m.AutoHttpClient)))
+		fmt.Println("Amediateka", ShowSingleResult(m.Amediateka(m.AutoHttpClient)))
 
 		return
 	}
@@ -1470,20 +1614,26 @@ func main() {
 	fmt.Println()
 
 	if !Debug {
-		IP4_2, err := GetIPInfo("https://1.1.1.1/cdn-cgi/trace", 4, true)
+		info4, err := GetDetailedIPInfo("https://unlock.icmp.ing/api/ip-info", 4)
 		if err != nil {
 			fmt.Println(Red("无法获取 IPv4 地址"))
 			IPV4 = false
 		} else {
-			fmt.Println(SkyBlue("IPv4 地址： ") + Green(IP4_2))
+			IP4_2 = info4.IP
+			fmt.Println(SkyBlue("IPv4 地址：") + Green(info4.IP))
+			fmt.Println(SkyBlue("地区：") + Yellow(info4.Country) + SkyBlue(" / ") + Yellow(info4.Region) + SkyBlue(" / ") + Yellow(info4.City))
+			fmt.Println(SkyBlue("ISP：") + Green(info4.Organization) + Purple(" (AS"+strconv.Itoa(info4.ASN)+")"))
 			IPV4 = true
 		}
-		IP6_2, err := GetIPInfo("https://[2606:4700:4700::1111]/cdn-cgi/trace", 6, true)
+		info6, err := GetDetailedIPInfo("https://unlock.icmp.ing/api/ip-info", 6)
 		if err != nil {
 			fmt.Println(Red("无法获取 IPv6 地址"))
 			IPV6 = false
 		} else {
-			fmt.Println(SkyBlue("IPv6 地址： ") + Green(IP6_2))
+			IP6_2 = info6.IP
+			fmt.Println(SkyBlue("IPv6 地址：") + Green(info6.IP))
+			fmt.Println(SkyBlue("地区：") + Yellow(info6.Country) + SkyBlue(" / ") + Yellow(info6.Region) + SkyBlue(" / ") + Yellow(info6.City))
+			fmt.Println(SkyBlue("ISP：") + Green(info6.Organization) + Purple(" (AS"+strconv.Itoa(info6.ASN)+")"))
 			IPV6 = true
 		}
 	} else {
@@ -1515,7 +1665,7 @@ func main() {
 		fmt.Println("")
 		fmt.Println("[ 正在获取国外分流 IP... ]")
 		if IPMode == 0 || IPMode == 4 {
-			IP4_2, err = GetIPInfo("https://1.1.1.1/cdn-cgi/trace", IPMode, true)
+			info4, err := GetDetailedIPInfo("https://unlock.icmp.ing/api/ip-info", 4)
 			if err != nil {
 				if Debug {
 					fmt.Println(Red("无法获取国外 IPv4 地址 (") + Yellow(err.Error()) + Red(")"))
@@ -1523,11 +1673,14 @@ func main() {
 					fmt.Println(Red("无法获取国外 IPv4 地址"))
 				}
 			} else {
-				fmt.Println(SkyBlue("IPv4 地址： ") + Green(IP4_2))
+				IP4_2 = info4.IP
+				fmt.Println(SkyBlue("IPv4 地址：") + Green(info4.IP))
+				fmt.Println(SkyBlue("地区：") + Yellow(info4.Country) + SkyBlue("/") + Yellow(info4.Region) + SkyBlue("/") + Yellow(info4.City))
+				fmt.Println(SkyBlue("ISP：") + Green(info4.Organization) + Purple(" (AS"+strconv.Itoa(info4.ASN)+")"))
 			}
 		}
 		if IPMode == 0 || IPMode == 6 {
-			IP6_2, err = GetIPInfo("https://[2606:4700:4700::1111]/cdn-cgi/trace", IPMode, true)
+			info6, err := GetDetailedIPInfo("https://unlock.icmp.ing/api/ip-info", 6)
 			if err != nil {
 				if Debug {
 					fmt.Println(Red("无法获取国外 IPv6 地址 (") + Yellow(err.Error()) + Red(")"))
@@ -1535,7 +1688,10 @@ func main() {
 					fmt.Println(Red("无法获取国外 IPv6 地址"))
 				}
 			} else {
-				fmt.Println(SkyBlue("IPv6 地址： ") + Green(IP6_2))
+				IP6_2 = info6.IP
+				fmt.Println(SkyBlue("IPv6 地址：") + Green(info6.IP))
+				fmt.Println(SkyBlue("地区：") + Yellow(info6.Country) + SkyBlue("/") + Yellow(info6.Region) + SkyBlue("/") + Yellow(info6.City))
+				fmt.Println(SkyBlue("ISP：") + Green(info6.Organization) + Purple(" (AS"+strconv.Itoa(info6.ASN)+")"))
 			}
 		}
 		fmt.Println("")

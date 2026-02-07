@@ -10,9 +10,8 @@ func Amediateka(c http.Client) Result {
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-
 	switch resp.StatusCode {
-	case 301:
+	case 301, 302:
 		if resp.Header.Get("Location") == "https://www.amediateka.ru/unavailable/index.html?page=https://www.amediateka.ru/" {
 			return Result{Status: StatusNo}
 		}
