@@ -601,26 +601,22 @@ jobs:
             local docker_variant=$4
             
             local src_dir="artifacts/${project}-linux-${artifact_arch}"
-            local dest_dir="docker/context/${project}/linux/${docker_arch}/${docker_variant}"
-            
-            # Clean up destination path (remove trailing slash if variant is empty)
-            dest_dir=$(echo "$dest_dir" | sed 's/\/$//')
+            # Flatten context structure
+            local dest_dir="docker/context/${project}"
             
             mkdir -p "$dest_dir"
             
-            # Find the binary (it might have different names depending on download method)
-            # We look for files starting with 'unlock-' inside the artifact dir
+            # Find the binary
             local bin_file=$(find "$src_dir" -name "unlock-*" -type f | head -n 1)
             
             if [ -f "$bin_file" ]; then
-              local target_name="unlock-test"
-              if [ "$project" == "monitor" ]; then
-                target_name="unlock-monitor"
-              fi
+              # Naming convention: bin-linux-{arch}{variant}
+              # e.g., bin-linux-amd64, bin-linux-armv7
+              local target_name="bin-linux-${docker_arch}${docker_variant}"
               
               cp "$bin_file" "$dest_dir/$target_name"
               chmod +x "$dest_dir/$target_name"
-              echo "Prepared $project for linux/${docker_arch}/${docker_variant} from $bin_file"
+              echo "Prepared $project for linux/${docker_arch}/${docker_variant} as $target_name from $bin_file"
             else
               echo "Warning: No binary found for $project in $src_dir"
             fi

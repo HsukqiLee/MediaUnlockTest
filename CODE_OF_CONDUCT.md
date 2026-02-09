@@ -34,13 +34,13 @@
 
 ## 执行
 
-可以通过 [在此处添加联系邮箱] 向项目团队报告辱骂、骚扰或其他不可接受的行为。所有投诉都将被审查和调查，并将导致被认为必要和适当的回应。项目团队有义务对报告事件的举报人保密。具体执行政策的更多细节可能会单独发布。
+可以通过 Issues 向项目团队报告辱骂、骚扰或其他不可接受的行为。所有投诉都将被审查和调查，并将导致被认为必要和适当的回应。项目团队有义务对报告事件的举报人保密。具体执行政策的更多细节可能会单独发布。
 
 不真诚遵守或执行行为准则的项目维护者可能会因项目领导层其他成员的决定而面临临时或永久的影响。
 
 ## 归属
 
-本行为准则改编自[贡献者公约](https://www.contributor-covenant.org/version/1/4/code-of-conduct.html)版本 1.4，可在 https://www.contributor-covenant.org/version/1/4/code-of-conduct.html 获取。
+本行为准则改编自[贡献者公约](https://www.contributor-covenant.org/version/1/4/code-of-conduct.html)。
 
 ## 社区指导原则
 
@@ -89,10 +89,3 @@
 - 收集社区反馈和建议
 - 根据实际情况调整执行政策
 - 提高社区成员的意识和理解
-
-## 联系方式
-
-如果您有任何问题或需要报告违反行为准则的情况，请通过以下方式联系我们：
-
-- **行为准则问题：** [在此处添加联系邮箱]
-- **一般问题：** [GitHub Issues](https://github.com/HsukqiLee/MediaUnlockTest/issues)
