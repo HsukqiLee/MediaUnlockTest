@@ -22,6 +22,7 @@ Windows PowerShell（需要以管理员身份启动）：
 
 ```ps
 irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
+```
 
 ## 深入了解
 
