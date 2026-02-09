@@ -3,7 +3,7 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates tzdata
 
 ARG TARGETARCH
-ARG TARGETVARIANT=""
+ARG TARGETVARIANT
 
 # Map TARGETVARIANT (e.g., v7) to our build naming convention (arm7) if needed, 
 # or just use the directory structure we created in Release.yml
