@@ -1,0 +1,8 @@
+FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates tzdata
+
+ARG TARGETARCH
+COPY linux/${TARGETARCH}/unlock-monitor /usr/local/bin/unlock-monitor
+
+CMD ["unlock-monitor"]

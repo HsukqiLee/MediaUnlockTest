@@ -1,0 +1,8 @@
+FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates tzdata
+
+ARG TARGETARCH
+COPY linux/${TARGETARCH}/unlock-test /usr/local/bin/unlock-test
+
+ENTRYPOINT ["unlock-test"]

@@ -3,10 +3,24 @@ name: Release
 on:
   release:
     types: [prereleased,released] 
-    
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Binaries Source'
+        required: true
+        default: 'build'
+        type: choice
+        options:
+          - build
+          - release
+      tag:
+        description: 'Docker Tag'
+        required: true
+        default: 'preview'    
 jobs:
   # 版本更新（在构建之前）
   update-version:
+    if: github.event_name == 'release' || github.event_name == 'prerelease'
     runs-on: ubuntu-latest
     
     permissions:
@@ -87,6 +101,10 @@ jobs:
   # 并行构建不同平台的二进制文件
   build:
     needs: update-version
+    if: |
+      always() && 
+      (needs.update-version.result == 'success' || needs.update-version.result == 'skipped') &&
+      (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.source == 'build'))
     strategy:
       matrix:
         project: [cli, monitor]
@@ -404,6 +422,7 @@ jobs:
   # 发布阶段
   release:
     needs: build
+    if: github.event_name == 'release' || github.event_name == 'prerelease'
     runs-on: ubuntu-latest
     
     permissions:
@@ -467,3 +486,119 @@ jobs:
           ls -la artifacts/
           echo "=================="
           echo "🎯 Release build and upload completed successfully!"
+
+  # 构建并推送 Docker 镜像
+  push-docker:
+    needs: build
+    if: |
+      always() && 
+      (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+      (github.event_name == 'release' || github.event_name == 'prerelease' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts from Build
+        if: needs.build.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Download artifacts from Release
+        if: github.event_name == 'workflow_dispatch' && inputs.source == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p artifacts/cli-linux-amd64
+          mkdir -p artifacts/cli-linux-arm64
+          mkdir -p artifacts/monitor-linux-amd64
+          mkdir -p artifacts/monitor-linux-arm64
+          
+          # Download specific Linux assets
+          gh release download -p "*linux_amd64" -p "*linux_arm64"
+          
+          # Move files to expected artifact structure
+          # Note: gh release download puts files in current dir
+          mv unlock-test_linux_amd64 artifacts/cli-linux-amd64/ 2>/dev/null || true
+          mv unlock-test_linux_arm64 artifacts/cli-linux-arm64/ 2>/dev/null || true
+          mv unlock-monitor_linux_amd64 artifacts/monitor-linux-amd64/ 2>/dev/null || true
+          mv unlock-monitor_linux_arm64 artifacts/monitor-linux-arm64/ 2>/dev/null || true
+
+      - name: Prepare Docker Context
+        run: |
+          # Create context directories
+          mkdir -p docker/context/cli/linux/amd64
+          mkdir -p docker/context/cli/linux/arm64
+          mkdir -p docker/context/monitor/linux/amd64
+          mkdir -p docker/context/monitor/linux/arm64
+
+          # Copy and rename binaries
+          cp artifacts/cli-linux-amd64/unlock-test_linux_amd64 docker/context/cli/linux/amd64/unlock-test
+          cp artifacts/cli-linux-arm64/unlock-test_linux_arm64 docker/context/cli/linux/arm64/unlock-test
+          
+          cp artifacts/monitor-linux-amd64/unlock-monitor_linux_amd64 docker/context/monitor/linux/amd64/unlock-monitor
+          cp artifacts/monitor-linux-arm64/unlock-monitor_linux_arm64 docker/context/monitor/linux/arm64/unlock-monitor
+
+          # Make binaries executable
+          chmod +x docker/context/cli/linux/amd64/unlock-test
+          chmod +x docker/context/cli/linux/arm64/unlock-test
+          chmod +x docker/context/monitor/linux/amd64/unlock-monitor
+          chmod +x docker/context/monitor/linux/arm64/unlock-monitor
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for CLI
+        id: meta-cli
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.actor }}/unlock-test
+          tags: |
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
+            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
+
+      - name: Extract metadata (tags, labels) for Monitor
+        id: meta-monitor
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.actor }}/unlock-monitor
+          tags: |
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
+            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push CLI Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: docker/context/cli
+          file: docker/Dockerfile.cli
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta-cli.outputs.tags }}
+          labels: ${{ steps.meta-cli.outputs.labels }}
+
+      - name: Build and push Monitor Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: docker/context/monitor
+          file: docker/Dockerfile.monitor
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta-monitor.outputs.tags }}
+          labels: ${{ steps.meta-monitor.outputs.labels }}
