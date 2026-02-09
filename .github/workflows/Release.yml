@@ -211,14 +211,35 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
+          cache: true
+
+      - name: Cache Go Build
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-
+
+      - name: Cache Android NDK
+        if: matrix.cgo == true
+        id: cache-ndk
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/android-ndk
+          key: android-ndk-r27d
 
       - name: Setup Android NDK (for Android builds)
-        if: matrix.cgo == true
+        if: matrix.cgo == true && steps.cache-ndk.outputs.cache-hit != 'true'
         run: |
           mkdir -p $HOME/android-ndk
-          wget https://dl.google.com/android/repository/android-ndk-r26d-linux.zip
-          unzip -q android-ndk-r26d-linux.zip -d $HOME/android-ndk
-          mv $HOME/android-ndk/android-ndk-r26d $HOME/android-ndk/ndk
+          wget https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
+          unzip -q android-ndk-r27d-linux.zip -d $HOME/android-ndk
+          mv $HOME/android-ndk/android-ndk-r27d $HOME/android-ndk/ndk
+          
+      - name: Set NDK Environment Variables
+        if: matrix.cgo == true
+        run: |
           echo "NDK_ROOT=$HOME/android-ndk/ndk" >> $GITHUB_ENV
           echo "PATH=$PATH:$HOME/android-ndk/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_ENV
 
@@ -515,10 +536,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p artifacts/cli-linux-amd64
-          mkdir -p artifacts/cli-linux-arm64
-          mkdir -p artifacts/monitor-linux-amd64
-          mkdir -p artifacts/monitor-linux-arm64
+          # Create artifact directories for all architectures
+          mkdir -p artifacts/cli-linux-amd64 artifacts/monitor-linux-amd64
+          mkdir -p artifacts/cli-linux-arm64 artifacts/monitor-linux-arm64
+          mkdir -p artifacts/cli-linux-386 artifacts/monitor-linux-386
+          mkdir -p artifacts/cli-linux-arm7 artifacts/monitor-linux-arm7
+          mkdir -p artifacts/cli-linux-arm6 artifacts/monitor-linux-arm6
+          mkdir -p artifacts/cli-linux-ppc64le artifacts/monitor-linux-ppc64le
+          mkdir -p artifacts/cli-linux-s390x artifacts/monitor-linux-s390x
+          mkdir -p artifacts/cli-linux-riscv64 artifacts/monitor-linux-riscv64
           
           # Determine target tag
           TARGET_TAG=""
@@ -529,7 +555,8 @@ jobs:
           fi
 
           # Download specific Linux assets
-          ARGS=(-p "*linux_amd64" -p "*linux_arm64")
+          # We need to cover all supported unix platforms
+          ARGS=(-p "*linux_amd64" -p "*linux_arm64" -p "*linux_386" -p "*linux_arm7" -p "*linux_arm6" -p "*linux_ppc64le" -p "*linux_s390x" -p "*linux_riscv64")
           if [ -n "$TARGET_TAG" ]; then
             ARGS+=("$TARGET_TAG")
           fi
@@ -537,32 +564,87 @@ jobs:
           gh release download "${ARGS[@]}"
           
           # Move files to expected artifact structure
-          # Note: gh release download puts files in current dir
-          mv unlock-test_linux_amd64 artifacts/cli-linux-amd64/ 2>/dev/null || true
-          mv unlock-test_linux_arm64 artifacts/cli-linux-arm64/ 2>/dev/null || true
-          mv unlock-monitor_linux_amd64 artifacts/monitor-linux-amd64/ 2>/dev/null || true
-          mv unlock-monitor_linux_arm64 artifacts/monitor-linux-arm64/ 2>/dev/null || true
+          # Helper function to move files
+          move_file() {
+            local pattern=$1
+            local dest=$2
+            mv $pattern $dest/ 2>/dev/null || true
+          }
+
+          move_file "unlock-test_linux_amd64" "artifacts/cli-linux-amd64"
+          move_file "unlock-test_linux_arm64" "artifacts/cli-linux-arm64"
+          move_file "unlock-test_linux_386" "artifacts/cli-linux-386"
+          move_file "unlock-test_linux_arm7" "artifacts/cli-linux-arm7"
+          move_file "unlock-test_linux_arm6" "artifacts/cli-linux-arm6"
+          move_file "unlock-test_linux_ppc64le" "artifacts/cli-linux-ppc64le"
+          move_file "unlock-test_linux_s390x" "artifacts/cli-linux-s390x"
+          move_file "unlock-test_linux_riscv64" "artifacts/cli-linux-riscv64"
+
+          move_file "unlock-monitor_linux_amd64" "artifacts/monitor-linux-amd64"
+          move_file "unlock-monitor_linux_arm64" "artifacts/monitor-linux-arm64"
+          move_file "unlock-monitor_linux_386" "artifacts/monitor-linux-386"
+          move_file "unlock-monitor_linux_arm7" "artifacts/monitor-linux-arm7"
+          move_file "unlock-monitor_linux_arm6" "artifacts/monitor-linux-arm6"
+          move_file "unlock-monitor_linux_ppc64le" "artifacts/monitor-linux-ppc64le"
+          move_file "unlock-monitor_linux_s390x" "artifacts/monitor-linux-s390x"
+          move_file "unlock-monitor_linux_riscv64" "artifacts/monitor-linux-riscv64"
 
       - name: Prepare Docker Context
         run: |
-          # Create context directories
-          mkdir -p docker/context/cli/linux/amd64
-          mkdir -p docker/context/cli/linux/arm64
-          mkdir -p docker/context/monitor/linux/amd64
-          mkdir -p docker/context/monitor/linux/arm64
-
-          # Copy and rename binaries
-          cp artifacts/cli-linux-amd64/unlock-test_linux_amd64 docker/context/cli/linux/amd64/unlock-test
-          cp artifacts/cli-linux-arm64/unlock-test_linux_arm64 docker/context/cli/linux/arm64/unlock-test
+          # Create context directories for all architectures and variants
+          # Structure: docker/context/{project}/linux/{arch}/{variant}
           
-          cp artifacts/monitor-linux-amd64/unlock-monitor_linux_amd64 docker/context/monitor/linux/amd64/unlock-monitor
-          cp artifacts/monitor-linux-arm64/unlock-monitor_linux_arm64 docker/context/monitor/linux/arm64/unlock-monitor
+          prepare_context() {
+            local project=$1
+            local artifact_arch=$2
+            local docker_arch=$3
+            local docker_variant=$4
+            
+            local src_dir="artifacts/${project}-linux-${artifact_arch}"
+            local dest_dir="docker/context/${project}/linux/${docker_arch}/${docker_variant}"
+            
+            # Clean up destination path (remove trailing slash if variant is empty)
+            dest_dir=$(echo "$dest_dir" | sed 's/\/$//')
+            
+            mkdir -p "$dest_dir"
+            
+            # Find the binary (it might have different names depending on download method)
+            # We look for files starting with 'unlock-' inside the artifact dir
+            local bin_file=$(find "$src_dir" -name "unlock-*" -type f | head -n 1)
+            
+            if [ -f "$bin_file" ]; then
+              local target_name="unlock-test"
+              if [ "$project" == "monitor" ]; then
+                target_name="unlock-monitor"
+              fi
+              
+              cp "$bin_file" "$dest_dir/$target_name"
+              chmod +x "$dest_dir/$target_name"
+              echo "Prepared $project for linux/${docker_arch}/${docker_variant} from $bin_file"
+            else
+              echo "Warning: No binary found for $project in $src_dir"
+            fi
+          }
 
-          # Make binaries executable
-          chmod +x docker/context/cli/linux/amd64/unlock-test
-          chmod +x docker/context/cli/linux/arm64/unlock-test
-          chmod +x docker/context/monitor/linux/amd64/unlock-monitor
-          chmod +x docker/context/monitor/linux/arm64/unlock-monitor
+          # CLI
+          prepare_context "cli" "amd64" "amd64" ""
+          prepare_context "cli" "arm64" "arm64" ""
+          prepare_context "cli" "386" "386" ""
+          prepare_context "cli" "arm7" "arm" "v7"
+          prepare_context "cli" "arm6" "arm" "v6"
+          prepare_context "cli" "ppc64le" "ppc64le" ""
+          prepare_context "cli" "s390x" "s390x" ""
+          prepare_context "cli" "riscv64" "riscv64" ""
+
+          # Monitor
+          prepare_context "monitor" "amd64" "amd64" ""
+          prepare_context "monitor" "arm64" "arm64" ""
+          prepare_context "monitor" "386" "386" ""
+          prepare_context "monitor" "arm7" "arm" "v7"
+          prepare_context "monitor" "arm6" "arm" "v6"
+          prepare_context "monitor" "ppc64le" "ppc64le" ""
+          prepare_context "monitor" "s390x" "s390x" ""
+          prepare_context "monitor" "riscv64" "riscv64" ""
 
       - name: Generate Docker Tags
         id: generate-tags
@@ -571,7 +653,7 @@ jobs:
           DATE_TS=$(date +%s)
           TAGS_CLI=""
           TAGS_MONITOR=""
-          REPO_OWNER="${{ github.repository_owner }}"
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           
           # Function to add tag
           add_tag() {
@@ -651,7 +733,7 @@ jobs:
         with:
           context: docker/context/cli
           file: docker/Dockerfile.cli
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v7,linux/arm/v6,linux/ppc64le,linux/s390x,linux/riscv64
           push: true
           tags: ${{ steps.generate-tags.outputs.tags_cli }}
           labels: |
@@ -663,7 +745,7 @@ jobs:
         with:
           context: docker/context/monitor
           file: docker/Dockerfile.monitor
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v7,linux/arm/v6,linux/ppc64le,linux/s390x,linux/riscv64
           push: true
           tags: ${{ steps.generate-tags.outputs.tags_monitor }}
           labels: |
