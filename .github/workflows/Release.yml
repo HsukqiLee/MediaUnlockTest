@@ -690,9 +690,12 @@ jobs:
               if [ -f "VERSION" ]; then
                 VERSION=$(cat VERSION)
               else
-                 # Fallback extract from mediaunlock.go
-                 VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
+                  # Fallback extract from mediaunlock.go
+                  VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
               fi
+              
+              # Ensure VERSION doesn't start with v
+              VERSION=${VERSION#v}
               
               add_tag "preview"
               add_tag "v${VERSION}-dirty"
