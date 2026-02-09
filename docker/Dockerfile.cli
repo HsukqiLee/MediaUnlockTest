@@ -13,6 +13,6 @@ ARG TARGETVARIANT=""
 # etc.
 # So we can just use TARGETARCH and TARGETVARIANT in the COPY path.
 
-COPY linux/${TARGETARCH}/${TARGETVARIANT}/unlock-test /usr/local/bin/unlock-test
+COPY bin-linux-${TARGETARCH}${TARGETVARIANT} /usr/local/bin/unlock-test
 
 ENTRYPOINT ["unlock-test"]

@@ -145,6 +145,13 @@ bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) \
 
 [使用文档](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/monitor/readme.md)
 
+## Docker 使用
+
+我们提供官方 Docker 镜像，支持多种架构。
+
+-   [中文文档](docs/zh/docker.md)
+-   [English Docs](docs/en/docker.md)
+
 ## 任务清单
 
 - 补充更多地区的解锁检测
@@ -161,7 +168,9 @@ import "https://github.com/HsukqiLee/MediaUnlockTest"
 
 在你的 Golang 项目中导入即可使用，你可以使用它制作解锁监控等小玩具。
 
-[开发文档](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/DEVELOPMENT.md)
+在你的 Golang 项目中导入即可使用，你可以使用它制作解锁监控等小玩具。
+
+[开发文档 (中文)](docs/zh/development.md) | [Development Guide (English)](docs/en/development.md)
 
 ## 参与开发的小伙伴
 

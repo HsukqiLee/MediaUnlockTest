@@ -5,6 +5,6 @@ RUN apk add --no-cache ca-certificates tzdata
 ARG TARGETARCH
 ARG TARGETVARIANT=""
 
-COPY linux/${TARGETARCH}/${TARGETVARIANT}/unlock-monitor /usr/local/bin/unlock-monitor
+COPY bin-linux-${TARGETARCH}${TARGETVARIANT} /usr/local/bin/unlock-monitor
 
 CMD ["unlock-monitor"]
