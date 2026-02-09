@@ -26,3 +26,12 @@ jobs:
           closeDelimiter: '<!--GAMFC_DELIMITER_END-->'
           path: README.md
           body: '${{steps.contributors.outputs.htmlList}}'
+
+      - name: Modify htmlTable README_en.md
+        uses: jaywcjlove/github-action-modify-file-content@main
+        with:
+          message: update contributors[no ci]
+          openDelimiter: '<!--GAMFC_DELIMITER-->'
+          closeDelimiter: '<!--GAMFC_DELIMITER_END-->'
+          path: README_en.md
+          body: '${{steps.contributors.outputs.htmlList}}'
