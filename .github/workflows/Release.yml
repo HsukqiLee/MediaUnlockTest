@@ -721,6 +721,13 @@ jobs:
           echo "tags_cli=$TAGS_CLI" >> $GITHUB_OUTPUT
           echo "tags_monitor=$TAGS_MONITOR" >> $GITHUB_OUTPUT
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
