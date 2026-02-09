@@ -3,6 +3,8 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates tzdata
 
 ARG TARGETARCH
-COPY linux/${TARGETARCH}/unlock-monitor /usr/local/bin/unlock-monitor
+ARG TARGETVARIANT=""
+
+COPY linux/${TARGETARCH}/${TARGETVARIANT}/unlock-monitor /usr/local/bin/unlock-monitor
 
 CMD ["unlock-monitor"]
