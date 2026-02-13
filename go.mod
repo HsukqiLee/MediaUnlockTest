@@ -11,8 +11,8 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/refraction-networking/utls v1.8.2
 	github.com/schollz/progressbar/v3 v3.19.0
-	golang.org/x/net v0.49.0
-	golang.org/x/sys v0.40.0
+	golang.org/x/net v0.50.0
+	golang.org/x/sys v0.41.0
 )
 
 require (
@@ -31,8 +31,8 @@ require (
 	github.com/prometheus/procfs v0.17.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
-	golang.org/x/crypto v0.47.0 // indirect
-	golang.org/x/term v0.39.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/term v0.40.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 )
