@@ -1,6 +1,6 @@
 module MediaUnlockTest
 
-go 1.24.4
+go 1.25.0
 
 require (
 	github.com/fatih/color v1.18.0
@@ -11,7 +11,7 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/refraction-networking/utls v1.8.2
 	github.com/schollz/progressbar/v3 v3.19.0
-	golang.org/x/net v0.50.0
+	golang.org/x/net v0.51.0
 	golang.org/x/sys v0.41.0
 )
 
