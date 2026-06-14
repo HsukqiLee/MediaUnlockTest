@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="MediaUnlockTest - 高性能流媒体解锁检测工具，支持 Linux、macOS、Windows、Android，快速检测各大流媒体平台区域限制">
+<title>MediaUnlockTest - 高性能流媒体解锁检测工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+SC:wght@100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top-bar" role="banner">
+  <div class="top-bar-title">MediaUnlockTest</div>
+  <div class="top-bar-actions">
+    <a href="https://github.com/HsukqiLee/MediaUnlockTest" target="_blank" class="btn btn-text state-layer" rel="noopener">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
+
+<main role="main">
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      </div>
+      <h1>MediaUnlockTest</h1>
+      <p class="subtitle">高性能流媒体解锁检测工具</p>
+      <p class="desc">快速、全面地检测各大流媒体平台区域限制，支持 Linux、macOS、Windows、Android 多平台，并发请求设计让检测速度更快</p>
+      <div class="hero-actions">
+        <a href="#quickstart" class="btn btn-primary state-layer">快速开始</a>
+        <a href="https://github.com/HsukqiLee/MediaUnlockTest" target="_blank" class="btn btn-tonal state-layer" rel="noopener">GitHub 仓库</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-value">20+</div><div class="hero-stat-label">流媒体平台</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">4</div><div class="hero-stat-label">操作系统</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">100ms</div><div class="hero-stat-label">并发检测</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">MIT</div><div class="hero-stat-label">开源协议</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="content">
+    <section class="section" id="features">
+      <div class="section-header">
+        <h2 class="section-title">核心特性</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <div class="feature-card-title">多平台支持</div>
+          <div class="feature-card-desc">全面覆盖 Linux、macOS、Windows 和 Android Termux，一套脚本随处运行</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
+          </div>
+          <div class="feature-card-title">并发检测</div>
+          <div class="feature-card-desc">采用并发请求设计，大幅缩短检测时间，支持自定义并发数调节</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="feature-card-title">全面覆盖</div>
+          <div class="feature-card-desc">支持 Netflix、Disney+、YouTube、Spotify 等 20+ 流媒体平台解锁检测</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+          </div>
+          <div class="feature-card-title">作者维护</div>
+          <div class="feature-card-desc">基于原作者版本修复多个 Bug，持续更新维护，提供更丰富的测试项目</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="quickstart">
+      <div class="section-header">
+        <h2 class="section-title">快速开始</h2>
+      </div>
+      <p class="section-desc">选择你的操作系统，一键运行检测脚本</p>
+      <div class="card" id="test-commands"></div>
+      <div class="key-features">
+        <span class="key-feature">原版脚本基础上修复多个 Bug</span>
+        <span class="key-feature">提供更丰富的测试项目</span>
+        <span class="key-feature">更快的检测速度</span>
+        <span class="key-feature">并发请求设计</span>
+      </div>
+    </section>
+
+    <section class="section" id="params">
+      <div class="section-header">
+        <h2 class="section-title">高级参数</h2>
+      </div>
+      <p class="section-desc">通过附加参数自定义测试方式，满足不同网络环境需求</p>
+      <div id="param-grid"></div>
+    </section>
+
+    <section class="section" id="monitor">
+      <div class="section-header">
+        <h2 class="section-title">解锁监控</h2>
+      </div>
+      <p class="section-desc">使用 Prometheus + Grafana 搭建流媒体解锁监控面板，实时掌握解锁状态</p>
+      <div class="card">
+        <div id="monitor-commands"></div>
+        <div class="monitor-preview">
+          <img src="https://raw.githubusercontent.com/HsukqiLee/MediaUnlockTest/main/monitor/image.png" alt="Grafana Monitor Dashboard Preview" loading="lazy">
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+          <span>实时监控各大流媒体平台解锁状态</span>
+        </div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px">
+          <a href="https://github.com/HsukqiLee/MediaUnlockTest/blob/main/monitor/README.md" target="_blank" class="btn btn-tonal state-layer" rel="noopener">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+            详细文档
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="migration">
+      <div class="section-header">
+        <h2 class="section-title">版本迁移</h2>
+      </div>
+      <p class="section-desc">从原作者的版本轻松迁移到本版本，保留配置设置</p>
+      <div class="card">
+        <div id="migrate-commands"></div>
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-item-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <span>自动卸载旧版本</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <span>安装最新版本</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <span>保留原有配置设置</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="https://github.com/HsukqiLee/MediaUnlockTest" target="_blank" class="footer-link state-layer" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        GitHub
+      </a>
+      <a href="https://github.com/HsukqiLee/MediaUnlockTest/blob/main/README_en.md" target="_blank" class="footer-link state-layer" rel="noopener">
+        English Docs
+      </a>
+    </div>
+    <div class="footer-authors">
+      <div class="footer-author">
+        <img src="https://avatars.githubusercontent.com/u/79034142?v=4" alt="Hsukqi Lee" loading="lazy">
+        <a href="https://github.com/HsukqiLee/MediaUnlockTest" target="_blank" class="footer-author-name state-layer" rel="noopener">Hsukqi Lee</a>
+      </div>
+      <div class="footer-author">
+        <img src="https://avatars.githubusercontent.com/u/36293036?v=4" alt="nkeonkeo" loading="lazy">
+        <a href="https://github.com/nkeonkeo/MediaUnlockTest" target="_blank" class="footer-author-name state-layer" rel="noopener">nkeonkeo</a>
+      </div>
+    </div>
+    <div class="footer-copy">&copy; 2025 MediaUnlockTest</div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
