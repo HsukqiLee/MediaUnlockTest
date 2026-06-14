@@ -1247,6 +1247,25 @@ func GetIPInfo(url string, ipType int, isCloudflare bool) (string, error) {
 	}
 }
 
+func getIPFromItdog(url string, ipType int) (string, error) {
+	raw, err := GetIPInfo(url, ipType, false)
+	if err != nil {
+		return "", err
+	}
+	var result struct {
+		Type    string `json:"type"`
+		Version string `json:"version"`
+		IP      string `json:"ip"`
+	}
+	if err := json.Unmarshal([]byte(raw), &result); err != nil {
+		return "", err
+	}
+	if result.Type != "success" {
+		return "", fmt.Errorf("itdog returned type: %s", result.Type)
+	}
+	return result.IP, nil
+}
+
 func ReadSelect() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
@@ -1639,7 +1658,7 @@ func main() {
 	} else {
 		fmt.Println("[ 正在获取国内分流 IP... ]")
 		if IPMode == 0 || IPMode == 4 {
-			IP4_1, err = GetIPInfo("https://ipv4.tsinbei.cn", IPMode, false)
+			IP4_1, err = getIPFromItdog("https://test.itdog.cn/", IPMode)
 			if err != nil {
 				if Debug {
 					fmt.Println(Red("无法获取国内分流 IPv4 地址 (") + Yellow(err.Error()) + Red(")"))
@@ -1651,7 +1670,7 @@ func main() {
 			}
 		}
 		if IPMode == 0 || IPMode == 6 {
-			IP6_1, err = GetIPInfo("https://ipv6.tsinbei.cn", IPMode, false)
+			IP6_1, err = getIPFromItdog("https://ipv6.itdog.cn/", IPMode)
 			if err != nil {
 				if Debug {
 					fmt.Println(Red("无法获取国内分流 IPv6 地址 (") + Yellow(err.Error()) + Red(")"))
