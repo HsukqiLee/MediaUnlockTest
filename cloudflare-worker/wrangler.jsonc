@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "media-unlock-worker",
+  "name": "media-unlock-test",
   "main": "_worker.js",
   "compatibility_date": "2026-06-14",
   "observability": {
@@ -8,5 +8,9 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
+  "vars": {
+    "REPO": "HsukqiLee/MediaUnlockTest",
+    "FALLBACK_VERSION": "1.8.5-1770436107"
+  }
 }
