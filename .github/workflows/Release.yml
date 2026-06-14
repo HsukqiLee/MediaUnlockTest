@@ -68,7 +68,7 @@ jobs:
             echo "Version in mediaunlock.go is already up to date"
           fi
           
-          # 2. Update VERSION file only if it's not a prerelease
+          # 2. Update VERSION file and homepage/api/latest only if not a prerelease
           if [ "$IS_PRERELEASE" = "false" ]; then
             if [ -f VERSION ]; then
               FILE_TAG=$(cat VERSION)
@@ -85,11 +85,28 @@ jobs:
             else
               echo "VERSION file is already up to date"
             fi
+
+            # Update homepage/api/latest (version without v prefix)
+            API_LATEST="homepage/api/latest"
+            API_VERSION="${TAG_NAME#v}"
+            if [ -f "$API_LATEST" ]; then
+              CURRENT_API=$(cat "$API_LATEST")
+            else
+              CURRENT_API=""
+            fi
+            if [ "$API_VERSION" != "$CURRENT_API" ]; then
+              echo "Updating $API_LATEST from $CURRENT_API to $API_VERSION"
+              echo "$API_VERSION" > "$API_LATEST"
+              git add "$API_LATEST"
+              CHANGES=1
+            else
+              echo "$API_LATEST is already up to date"
+            fi
           else
-            echo "Prerelease detected, skipping VERSION file update"
+            echo "Prerelease detected, skipping VERSION and api/latest update"
           fi
 
-          # 3. Commit and push if any changes were made
+          # 4. Commit and push if any changes were made
           if [ "$CHANGES" -eq 1 ]; then
             git commit -m "Update version to $VERSION"
             git push origin HEAD
