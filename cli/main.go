@@ -29,6 +29,7 @@ import (
 	"github.com/mattn/go-runewidth"
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/net/proxy"
+	"golang.org/x/term"
 )
 
 var (
@@ -75,6 +76,7 @@ var (
 
 	// 新增：进度条描述缓存，避免重复更新
 	progressDescriptionCache string
+	progressDescMu           sync.Mutex
 
 	// 进度条更新协程控制
 	updaterStopChan chan struct{}
@@ -277,40 +279,29 @@ func sortTestItemsInGroup(group []*result) []*result {
 	return sortedGroup
 }
 
-func NewBar(count int64) *progressbar.ProgressBar {
+func newProgressBar(count int64, desc string) *progressbar.ProgressBar {
+	width := 30
+	if w, _, err := term.GetSize(int(os.Stderr.Fd())); err == nil {
+		if w := w - 40; w > 10 {
+			width = w
+		}
+		if width > 80 {
+			width = 80
+		}
+	}
 	return progressbar.NewOptions64(count,
 		progressbar.OptionSetWriter(os.Stderr),
-		progressbar.OptionEnableColorCodes(true),
-		progressbar.OptionSetWidth(30),
-		progressbar.OptionSetDescription("正在测试..."),
+		progressbar.OptionSetWidth(width),
+		progressbar.OptionSetDescription(desc),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[green]█[reset]",
-			SaucerHead:    "[green]█[reset]",
+			Saucer:        "█",
+			SaucerHead:    "█",
 			SaucerPadding: "░",
 			BarStart:      "[",
 			BarEnd:        "]",
 		}),
 		progressbar.OptionOnCompletion(func() {
-			fmt.Fprint(os.Stderr, "\n")
-		}),
-	)
-}
-
-func NewDownloadBar(count int64, prefix string) *progressbar.ProgressBar {
-	return progressbar.NewOptions64(count,
-		progressbar.OptionSetWriter(os.Stderr),
-		progressbar.OptionEnableColorCodes(true),
-		progressbar.OptionSetWidth(30),
-		progressbar.OptionSetDescription(prefix),
-		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[green]█[reset]",
-			SaucerHead:    "[green]█[reset]",
-			SaucerPadding: "░",
-			BarStart:      "[",
-			BarEnd:        "]",
-		}),
-		progressbar.OptionOnCompletion(func() {
-			fmt.Fprint(os.Stderr, "\n")
+			fmt.Fprintln(os.Stderr)
 		}),
 	)
 }
@@ -385,10 +376,12 @@ func updateProgressBarDescription() {
 	}
 
 	// 只有当描述发生变化时才更新，减少不必要的刷新
+	progressDescMu.Lock()
 	if progressDescriptionCache != newDesc {
 		bar.Describe(newDesc)
 		progressDescriptionCache = newDesc
 	}
+	progressDescMu.Unlock()
 }
 
 // 新增：启动进度条更新协程
@@ -406,7 +399,7 @@ func startProgressUpdater() {
 	updaterMutex.Unlock()
 
 	go func() {
-		ticker := time.NewTicker(1000 * time.Millisecond) // 保持1秒更新，不仅仅是为了性能，也是为了视觉稳定
+		ticker := time.NewTicker(150 * time.Millisecond)
 		defer ticker.Stop()
 
 		for {
@@ -471,7 +464,7 @@ func ExecuteTestsParallel(regions []regionItem, client http.Client, ipType int) 
 	}
 
 	// 创建进度条
-	bar = NewBar(int64(len(allTests)))
+	bar = newProgressBar(int64(len(allTests)), "正在测试...")
 	startProgressUpdater()
 
 	// 优化并发数量
@@ -629,7 +622,6 @@ func ExecuteTestsParallel(regions []regionItem, client http.Client, ipType int) 
 	stopProgressUpdater()
 	if bar != nil {
 		bar.Finish()
-		fmt.Fprint(os.Stderr, "\r\033[K")
 	}
 
 	activeTestsMutex.Lock()
@@ -689,7 +681,7 @@ func ExecuteTests(regions []regionItem, client http.Client, ipType int) {
 			continue
 		}
 
-		bar = NewBar(int64(totalTests))
+		bar = newProgressBar(int64(totalTests), "正在测试...")
 
 		// 启动进度条更新协程
 		startProgressUpdater()
@@ -863,8 +855,6 @@ func ExecuteTests(regions []regionItem, client http.Client, ipType int) {
 		if bar != nil {
 			stopProgressUpdater()
 			bar.Finish()
-			// 确保进度条完全清理，防止空白行
-			fmt.Fprint(os.Stderr, "\r\033[K")
 		}
 
 		// 清理活动测试状态
@@ -1274,18 +1264,18 @@ func ReadSelect() {
 	fmt.Println("请选择检测项目：")
 	fmt.Println(Green("直接按回车进行全部检测") + "，" + Yellow("按 Ctrl+C 取消检测") + "。")
 	fmt.Println("")
-	fmt.Println("[0]  :   跨国平台")
-	fmt.Println("[1]  :   台湾平台")
-	fmt.Println("[2]  :   香港平台")
-	fmt.Println("[3]  :   日本平台")
-	fmt.Println("[4]  :   韩国平台")
-	fmt.Println("[5]  :   北美平台")
-	fmt.Println("[6]  :   南美平台")
-	fmt.Println("[7]  :   欧洲平台")
-	fmt.Println("[8]  :   非洲平台")
+	fmt.Println("[0]  : 　跨国平台")
+	fmt.Println("[1]  : 　台湾平台")
+	fmt.Println("[2]  : 　香港平台")
+	fmt.Println("[3]  : 　日本平台")
+	fmt.Println("[4]  : 　韩国平台")
+	fmt.Println("[5]  : 　北美平台")
+	fmt.Println("[6]  : 　南美平台")
+	fmt.Println("[7]  : 　欧洲平台")
+	fmt.Println("[8]  : 　非洲平台")
 	fmt.Println("[9]  : 东南亚平台")
 	fmt.Println("[10] : 大洋洲平台")
-	fmt.Println("[11] :   ＡＩ平台")
+	fmt.Println("[11] : 　ＡＩ平台")
 	fmt.Println("")
 	fmt.Print("请输入对应数字，空格分隔，回车确认: ")
 
@@ -1428,7 +1418,7 @@ func checkUpdate() {
 		downloader := &Downloader{
 			Reader: resp.Body,
 			Total:  uint64(resp.ContentLength),
-			Pb:     NewDownloadBar(resp.ContentLength, "下载进度"),
+			Pb:     newProgressBar(resp.ContentLength, "下载进度"),
 		}
 		if _, err := io.Copy(out, downloader); err != nil {
 			log.Fatal("[ERR] 下载unlock-test时出错:", err)
@@ -1457,7 +1447,7 @@ func checkUpdate() {
 		}
 		defer resp.Body.Close()
 
-		bar := NewDownloadBar(
+		bar := newProgressBar(
 			resp.ContentLength,
 			"下载进度",
 		)
