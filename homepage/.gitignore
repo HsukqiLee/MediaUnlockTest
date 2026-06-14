@@ -1,0 +1,5 @@
+# Ignore .htaccess files
+.htaccess
+
+# Ignore .user.ini files
+.user.ini
