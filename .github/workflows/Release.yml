@@ -727,7 +727,7 @@ jobs:
           echo "tags_monitor=$TAGS_MONITOR" >> $GITHUB_OUTPUT
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
