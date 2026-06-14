@@ -282,7 +282,9 @@ func sortTestItemsInGroup(group []*result) []*result {
 func newProgressBar(count int64, desc string) *progressbar.ProgressBar {
 	width := 30
 	if w, _, err := term.GetSize(int(os.Stderr.Fd())); err == nil {
-		if w := w - 40; w > 10 {
+		// 库默认格式: "%s %4s %s %s" = 描述 + 百分比 + [条] + [ETA]
+		// 非条固定部分: 描述(45) + 百分比(6) + 括号(2) + 间隔(2) + ETA(10) ≈ 65
+		if w := w - 65; w > 10 {
 			width = w
 		}
 		if width > 80 {
