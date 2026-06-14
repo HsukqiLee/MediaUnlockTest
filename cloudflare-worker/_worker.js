@@ -1,7 +1,7 @@
 const CFG = {
   repo:        typeof REPO             !== 'undefined' ? REPO             : 'HsukqiLee/MediaUnlockTest',
   token:       typeof GITHUB_TOKEN     !== 'undefined' ? GITHUB_TOKEN     : '',
-  fallbackVer: typeof FALLBACK_VERSION !== 'undefined' ? FALLBACK_VERSION : '1.8.5-1770436107',
+  fallbackVer: typeof FALLBACK_VERSION !== 'undefined' ? FALLBACK_VERSION : 'v1.8.5-1770436107',
 }
 
 addEventListener('fetch', event => {
@@ -46,7 +46,7 @@ async function handleRequest(request) {
     if (version === 'latest') {
       githubUrl = `https://github.com/${CFG.repo}/releases/latest/download/${filename}`
     } else {
-      githubUrl = `https://github.com/${CFG.repo}/releases/download/v${version}/${filename}`
+      githubUrl = `https://github.com/${CFG.repo}/releases/download/${version}/${filename}`
     }
 
     const response = await fetch(githubUrl)
@@ -73,8 +73,7 @@ async function getLatestVersion() {
 
     if (response.ok) {
       const data = await response.json()
-      const tag = data.tag_name
-      return tag.startsWith('v') ? tag.substring(1) : tag
+      return data.tag_name
     }
   } catch (e) {
     console.error('GitHub API error:', e)

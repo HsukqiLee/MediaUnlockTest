@@ -81,26 +81,14 @@ jobs:
               echo "$TAG_NAME" > VERSION
               echo "VERSION file content: $(cat VERSION)"
               git add VERSION
+
+              cp VERSION homepage/api/latest
+              git add homepage/api/latest
+              echo "homepage/api/latest synced with VERSION"
+
               CHANGES=1
             else
               echo "VERSION file is already up to date"
-            fi
-
-            # Update homepage/api/latest (version without v prefix)
-            API_LATEST="homepage/api/latest"
-            API_VERSION="${TAG_NAME#v}"
-            if [ -f "$API_LATEST" ]; then
-              CURRENT_API=$(cat "$API_LATEST")
-            else
-              CURRENT_API=""
-            fi
-            if [ "$API_VERSION" != "$CURRENT_API" ]; then
-              echo "Updating $API_LATEST from $CURRENT_API to $API_VERSION"
-              echo "$API_VERSION" > "$API_LATEST"
-              git add "$API_LATEST"
-              CHANGES=1
-            else
-              echo "$API_LATEST is already up to date"
             fi
           else
             echo "Prerelease detected, skipping VERSION and api/latest update"

@@ -11,6 +11,6 @@
   ],
   "vars": {
     "REPO": "HsukqiLee/MediaUnlockTest",
-    "FALLBACK_VERSION": "1.8.5-1770436107"
+    "FALLBACK_VERSION": "v1.8.5-1770436107"
   }
 }
