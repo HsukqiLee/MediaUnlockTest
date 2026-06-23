@@ -219,7 +219,7 @@ jobs:
           cache: true
 
       - name: Cache Go Build
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
@@ -229,7 +229,7 @@ jobs:
       - name: Cache Android NDK
         if: matrix.cgo == true
         id: cache-ndk
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: /home/runner/android-ndk
           key: android-ndk-r27d
