@@ -93,7 +93,7 @@ var JapanTests = []TestItem{
 }
 
 var KoreaTests = []TestItem{
-	{"Afreeca", Afreeca, false},
+	{"SOOP", SOOP, false},
 	{"Coupang Play", CoupangPlay, false},
 	{"KBS", KBS, false},
 	{"Naver TV", NaverTV, false},
@@ -124,16 +124,15 @@ var NorthAmericaTests = []TestItem{
 	{"Hulu", Hulu, true},
 	{"KOCOWA+", KOCOWA, false},
 	{"MGM+", MGMPlus, false},
-	{"MathsSpot Roblox", MathsSpotRoblox, false},
+	{"MathsSpot", MathsSpot, false},
 	{"Max", Max, true},
 	{"NBC TV", NBC_TV, true},
 	{"NFL+", NFLPlus, false},
 	{"NBA TV", NBA_TV, true},
-	{"Paramount+", ParamountPlus, true},
+	{"ParamountPlus", ParamountPlus, true},
 	{"Peacock TV", PeacockTV, true},
 	{"Philo", Philo, false},
 	{"Pluto TV", PlutoTV, false},
-	{"SHOWTIME", SHOWTIME, true},
 	{"Shudder", Shudder, true},
 	{"Sling TV", SlingTV, true},
 	{"SonyLiv", SonyLiv, true},
@@ -156,7 +155,7 @@ var EuropeTests = []TestItem{
 	{"Eurosport RO", EurosportRO, false},
 	{"Setanta Sports", SetantaSports, true},
 	{"KOCOWA+", KOCOWA, false},
-	{"MathsSpot Roblox", MathsSpotRoblox, false},
+	{"MathsSpot", MathsSpot, false},
 	{"Max", Max, true},
 	{"SonyLiv", SonyLiv, true},
 	{"GB", nil, true},
@@ -237,7 +236,7 @@ var OceaniaTests = []TestItem{
 	{"NBA TV", NBA_TV, true},
 	{"Neon TV", NeonTV, false},
 	{"Optus Sports", OptusSports, true},
-	{"Paramount+", ParamountPlus, true},
+	{"ParamountPlus", ParamountPlus, true},
 	{"SBS on Demand", SBSonDemand, false},
 	{"Sky Go NZ", SkyGo_NZ, false},
 	{"SonyLiv", SonyLiv, true},
@@ -253,4 +252,5 @@ var AITests = []TestItem{
 	{"Meta AI", MetaAI, true},
 	{"Sora", Sora, true},
 }
-
+
+
