@@ -313,7 +313,7 @@ func main() {
 	} else {
 		fmt.Println("[ 正在获取国内分流 IP... ]")
 		if IPMode == 0 || IPMode == 4 {
-			IP4_1, err = core.GetIPInfo("https://v4.itdog.cn/api/ip-info", 4, "itdog")
+			IP4_1, err = core.GetIPInfo("http://4.itdog.cn/", 4, "plain")
 			if err != nil {
 				if Debug {
 					fmt.Println(core.Red("无法获取国内分流 IPv4 地址 (") + core.Yellow(err.Error()) + core.Red(")"))
@@ -325,7 +325,7 @@ func main() {
 			}
 		}
 		if IPMode == 0 || IPMode == 6 {
-			IP6_1, err = core.GetIPInfo("https://v6.itdog.cn/api/ip-info", 6, "itdog")
+			IP6_1, err = core.GetIPInfo("http://6.itdog.cn/", 6, "plain")
 			if err != nil {
 				if Debug {
 					fmt.Println(core.Red("无法获取国内分流 IPv6 地址 (") + core.Yellow(err.Error()) + core.Red(")"))

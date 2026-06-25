@@ -127,22 +127,7 @@ func GetIPInfo(url string, ipType int, formatType string) (string, error) {
 			return "", fmt.Errorf("invalid IP from cloudflare: %s", ip)
 		}
 		return ip, nil
-	case "itdog":
-		var result struct {
-			Type    string `json:"type"`
-			Version string `json:"version"`
-			IP      string `json:"ip"`
-		}
-		if err := json.Unmarshal(b, &result); err != nil {
-			return "", err
-		}
-		if result.Type != "success" {
-			return "", fmt.Errorf("itdog returned type: %s", result.Type)
-		}
-		if net.ParseIP(result.IP) == nil {
-			return "", fmt.Errorf("invalid IP from itdog: %s", result.IP)
-		}
-		return result.IP, nil
+
 	default:
 		ip := strings.TrimSpace(string(b))
 		if net.ParseIP(ip) == nil {
