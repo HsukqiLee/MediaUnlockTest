@@ -1,35 +1,37 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func Copilot(c http.Client) Result {
-	resp, err := GET(c, "https://copilot.microsoft.com/c/api/user?api-version=2")
+func Copilot(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://copilot.microsoft.com/c/api/user?api-version=2")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return Result{Status: StatusNetworkErr, Err: err}
+			return core.Result{Status: core.StatusNetworkErr, Err: err}
 		}
 		var res struct {
 			RegionCode string `json:"regionCode"`
 		}
 		if err := json.Unmarshal(body, &res); err != nil {
-			return Result{Status: StatusErr, Err: err}
+			return core.Result{Status: core.StatusErr, Err: err}
 		}
 		if res.RegionCode != "" {
-			return Result{Status: StatusOK, Region: strings.ToLower(res.RegionCode)}
+			return core.Result{Status: core.StatusOK, Region: strings.ToLower(res.RegionCode)}
 		}
 	}
-	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

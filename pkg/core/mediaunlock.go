@@ -1,4 +1,4 @@
-package mediaunlocktest
+package core
 
 import (
 	"context"
@@ -238,7 +238,7 @@ func GET(c http.Client, url string, headers ...H) (*http.Response, error) {
 		req.Header.Set(h[0], h[1])
 	}
 	addRandomDelay()
-	return cdo(c, req)
+	return Cdo(c, req)
 }
 
 func GET_Dalvik(c http.Client, url string) (*http.Response, error) {
@@ -247,12 +247,12 @@ func GET_Dalvik(c http.Client, url string) (*http.Response, error) {
 		return nil, err
 	}
 	req.Header.Add("User-Agent", UA_Dalvik)
-	return cdo(c, req)
+	return Cdo(c, req)
 }
 
 var ErrNetwork = errors.New("network error")
 
-func cdo(c http.Client, req *http.Request) (resp *http.Response, err error) {
+func Cdo(c http.Client, req *http.Request) (resp *http.Response, err error) {
 	deadline := time.Now().Add(30 * time.Second)
 	for i := 0; i < 3; i++ {
 		if time.Now().After(deadline) {
@@ -261,10 +261,12 @@ func cdo(c http.Client, req *http.Request) (resp *http.Response, err error) {
 		if resp, err = c.Do(req); err == nil {
 			return resp, nil
 		}
-		if strings.Contains(err.Error(), "no such host") {
+		var dnsErr *net.DNSError
+		if errors.As(err, &dnsErr) && dnsErr.IsNotFound {
 			break
 		}
-		if strings.Contains(err.Error(), "timeout") {
+		var netErr net.Error
+		if errors.As(err, &netErr) && netErr.Timeout() {
 			break
 		}
 	}
@@ -281,7 +283,7 @@ func PostJson(c http.Client, url string, data string, headers ...H) (*http.Respo
 		req.Header.Set(h[0], h[1])
 	}
 	addRandomDelay()
-	return cdo(c, req)
+	return Cdo(c, req)
 }
 
 func PostForm(c http.Client, url string, data string, headers ...H) (*http.Response, error) {
@@ -296,14 +298,14 @@ func PostForm(c http.Client, url string, data string, headers ...H) (*http.Respo
 		req.Header.Set(h[0], h[1])
 	}
 	addRandomDelay()
-	return cdo(c, req)
+	return Cdo(c, req)
 }
 
-func genUUID() string {
+func GenUUID() string {
 	return uuid.New().String()
 }
 
-func genBase36(n int) string {
+func GenBase36(n int) string {
 	const letters = "0123456789abcdefghijklmnopqrstuvwxyz"
 	b := make([]byte, n)
 	for i := range b {
@@ -312,12 +314,12 @@ func genBase36(n int) string {
 	return string(b)
 }
 
-func md5Sum(text string) string {
+func MD5Sum(text string) string {
 	hash := md5.Sum([]byte(text))
 	return hex.EncodeToString(hash[:])
 }
 
-func twoToThreeCode(code string) string {
+func TwoToThreeCode(code string) string {
 	countryCodes := map[string]string{
 		"AD": "AND", "AE": "ARE", "AF": "AFG", "AG": "ATG", "AI": "AIA", "AL": "ALB", "AM": "ARM", "AO": "AGO", "AQ": "ATA", "AR": "ARG",
 		"AS": "ASM", "AT": "AUT", "AU": "AUS", "AW": "ABW", "AX": "ALA", "AZ": "AZE", "BA": "BIH", "BB": "BRB", "BD": "BGD", "BE": "BEL",
@@ -348,7 +350,7 @@ func twoToThreeCode(code string) string {
 	return countryCodes[strings.ToUpper(code)]
 }
 
-func threeToTwoCode(code string) string {
+func ThreeToTwoCode(code string) string {
 	countryCodes := map[string]string{
 		"AND": "AD", "ARE": "AE", "AFG": "AF", "ATG": "AG", "AIA": "AI", "ALB": "AL", "ARM": "AM", "AGO": "AO", "ATA": "AQ", "ARG": "AR",
 		"ASM": "AS", "AUT": "AT", "AUS": "AU", "ABW": "AW", "ALA": "AX", "AZE": "AZ", "BIH": "BA", "BRB": "BB", "BGD": "BD", "BEL": "BE",
@@ -379,7 +381,7 @@ func threeToTwoCode(code string) string {
 	return countryCodes[strings.ToUpper(code)]
 }
 
-func genRandomStr(length int) string {
+func GenRandomStr(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, length)
 	for i := range b {
@@ -423,7 +425,7 @@ func addRandomDelay() {
 	}
 }
 
-func getRealisticHeaders(requestType string) []H {
+func GetRealisticHeaders(requestType string) []H {
 	headers := make([]H, 0)
 	ua := generateEdgeUserAgent()
 	secChUa := generateSecChUA()
@@ -459,7 +461,7 @@ func getRealisticHeaders(requestType string) []H {
 
 func setRealisticHeaders(req *http.Request, requestType string) {
 	// Generate fresh headers for each request (default behavior)
-	headers := getRealisticHeaders(requestType)
+	headers := GetRealisticHeaders(requestType)
 	for _, header := range headers {
 		req.Header.Set(header[0], header[1])
 	}
@@ -584,3 +586,4 @@ func CheckPostJsonStatus(c http.Client, url, data string, mapping ResultMap, def
 	defer resp.Body.Close()
 	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
 }
+

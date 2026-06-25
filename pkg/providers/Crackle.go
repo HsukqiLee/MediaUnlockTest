@@ -1,28 +1,30 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func Crackle(c http.Client) Result {
-	resp, err := GET(c, "https://prod-api.crackle.com/appconfig",
-		H{"Origin", "https://www.crackle.com"},
-		H{"Referer", "https://www.crackle.com/"},
-		H{"x-crackle-apiversion", "v2.0.0"},
-		H{"x-crackle-brand", "crackle"},
-		H{"x-crackle-platform", "5FE67CCA-069A-42C6-A20F-4B47A8054D46"},
+func Crackle(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://prod-api.crackle.com/appconfig",
+		core.H{"Origin", "https://www.crackle.com"},
+		core.H{"Referer", "https://www.crackle.com/"},
+		core.H{"x-crackle-apiversion", "v2.0.0"},
+		core.H{"x-crackle-brand", "crackle"},
+		core.H{"x-crackle-platform", "5FE67CCA-069A-42C6-A20F-4B47A8054D46"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	switch region := resp.Header.Get("x-crackle-region"); {
 	case region == "US":
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	case region != "":
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	default:
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 }
+

@@ -1,12 +1,14 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func Channel9(c http.Client) Result {
-	return CheckGETStatus(c, "https://login.nine.com.au", ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-		http.StatusFound:     {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+func Channel9(c http.Client) core.Result {
+	return core.CheckGETStatus(c, "https://login.nine.com.au", core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+		http.StatusFound:     {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

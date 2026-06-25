@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
@@ -28,32 +29,33 @@ func SupportClaude(loc string) bool {
 	return false
 }
 
-func Claude(c http.Client) Result {
-	resp, err := GET(c, "https://claude.ai/cdn-cgi/trace")
+func Claude(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://claude.ai/cdn-cgi/trace")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	s := string(b)
 	i := strings.Index(s, "loc=")
 	if i == -1 {
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 	s = s[i+4:]
 	i = strings.Index(s, "\n")
 	if i == -1 {
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 	loc := s[:i]
 	if loc == "T1" {
-		return Result{Status: StatusOK, Region: "tor"}
+		return core.Result{Status: core.StatusOK, Region: "tor"}
 	}
 	if SupportClaude(loc) {
-		return Result{Status: StatusOK, Region: strings.ToLower(loc)}
+		return core.Result{Status: core.StatusOK, Region: strings.ToLower(loc)}
 	}
-	return Result{Status: StatusNo, Region: strings.ToLower(loc)}
+	return core.Result{Status: core.StatusNo, Region: strings.ToLower(loc)}
 }
+

@@ -1,15 +1,16 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func Reddit(c http.Client) Result {
-	resp, err := GET(c, "https://www.reddit.com/")
+func Reddit(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.reddit.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -17,20 +18,21 @@ func Reddit(c http.Client) Result {
 	bodyString := string(bodyBytes)
 
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	if resp.StatusCode == 429 {
-		return Result{Status: StatusBanned}
+		return core.Result{Status: core.StatusBanned}
 	}
 
 	if resp.StatusCode == 200 || resp.StatusCode == 302 {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 
 	if resp.StatusCode == 403 && strings.Contains(bodyString, "blocked") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

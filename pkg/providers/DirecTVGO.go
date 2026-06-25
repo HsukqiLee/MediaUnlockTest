@@ -1,13 +1,15 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func DirecTVGO(c http.Client) Result {
-	return CheckGETStatus(c, "https://www.directvgo.com/registrarse", ResultMap{
-		http.StatusForbidden:        {Status: StatusNo},
-		http.StatusOK:               {Status: StatusNo},
-		http.StatusMovedPermanently: {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+func DirecTVGO(c http.Client) core.Result {
+	return core.CheckGETStatus(c, "https://www.directvgo.com/registrarse", core.ResultMap{
+		http.StatusForbidden:        {Status: core.StatusNo},
+		http.StatusOK:               {Status: core.StatusNo},
+		http.StatusMovedPermanently: {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

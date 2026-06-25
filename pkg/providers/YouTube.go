@@ -1,76 +1,77 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"bufio"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func YoutubeRegion(c http.Client) Result {
-	resp, err := GET(c, "https://www.youtube.com/premium", H{"Cookie", "YSC=BiCUU3-5Gdk; CONSENT=YES+cb.20220301-11-p0.en+FX+700; GPS=1; VISITOR_INFO1_LIVE=4VwPMkB7W5A; SOCS=CAISOAgDEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjQwNTIxLjA3X3AxGgV6aC1DTiACGgYIgNTEsgY; PREF=f7=4000&tz=Asia.Shanghai&f4=4000000; _gcl_au=1.1.1809531354.1646633279"})
+func YoutubeRegion(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.youtube.com/premium", core.H{"Cookie", "YSC=BiCUU3-5Gdk; CONSENT=YES+cb.20220301-11-p0.en+FX+700; GPS=1; VISITOR_INFO1_LIVE=4VwPMkB7W5A; SOCS=CAISOAgDEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjQwNTIxLjA3X3AxGgV6aC1DTiACGgYIgNTEsgY; PREF=f7=4000&tz=Asia.Shanghai&f4=4000000; _gcl_au=1.1.1809531354.1646633279"})
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	s := string(b)
 	if strings.Contains(s, "www.google.cn") {
-		return Result{Status: StatusNo, Region: "cn"}
+		return core.Result{Status: core.StatusNo, Region: "cn"}
 	}
 	if strings.Contains(s, "Premium is not available in your country") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 	if EndLocation := strings.Index(s, `"countryCode":`); EndLocation != -1 {
-		return Result{
-			Status: StatusOK,
+		return core.Result{
+			Status: core.StatusOK,
 			Region: strings.ToLower(s[EndLocation+15 : EndLocation+17]),
 		}
 	}
 	if strings.Contains(s, "premiumPurchaseButton") || strings.Contains(s, "manageSubscriptionButton") || strings.Contains(s, "/月") || strings.Contains(s, "/month") {
-		return Result{Status: StatusOK, Region: "us"}
+		return core.Result{Status: core.StatusOK, Region: "us"}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
 
-func YoutubeCDN(c http.Client) Result {
-	resp, err := GET(c, "https://redirector.googlevideo.com/report_mapping")
+func YoutubeCDN(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://redirector.googlevideo.com/report_mapping")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	r := bufio.NewReader(resp.Body)
 	b, _, err := r.ReadLine()
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	s := string(b)
 	i := strings.Index(s, "=> ")
 	if i == -1 {
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 	s = s[i+3:]
 	i = strings.Index(s, " ")
 	if i == -1 {
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 	s = s[:i]
 	i = strings.Index(s, "-")
 
 	if i == -1 {
 		i = strings.Index(s, ".")
-		return Result{
-			Status: StatusOK,
+		return core.Result{
+			Status: core.StatusOK,
 			Region: findAirCode(s[i+1:]),
 			Info:   "Youtube Video Server",
 		}
 	} else {
 		isp := s[:i]
-		return Result{
-			Status: StatusOK,
+		return core.Result{
+			Status: core.StatusOK,
 			Region: isp + " - " + findAirCode(s[i+1:]),
 			Info:   "Google Global CacheCDN (ISP Cooperation)",
 		}
@@ -95,3 +96,4 @@ func findAirCode(code string) string {
 	}
 	return code
 }
+

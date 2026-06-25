@@ -1,22 +1,24 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func TataPlay(c http.Client) Result {
-	resp, err := GET(c, "https://watch.tataplay.com/")
+func TataPlay(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://watch.tataplay.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	switch resp.StatusCode {
 	case 200:
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	case 403:
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	default:
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 }
+

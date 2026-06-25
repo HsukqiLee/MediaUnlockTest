@@ -1,32 +1,34 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-func Abema(c http.Client) Result {
-	resp, err := GET_Dalvik(c, "https://api.abema.io/v1/ip/check?device=android")
+func Abema(c http.Client) core.Result {
+	resp, err := core.GET_Dalvik(c, "https://api.abema.io/v1/ip/check?device=android")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
+		return core.Result{Status: core.StatusBanned}
 	}
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	var res struct {
 		IsoCountryCode string
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 	if res.IsoCountryCode == "JP" {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
-	return Result{Status: StatusRestricted, Info: "Oversea Only"}
+	return core.Result{Status: core.StatusRestricted, Info: "Oversea Only"}
 }
+

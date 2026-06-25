@@ -1,21 +1,22 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-func KPlus(c http.Client) Result {
-	resp, err := PostJson(c, "https://tvapi-sgn.solocoo.tv/v1/provision", `{"osVersion":"Windows 10","deviceModel":"Edge","deviceType":"PC","deviceSerial":"w7ab83550-c0aa-11ee-bf07-531681e47537","deviceOem":"Edge","devicePrettyName":"Edge 121.0.0.0","appVersion":"11.0","language":"en_US","brand":"vstv","featureLevel":5}`)
+func KPlus(c http.Client) core.Result {
+	resp, err := core.PostJson(c, "https://tvapi-sgn.solocoo.tv/v1/provision", `{"osVersion":"Windows 10","deviceModel":"Edge","deviceType":"PC","deviceSerial":"w7ab83550-c0aa-11ee-bf07-531681e47537","deviceOem":"Edge","devicePrettyName":"Edge 121.0.0.0","appVersion":"11.0","language":"en_US","brand":"vstv","featureLevel":5}`)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	var result struct {
@@ -25,16 +26,17 @@ func KPlus(c http.Client) Result {
 	}
 
 	if err := json.Unmarshal(body, &result); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 
 	region := result.Session.GeoCountryCode
 	switch region {
 	case "VN":
-		return Result{Status: StatusOK, Region: "vn"}
+		return core.Result{Status: core.StatusOK, Region: "vn"}
 	case "":
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	default:
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 }
+

@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -25,57 +26,58 @@ func extractLineTVAppId(js string) string {
 	return ""
 }
 
-func LineTV(c http.Client) Result {
-	resp1, err := GET(c, "https://www.linetv.tw/")
+func LineTV(c http.Client) core.Result {
+	resp1, err := core.GET(c, "https://www.linetv.tw/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()
 	body1, err := io.ReadAll(resp1.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	bodyString1 := string(body1)
 	mainJsUrl := extractLineTVMainJsUrl(bodyString1)
 
 	if mainJsUrl == "" {
-	    return Result{Status: StatusFailed}
+	    return core.Result{Status: core.StatusFailed}
 	}
-	resp2, err := GET(c, mainJsUrl)
+	resp2, err := core.GET(c, mainJsUrl)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp2.Body.Close()
 	body2, err := io.ReadAll(resp2.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	bodyString2 := string(body2)
 	appId := extractLineTVAppId(bodyString2)
 	if appId == "" {
-	    return Result{Status: StatusFailed}
+	    return core.Result{Status: core.StatusFailed}
 	}
 	
-	resp3, err := GET(c, "https://www.linetv.tw/api/part/11829/eps/1/part?appId=" + appId + "&productType=FAST&version=10.38.0")
+	resp3, err := core.GET(c, "https://www.linetv.tw/api/part/11829/eps/1/part?appId=" + appId + "&productType=FAST&version=10.38.0")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp3.Body.Close()
 	body3, err := io.ReadAll(resp3.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	var res struct {
 		CountryCode int `json:"countryCode"`
 	}
 	if err := json.Unmarshal(body3, &res); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 	if res.CountryCode == 228 {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+
 
 

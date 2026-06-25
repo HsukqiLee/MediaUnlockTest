@@ -1,12 +1,14 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func MeWatch(c http.Client) Result {
-	return CheckGETStatus(c, "https://cdn.mewatch.sg/api/items/97098/videos?delivery=stream%2Cprogressive&ff=idp%2Cldp%2Crpt%2Ccd&lang=en&resolution=External&segments=all", ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-		http.StatusOK:        {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+func MeWatch(c http.Client) core.Result {
+	return core.CheckGETStatus(c, "https://cdn.mewatch.sg/api/items/97098/videos?delivery=stream%2Cprogressive&ff=idp%2Cldp%2Crpt%2Ccd&lang=en&resolution=External&segments=all", core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+		http.StatusOK:        {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

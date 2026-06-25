@@ -1,15 +1,16 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
     "io"
 	"net/http"
 	"strings"
 )
 
-func Stan(c http.Client) Result {
-	resp, err := PostJson(c, "https://api.stan.com.au/login/v1/sessions/web/account", `{}`)
+func Stan(c http.Client) core.Result {
+	resp, err := core.PostJson(c, "https://api.stan.com.au/login/v1/sessions/web/account", `{}`)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -17,20 +18,20 @@ func Stan(c http.Client) Result {
     bodyString := string(bodyBytes)
     
     if err != nil {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 	
 	if strings.Contains(bodyString, "Access Denied") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 	
 	if strings.Contains(bodyString, "VPNDetected") {
-		return Result{Status: StatusNo, Info: "VPN Detected"}
+		return core.Result{Status: core.StatusNo, Info: "VPN Detected"}
 	}
 	
 	if resp.StatusCode == 400 {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
     
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }

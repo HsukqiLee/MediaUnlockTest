@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -17,18 +18,18 @@ func extractBingRegion(responseBody string) string {
 	return ""
 }
 
-func Bing(c http.Client) Result {
+func Bing(c http.Client) core.Result {
 	c.Jar, _ = cookiejar.New(nil)
-	resp, err := GET(c, "https://www.bing.com/")
+	resp, err := core.GET(c, "https://www.bing.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	if resp.Header.Get("Location") == "https://www.bing.com/?brdr=1" {
-		resp, err = GET(c, "https://www.bing.com/")
+		resp, err = core.GET(c, "https://www.bing.com/")
 		if err != nil {
-			return Result{Status: StatusNetworkErr, Err: err}
+			return core.Result{Status: core.StatusNetworkErr, Err: err}
 		}
 		defer resp.Body.Close()
 	}
@@ -37,24 +38,25 @@ func Bing(c http.Client) Result {
 	bodyString := string(bodyBytes)
 
 	if err != nil {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 
 	if resp.StatusCode == 200 {
 		region := extractBingRegion(bodyString)
 		if region == "CN" {
-			return Result{Status: StatusNo, Region: "cn"}
+			return core.Result{Status: core.StatusNo, Region: "cn"}
 		}
 		if region != "" {
-			return Result{Status: StatusOK, Region: strings.ToLower(region)}
+			return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
 		}
 	}
 
 	if strings.Contains(bodyString, "cn.bing.com") {
-		return Result{Status: StatusNo, Region: "cn"}
+		return core.Result{Status: core.StatusNo, Region: "cn"}
 	}
 
-	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

@@ -1,14 +1,16 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"net/http/cookiejar"
 )
 
-func DirectvStream(c http.Client) Result {
+func DirectvStream(c http.Client) core.Result {
 	c.Jar, _ = cookiejar.New(nil)
-	return CheckGETStatus(c, "https://stream.directv.com/watchnow", ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-		http.StatusOK:        {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+	return core.CheckGETStatus(c, "https://stream.directv.com/watchnow", core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+		http.StatusOK:        {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

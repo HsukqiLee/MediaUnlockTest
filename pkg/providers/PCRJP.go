@@ -1,20 +1,24 @@
-package mediaunlocktest
+package providers
 
-import "net/http"
+import (
+	"net/http"
+	"MediaUnlockTest/pkg/core"
+)
 
 // Princess Connect Re:Dive Japan
-func PCRJP(c http.Client) Result {
-	resp, err := GET_Dalvik(c, "https://api-priconne-redive.cygames.jp/")
+func PCRJP(c http.Client) core.Result {
+	resp, err := core.GET_Dalvik(c, "https://api-priconne-redive.cygames.jp/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	switch resp.StatusCode {
 	case 404:
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	case 403:
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

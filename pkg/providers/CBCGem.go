@@ -1,24 +1,26 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func CBCGem(c http.Client) Result {
-	resp, err := GET(c, "https://www.cbc.ca/g/stats/js/cbc-stats-top.js")
+func CBCGem(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.cbc.ca/g/stats/js/cbc-stats-top.js")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	s := string(b)
 	if strings.Contains(s, `country":"CA"`) {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

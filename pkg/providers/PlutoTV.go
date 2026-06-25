@@ -1,24 +1,26 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func PlutoTV(c http.Client) Result {
-	resp, err := GET(c, "https://pluto.tv/")
+func PlutoTV(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://pluto.tv/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	s := string(b)
 	if strings.Contains(s, "thanks-for-watching") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
-	return Result{Status: StatusOK}
+	return core.Result{Status: core.StatusOK}
 }
+

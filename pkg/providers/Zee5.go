@@ -1,15 +1,16 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"regexp"
 	"strings"
 )
 
-func Zee5(c http.Client) Result {
-	resp, err := GET(c, "https://www.zee5.com/global")
+func Zee5(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.zee5.com/global")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -17,7 +18,7 @@ func Zee5(c http.Client) Result {
 	re := regexp.MustCompile(`country=([A-Z]{2})`)
 
 	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
 	for _, cookie := range cookies {
@@ -25,10 +26,11 @@ func Zee5(c http.Client) Result {
 		if len(matches) > 1 {
 			region := matches[1]
 			if region != "" {
-				return Result{Status: StatusOK, Region: strings.ToLower(region)}
+				return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
 			}
 		}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

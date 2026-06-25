@@ -1,12 +1,14 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func SevenPlus(c http.Client) Result {
-	return CheckGETStatus(c, "https://7plus.com.au/", ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-		http.StatusOK:        {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+func SevenPlus(c http.Client) core.Result {
+	return core.CheckGETStatus(c, "https://7plus.com.au/", core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+		http.StatusOK:        {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

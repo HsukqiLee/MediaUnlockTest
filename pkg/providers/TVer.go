@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -30,42 +31,42 @@ func isValidTVerEpisodeID(id string) bool {
 	return re.MatchString(id)
 }
 
-func TVer(c http.Client) Result {
+func TVer(c http.Client) core.Result {
 	useDeprecated := false
 	if useDeprecated {
 		return tver_deprecated(c)
 	}
-	resp, err := GET(c, "https://playback.api.streaks.jp/v1/projects/tver-simul-ntv/medias/ref:simul-ntv",
-		H{"x-streaks-api-key", "ntv"},
+	resp, err := core.GET(c, "https://playback.api.streaks.jp/v1/projects/tver-simul-ntv/medias/ref:simul-ntv",
+		core.H{"x-streaks-api-key", "ntv"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	switch resp.StatusCode {
 	case 200:
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	case 403:
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
 
-func tver_deprecated(c http.Client) Result {
-	resp1, err := PostForm(c, "https://platform-api.tver.jp/v2/api/platform_users/browser/create", "device_type=pc",
-		H{"origin", "https://s.tver.jp"},
-		H{"referer", "https://s.tver.jp/"},
-		H{"accept-language", "en-US,en;q=0.9"},
+func tver_deprecated(c http.Client) core.Result {
+	resp1, err := core.PostForm(c, "https://platform-api.tver.jp/v2/api/platform_users/browser/create", "device_type=pc",
+		core.H{"origin", "https://s.tver.jp"},
+		core.H{"referer", "https://s.tver.jp/"},
+		core.H{"accept-language", "en-US,en;q=0.9"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()
 
 	body1, err := io.ReadAll(resp1.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	var res1 struct {
@@ -76,21 +77,21 @@ func tver_deprecated(c http.Client) Result {
 	}
 
 	if err := json.Unmarshal(body1, &res1); err != nil {
-		return Result{Status: StatusFailed, Err: err}
+		return core.Result{Status: core.StatusFailed, Err: err}
 	}
-	resp2, err := GET(c, "https://platform-api.tver.jp/service/api/v1/callHome?platform_uid="+res1.Result.PlatformUid+"&platform_token="+res1.Result.PlatformToken+"&require_data=mylist%2Cresume%2Clater",
-		H{"origin", "https://tver.jp"},
-		H{"referer", "https://tver.jp/"},
-		H{"accept-language", "en-US,en;q=0.9"},
-		H{"x-tver-platform-type", "web"},
+	resp2, err := core.GET(c, "https://platform-api.tver.jp/service/api/v1/callHome?platform_uid="+res1.Result.PlatformUid+"&platform_token="+res1.Result.PlatformToken+"&require_data=mylist%2Cresume%2Clater",
+		core.H{"origin", "https://tver.jp"},
+		core.H{"referer", "https://tver.jp/"},
+		core.H{"accept-language", "en-US,en;q=0.9"},
+		core.H{"x-tver-platform-type", "web"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp2.Body.Close()
 	body2, err := io.ReadAll(resp2.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	var res2 struct {
@@ -106,7 +107,7 @@ func tver_deprecated(c http.Client) Result {
 		} `json:"result"`
 	}
 	if err := json.Unmarshal(body2, &res2); err != nil {
-		return Result{Status: StatusFailed, Err: err}
+		return core.Result{Status: core.StatusFailed, Err: err}
 	}
 
 	EpisodeID := ""
@@ -124,19 +125,19 @@ func tver_deprecated(c http.Client) Result {
 			break
 		}
 	}
-	resp3, err := GET(c, "https://statics.tver.jp/content/episode/"+EpisodeID+".json",
-		H{"origin", "https://tver.jp"},
-		H{"referer", "https://tver.jp/"},
-		H{"accept-language", "en-US,en;q=0.9"},
+	resp3, err := core.GET(c, "https://statics.tver.jp/content/episode/"+EpisodeID+".json",
+		core.H{"origin", "https://tver.jp"},
+		core.H{"referer", "https://tver.jp/"},
+		core.H{"accept-language", "en-US,en;q=0.9"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp3.Body.Close()
 
 	body3, err := io.ReadAll(resp3.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	var res3 struct {
@@ -148,7 +149,7 @@ func tver_deprecated(c http.Client) Result {
 		} `json:"video"`
 	}
 	if err := json.Unmarshal(body3, &res3); err != nil {
-		return Result{Status: StatusFailed, Err: err}
+		return core.Result{Status: core.StatusFailed, Err: err}
 	}
 
 	AccountID := res3.Video.AccountID
@@ -156,18 +157,18 @@ func tver_deprecated(c http.Client) Result {
 	VideoID := res3.Video.VideoID
 	VideoRefID := res3.Video.VideoRefID
 
-	resp4, err := GET(c, "https://players.brightcove.net/"+AccountID+"/"+PlayerID+"_default/index.min.js",
-		H{"Referer", "https://tver.jp/"},
-		H{"accept-language", "en-US,en;q=0.9"},
+	resp4, err := core.GET(c, "https://players.brightcove.net/"+AccountID+"/"+PlayerID+"_default/index.min.js",
+		core.H{"Referer", "https://tver.jp/"},
+		core.H{"accept-language", "en-US,en;q=0.9"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp4.Body.Close()
 
 	body4, err := io.ReadAll(resp4.Body)
 	if err != nil || len(body4) == 0 {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	PolicyKey := extractTVerPolicyKey(string(body4))
@@ -175,28 +176,28 @@ func tver_deprecated(c http.Client) Result {
 
 	var resp5 *http.Response
 	if true { //VideoRefID == "" {
-		resp5, err = GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/"+VideoID+"?config_id="+DeliveryConfigID,
-			H{"accept", "application/json;pk=" + PolicyKey},
-			H{"origin", "https://tver.jp"},
-			H{"referer", "https://tver.jp/"},
-			H{"accept-language", "en-US,en;q=0.9"},
+		resp5, err = core.GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/"+VideoID+"?config_id="+DeliveryConfigID,
+			core.H{"accept", "application/json;pk=" + PolicyKey},
+			core.H{"origin", "https://tver.jp"},
+			core.H{"referer", "https://tver.jp/"},
+			core.H{"accept-language", "en-US,en;q=0.9"},
 		)
 	} else {
-		resp5, err = GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/ref%3A"+VideoRefID,
-			H{"accept", "application/json;pk=" + PolicyKey},
-			H{"origin", "https://tver.jp"},
-			H{"referer", "https://tver.jp/"},
-			H{"accept-language", "en-US,en;q=0.9"},
+		resp5, err = core.GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/ref%3A"+VideoRefID,
+			core.H{"accept", "application/json;pk=" + PolicyKey},
+			core.H{"origin", "https://tver.jp"},
+			core.H{"referer", "https://tver.jp/"},
+			core.H{"accept-language", "en-US,en;q=0.9"},
 		)
 	}
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp5.Body.Close()
 
 	body5, err := io.ReadAll(resp5.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	var res4a []struct {
@@ -207,15 +208,16 @@ func tver_deprecated(c http.Client) Result {
 	}
 	if err := json.Unmarshal(body5, &res4a); err != nil {
 		if err := json.Unmarshal(body5, &res4b); err != nil {
-			return Result{Status: StatusUnexpected}
+			return core.Result{Status: core.StatusUnexpected}
 		}
 		if res4b.AccountID != "" {
-			return Result{Status: StatusOK}
+			return core.Result{Status: core.StatusOK}
 		}
 	}
 
 	if res4a[0].ErrorSubcode == "CLIENT_GEO" {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

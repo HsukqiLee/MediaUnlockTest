@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"regexp"
 	"strings"
@@ -24,38 +25,39 @@ func extractViaplayRegion2(url string) string {
 	return ""
 }
 
-func Viaplay(c http.Client) Result {
-	resp1, err := GET(c, "https://viaplay.pl")
+func Viaplay(c http.Client) core.Result {
+	resp1, err := core.GET(c, "https://viaplay.pl")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()
 
 	if resp1.StatusCode == 403 {
-		return Result{Status: StatusBanned}
+		return core.Result{Status: core.StatusBanned}
 	}
 
 	if resp1.StatusCode == 302 && resp1.Header.Get("Location") == "/region-blocked" {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
 	if resp1.StatusCode == 302 && resp1.Header.Get("Location") == "https://viaplay.pl/pl-pl/" {
-		resp2, err := GET(c, "https://viaplay.com/")
+		resp2, err := core.GET(c, "https://viaplay.com/")
 		if err != nil {
-			return Result{Status: StatusNetworkErr, Err: err}
+			return core.Result{Status: core.StatusNetworkErr, Err: err}
 		}
 		defer resp2.Body.Close()
 		if resp2.StatusCode == 404 {
-			return Result{Status: StatusNo}
+			return core.Result{Status: core.StatusNo}
 		}
 		if resp2.StatusCode == 302 {
 			if region := extractViaplayRegion1(resp2.Header.Get("Location")); region != "" {
-				return Result{Status: StatusOK, Region: strings.ToLower(region)}
+				return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
 			}
 			if region := extractViaplayRegion2(resp2.Header.Get("Location")); region != "" {
-				return Result{Status: StatusOK, Region: region}
+				return core.Result{Status: core.StatusOK, Region: region}
 			}
 		}
 	}
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

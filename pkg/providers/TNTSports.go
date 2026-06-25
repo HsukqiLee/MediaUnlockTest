@@ -1,27 +1,32 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"regexp"
 	"strings"
 )
 
-func TNTSports(c http.Client) Result {
-	resp, err := GET(c, "https://www.tntsports.co.uk/")
+func TNTSports(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.tntsports.co.uk/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == 403 {
+		return core.Result{Status: core.StatusBanned}
+	}
+
 	if resp.StatusCode == 307 && resp.Header.Get("Location") == "https://www.tntsports.co.uk/geoblocking.shtml" {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
 	if resp.StatusCode == 200 {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return Result{Status: StatusNetworkErr, Err: err}
+			return core.Result{Status: core.StatusNetworkErr, Err: err}
 		}
 
 		bodyString := string(body)
@@ -30,9 +35,10 @@ func TNTSports(c http.Client) Result {
 		matches2 := re.FindStringSubmatch(bodyString)
 		if len(matches2) >= 2 {
 			countryCode := matches2[1]
-			return Result{Status: StatusOK, Region: strings.ToLower(countryCode)}
+			return core.Result{Status: core.StatusOK, Region: strings.ToLower(countryCode)}
 		}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusNo}
 }
+

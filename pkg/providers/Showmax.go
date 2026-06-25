@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"regexp"
 	"strings"
@@ -15,23 +16,24 @@ func extractShowmaxRegion(body string) string {
 	return ""
 }
 
-func Showmax(c http.Client) Result {
-	resp, err := GET(c, "https://www.showmax.com/",
-		H{"Connection", "keep-alive"},
+func Showmax(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.showmax.com/",
+		core.H{"Connection", "keep-alive"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	cookie := resp.Header.Get("Set-Cookie")
 	if cookie == "" {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
 	region := extractShowmaxRegion(cookie)
 	if region != "" {
-		return Result{Status: StatusOK, Region: strings.ToLower(region)}
+		return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
 	}
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

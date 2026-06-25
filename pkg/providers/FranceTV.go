@@ -1,21 +1,22 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"encoding/json"
 	"io"
 )
 
-func FranceTV(c http.Client) Result {
-	resp, err := GET(c, "https://geo-info.ftven.fr/ws/edgescape.json")
+func FranceTV(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://geo-info.ftven.fr/ws/edgescape.json")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
     
     b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	
     var res struct {
@@ -26,12 +27,12 @@ func FranceTV(c http.Client) Result {
 		} `json:"reponse"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
-		return Result{Status: StatusFailed, Err: err}
+		return core.Result{Status: core.StatusFailed, Err: err}
 	}
 	
 	if res.Response.GeoInfo.CountryCode == "FR" {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }

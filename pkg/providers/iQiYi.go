@@ -1,28 +1,30 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"strings"
 )
 
-func IQiYi(c http.Client) Result {
-	resp, err := GET(c, "https://www.iq.com")
+func IQiYi(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.iq.com")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	s := resp.Header.Get("x-custom-client-ip")
 	if s == "" {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 	i := strings.Index(s, ":")
 	if i == -1 {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 	region := s[i+1:]
 	if region == "ntw" {
 		region = "tw"
 	}
-	return Result{Status: StatusOK, Region: region}
+	return core.Result{Status: core.StatusOK, Region: region}
 }
+

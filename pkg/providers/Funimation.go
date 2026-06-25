@@ -1,22 +1,24 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func Funimation(c http.Client) Result {
-	resp, err := GET(c, "https://www.crunchyroll.com/")
+func Funimation(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.crunchyroll.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 	for _, c := range resp.Cookies() {
 		if c.Name == "region" {
-			return Result{Status: StatusOK, Region: c.Value}
+			return core.Result{Status: core.StatusOK, Region: c.Value}
 		}
 	}
-	return Result{Status: StatusFailed}
+	return core.Result{Status: core.StatusFailed}
 }
+

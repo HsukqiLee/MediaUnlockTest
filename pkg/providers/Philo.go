@@ -1,23 +1,25 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func Philo(c http.Client) Result {
-	resp, err := GET(c, "https://content-us-east-2-fastly-b.www.philo.com/geo")
+func Philo(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://content-us-east-2-fastly-b.www.philo.com/geo")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	if strings.Contains(string(b), "SUCCESS") {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

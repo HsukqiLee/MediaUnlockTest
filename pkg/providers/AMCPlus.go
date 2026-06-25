@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"regexp"
 )
@@ -14,40 +15,41 @@ func extractAMCPlusRegion(url string) string {
 	return ""
 }
 
-func AMCPlus(c http.Client) Result {
-	resp1, err := GET(c, "https://www.amcplus.com/")
+func AMCPlus(c http.Client) core.Result {
+	resp1, err := core.GET(c, "https://www.amcplus.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()
 	if resp1.StatusCode == 302 {
-		resp2, err := GET(c, resp1.Header.Get("Location"))
+		resp2, err := core.GET(c, resp1.Header.Get("Location"))
 		if err != nil {
-			return Result{Status: StatusNetworkErr, Err: err}
+			return core.Result{Status: core.StatusNetworkErr, Err: err}
 		}
 		defer resp2.Body.Close()
 
 		if resp2.StatusCode == 301 {
 			if resp2.Header.Get("Location") == "https://www.amcplus.com/pages/geographic-restriction" {
-				return Result{Status: StatusNo}
+				return core.Result{Status: core.StatusNo}
 			}
-			resp3, err := GET(c, resp2.Header.Get("Location"))
+			resp3, err := core.GET(c, resp2.Header.Get("Location"))
 			if err != nil {
-				return Result{Status: StatusNetworkErr, Err: err}
+				return core.Result{Status: core.StatusNetworkErr, Err: err}
 			}
 			defer resp3.Body.Close()
 			if resp3.StatusCode == 200 {
 				region := extractAMCPlusRegion(resp1.Header.Get("Location"))
 				if region != "" {
-					return Result{Status: StatusOK, Region: region}
+					return core.Result{Status: core.StatusOK, Region: region}
 				}
 			}
 		}
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 
-	return ResultFromMapping(resp1.StatusCode, ResultMap{
-		http.StatusOK:        {Status: StatusOK, Region: "us"},
-		http.StatusForbidden: {Status: StatusBanned},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp1.StatusCode, core.ResultMap{
+		http.StatusOK:        {Status: core.StatusOK, Region: "us"},
+		http.StatusForbidden: {Status: core.StatusBanned},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+
