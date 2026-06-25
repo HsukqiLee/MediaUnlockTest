@@ -38,8 +38,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |Flag|Description|Example|
 |---|---|---|
 |`-debug`|Enable debug mode (verbose error output)|`-debug`|
-|`-nf`|Test Netflix availability only|`-nf`|
-|`-test`|Run specific tests|`-test`|
+|`-test [name]`|Run a single test by display name or function name|`-test Disney+` or `-test DisneyPlus`|
 
 ## Common Use Cases
 
