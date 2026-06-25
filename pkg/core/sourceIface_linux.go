@@ -1,7 +1,7 @@
 //go:build linux || android
 // +build linux android
 
-package main
+package core
 
 import (
 	"net"
@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	setSocketOptions = func(network, address string, c syscall.RawConn, interfaceName string) (err error) {
+	SetSocketOptions = func(network, address string, c syscall.RawConn, interfaceName string) (err error) {
 		switch network {
 		case "tcp", "tcp4", "tcp6":
 		case "udp", "udp4", "udp6":
