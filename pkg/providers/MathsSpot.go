@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-func NowGG(c http.Client) core.Result {
-	resp, err := core.GET(c, "https://now.gg/")
+func MathsSpot(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://mathsspot.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
