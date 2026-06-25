@@ -56,13 +56,13 @@ jobs:
           CHANGES=0
 
           # 1. Check and update mediaunlock.go
-          CURRENT_VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
+          CURRENT_VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' pkg/core/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
           echo "Current version in file: $CURRENT_VERSION"
           
           if [ "$VERSION" != "$CURRENT_VERSION" ]; then
             echo "Version mismatch. Updating from $CURRENT_VERSION to $VERSION"
-            sed -i "s/Version\s*=\s*\"[^\"]*\"/Version          = \"$VERSION\"/" checks/mediaunlock.go
-            git add checks/mediaunlock.go
+            sed -i "s/Version\s*=\s*\"[^\"]*\"/Version          = \"$VERSION\"/" pkg/core/mediaunlock.go
+            git add pkg/core/mediaunlock.go
             CHANGES=1
           else
             echo "Version in mediaunlock.go is already up to date"
@@ -690,13 +690,13 @@ jobs:
             if [ "$SOURCE" == "build" ]; then
               # Build from source -> -dirty tags
               # Extract version from file since we don't have a release tag
-              # We need to look at checks/mediaunlock.go or VERSION file
+              # We need to look at pkg/core/mediaunlock.go or VERSION file
               # Assuming VERSION file exists or extracting from file like update-version job
               if [ -f "VERSION" ]; then
                 VERSION=$(cat VERSION)
               else
                   # Fallback extract from mediaunlock.go
-                  VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' checks/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
+                  VERSION=$(grep '^[[:space:]]*Version[[:space:]]*=' pkg/core/mediaunlock.go | sed -E 's/.*Version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
               fi
               
               # Ensure VERSION doesn't start with v

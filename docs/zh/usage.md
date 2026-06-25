@@ -38,8 +38,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |参数|说明|示例|
 |---|---|---|
 |`-debug`|开启调试模式（输出详细错误信息）|`-debug`|
-|`-nf`|仅测试 Netflix 可用性|`-nf`|
-|`-test`|运行特定测试|`-test`|
+|`-test [名称]`|运行单个测试（支持显示名或函数名）|`-test Disney+` 或 `-test DisneyPlus`|
 
 ## 常见用例
 
