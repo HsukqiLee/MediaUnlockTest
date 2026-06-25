@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"regexp"
@@ -29,20 +30,21 @@ func extractSonyLivCountryCode(text string) string {
 	return ""
 }
 
-func SonyLiv(c http.Client) Result {
-	resp, err := GET(c, "https://www.sonyliv.com/signin")
+func SonyLiv(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.sonyliv.com/signin")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	bodyBytes, err := io.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	region := extractSonyLivCountryCode(bodyString)
 	if region != "" && SupportSonyLiv(region) {
-		return Result{Status: StatusOK, Region: region}
+		return core.Result{Status: core.StatusOK, Region: region}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -12,15 +13,15 @@ import (
 	"time"
 )
 
-func LiTV(c http.Client) Result {
+func LiTV(c http.Client) core.Result {
 	deviceID, err := getLiTVDeviceID(c)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	puid, err := getLiTVPUID(c)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	assetId := "vod70810-000001M001_1500K"
@@ -41,39 +42,39 @@ func LiTV(c http.Client) Result {
 
 	jsonBytes, err := json.Marshal(payload)
 	if err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 
-	resp, err := PostJson(c, "https://www.litv.tv/api/get-urls-no-auth",
+	resp, err := core.PostJson(c, "https://www.litv.tv/api/get-urls-no-auth",
 		string(jsonBytes),
-		H{"Cookie", fmt.Sprintf("device-id=%s; PUID=%s", deviceID, puid)},
-		H{"Origin", "https://www.litv.tv"},
-		H{"Referer", "https://www.litv.tv/drama/watch/VOD00328856"},
+		core.H{"Cookie", fmt.Sprintf("device-id=%s; PUID=%s", deviceID, puid)},
+		core.H{"Origin", "https://www.litv.tv"},
+		core.H{"Referer", "https://www.litv.tv/drama/watch/VOD00328856"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	if resp.StatusCode == 200 {
 		if strings.Contains(bodyString, "OutsideRegionError") {
-			return Result{Status: StatusNo}
+			return core.Result{Status: core.StatusNo}
 		}
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
 
 func getLiTVDeviceID(c http.Client) (string, error) {
-	resp, err := PostJson(c, "https://www.litv.tv/api/generate-device-id", "",
-		H{"Origin", "https://www.litv.tv"},
-		H{"Referer", "https://www.litv.tv/"},
+	resp, err := core.PostJson(c, "https://www.litv.tv/api/generate-device-id", "",
+		core.H{"Origin", "https://www.litv.tv"},
+		core.H{"Referer", "https://www.litv.tv/"},
 	)
 	if err != nil {
 		return "", err
@@ -90,9 +91,9 @@ func getLiTVDeviceID(c http.Client) (string, error) {
 
 func getLiTVPUID(c http.Client) (string, error) {
 	payload := `{"jsonrpc":"2.0","id":100,"method":"PustiService.PUID","params":{"version":"2.0","device_id":"","device_category":"LTWEB00","puid":"","aaid":"","idfa":""}}`
-	resp, err := PostJson(c, "https://pusti.svc.litv.tv/puid", payload,
-		H{"Origin", "https://www.litv.tv"},
-		H{"Referer", "https://www.litv.tv/"},
+	resp, err := core.PostJson(c, "https://pusti.svc.litv.tv/puid", payload,
+		core.H{"Origin", "https://www.litv.tv"},
+		core.H{"Referer", "https://www.litv.tv/"},
 	)
 	if err != nil {
 		return "", err
@@ -119,7 +120,7 @@ func getLiTVPUID(c http.Client) (string, error) {
 }
 
 func genLiTVNonce(t time.Time) string {
-	return genBase36(13) + genBase36(13) + strconv.FormatInt(t.UnixMilli(), 36)
+	return core.GenBase36(13) + core.GenBase36(13) + strconv.FormatInt(t.UnixMilli(), 36)
 }
 
 func genLiTVSignature(assetId, mediaType, nonce string, timestamp int64) string {
@@ -129,3 +130,4 @@ func genLiTVSignature(assetId, mediaType, nonce string, timestamp int64) string 
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
+

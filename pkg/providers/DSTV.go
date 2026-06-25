@@ -1,12 +1,14 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func DSTV(c http.Client) Result {
-	return CheckGETStatus(c, "https://now.dstv.com/", ResultMap{
-		http.StatusUnavailableForLegalReasons: {Status: StatusNo},
-		http.StatusOK:                         {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+func DSTV(c http.Client) core.Result {
+	return core.CheckGETStatus(c, "https://now.dstv.com/", core.ResultMap{
+		http.StatusUnavailableForLegalReasons: {Status: core.StatusNo},
+		http.StatusOK:                         {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

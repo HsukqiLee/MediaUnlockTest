@@ -1,32 +1,34 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-func HamiVideo(c http.Client) Result {
-	resp, err := GET(c, "https://hamivideo.hinet.net/api/play.do?id=OTT_VOD_0000249064&freeProduct=1")
+func HamiVideo(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://hamivideo.hinet.net/api/play.do?id=OTT_VOD_0000249064&freeProduct=1")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	var res struct {
 		Code string
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 	if res.Code == "06001-107" {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 	if res.Code == "06001-106" {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

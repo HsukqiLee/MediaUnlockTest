@@ -1,18 +1,20 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func ThreeNow(c http.Client) Result {
-	resp, err := GET(c, "https://bravo-livestream.fullscreen.nz/index.m3u8")
+func ThreeNow(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://bravo-livestream.fullscreen.nz/index.m3u8")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
-	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusOK:        {Status: StatusOK},
-		http.StatusForbidden: {Status: StatusNo},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
+		http.StatusOK:        {Status: core.StatusOK},
+		http.StatusForbidden: {Status: core.StatusNo},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

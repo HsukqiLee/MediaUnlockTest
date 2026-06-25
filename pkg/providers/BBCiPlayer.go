@@ -1,16 +1,17 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func BBCiPlayer(c http.Client) Result {
-	resp, err := GET(c, "https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/bbc_one_london/format/json/jsfunc/JS_callbacks0")
+func BBCiPlayer(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/bbc_one_london/format/json/jsfunc/JS_callbacks0")
 
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -18,17 +19,18 @@ func BBCiPlayer(c http.Client) Result {
 	bodyString := string(bodyBytes)
 
 	if err != nil {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 
 	if resp.StatusCode == 200 {
 		if strings.Contains(bodyString, "geolocation") {
-			return Result{Status: StatusNo}
+			return core.Result{Status: core.StatusNo}
 		}
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 
-	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

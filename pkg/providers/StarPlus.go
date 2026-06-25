@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"regexp"
@@ -19,24 +20,24 @@ func SupportStarPlus(loc string) bool {
 	return false
 }
 
-func StarPlus(c http.Client) Result {
-	resp, err := GET(c, "https://www.starplus.com/")
+func StarPlus(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.starplus.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 
 	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
+		return core.Result{Status: core.StatusBanned}
 	}
 
 	if resp.StatusCode == 302 && (resp.Header.Get("Location") == "https://www.preview.starplus.com/unavailable" || resp.Header.Get("Location") == "https://www.starplus.com/welcome/unavailable") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
 	if resp.StatusCode == 200 {
@@ -44,12 +45,13 @@ func StarPlus(c http.Client) Result {
 		matches := re.FindStringSubmatch(string(body))
 		if len(matches) >= 2 {
 			if SupportStarPlus(matches[1]) {
-				return Result{Status: StatusOK, Region: strings.ToLower(matches[1])}
+				return core.Result{Status: core.StatusOK, Region: strings.ToLower(matches[1])}
 			}
-			return Result{Status: StatusNo}
+			return core.Result{Status: core.StatusNo}
 		}
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

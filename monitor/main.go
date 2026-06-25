@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	mt "MediaUnlockTest/checks"
+	core "MediaUnlockTest/pkg/core"
 
 	"github.com/kardianos/service"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -24,7 +24,7 @@ import (
 var (
 	AutoUpdate     bool
 	UpdateInterval uint64
-	Version        string = mt.Version
+	Version        string = core.Version
 	buildTime      string
 	Iface          string = ""
 	DnsServers     string
@@ -50,7 +50,7 @@ func (p *program) scheduleUpdate() {
 		}
 		ticker := time.NewTicker(time.Duration(UpdateInterval) * time.Second)
 		for range ticker.C {
-			checkUpdate()
+			checkUpdate(true)
 		}
 	}
 }
@@ -79,9 +79,6 @@ func (p *program) Stop(s service.Service) error {
 	return nil
 }
 
-var setSocketOptions = func(network, address string, c syscall.RawConn, interfaceName string) (err error) {
-	return
-}
 
 func main() {
 	var (
@@ -136,32 +133,32 @@ func main() {
 	}
 
 	if update {
-		checkUpdate()
+		checkUpdate(false)
 		return
 	}
 
 	if Iface != "" {
 		if IP := net.ParseIP(Iface); IP != nil {
-			mt.Dialer.LocalAddr = &net.TCPAddr{IP: IP}
+			core.Dialer.LocalAddr = &net.TCPAddr{IP: IP}
 		} else {
-			mt.Dialer.Control = func(network, address string, c syscall.RawConn) error {
-				return setSocketOptions(network, address, c, Iface)
+			core.Dialer.Control = func(network, address string, c syscall.RawConn) error {
+				return core.SetSocketOptions(network, address, c, Iface)
 			}
 		}
 	}
 	if DnsServers != "" {
-		mt.Dialer.Resolver = &net.Resolver{
+		core.Dialer.Resolver = &net.Resolver{
 			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 				return (&net.Dialer{}).DialContext(ctx, "udp", DnsServers)
 			},
 		}
 
-		mt.AutoHttpClient.Transport.(*mt.CustomTransport).Resolver = mt.Dialer.Resolver
+		core.AutoHttpClient.Transport.(*core.CustomTransport).Resolver = core.Dialer.Resolver
 	}
 	if httpProxy != "" {
 		if u, err := url.Parse(httpProxy); err == nil {
-			mt.ClientProxy = http.ProxyURL(u)
-			mt.AutoHttpClient.Transport.(*mt.CustomTransport).Proxy = mt.ClientProxy
+			core.ClientProxy = http.ProxyURL(u)
+			core.AutoHttpClient.Transport.(*core.CustomTransport).Proxy = core.ClientProxy
 		}
 	}
 	if socksProxy != "" {
@@ -182,7 +179,7 @@ func main() {
 		if err != nil {
 			log.Fatal("创建 SOCKS5 连接失败：", err)
 		}
-		mt.AutoHttpClient.Transport.(*mt.CustomTransport).SocksDialer = dialer
+		core.AutoHttpClient.Transport.(*core.CustomTransport).SocksDialer = dialer
 	}
 
 	args := []string{}
@@ -238,3 +235,5 @@ func main() {
 		log.Fatal("[ERR] 运行服务时出现错误", err)
 	}
 }
+
+

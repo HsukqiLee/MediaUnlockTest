@@ -1,17 +1,19 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func KayoSports(c http.Client) Result {
-	return CheckGETStatus(c, "https://kayosports.com.au/", ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-		http.StatusOK:        {Status: StatusOK},
-	}, Result{Status: StatusUnexpected},
-		H{"Accept", "*/*"},
-		H{"Accept-Language", "en-US,en;q=0.9"},
-		H{"Origin", "https://kayosports.com.au"},
-		H{"Referer", "https://kayosports.com.au/"},
+func KayoSports(c http.Client) core.Result {
+	return core.CheckGETStatus(c, "https://kayosports.com.au/", core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+		http.StatusOK:        {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected},
+		core.H{"Accept", "*/*"},
+		core.H{"Accept-Language", "en-US,en;q=0.9"},
+		core.H{"Origin", "https://kayosports.com.au"},
+		core.H{"Referer", "https://kayosports.com.au/"},
 	)
 }
+

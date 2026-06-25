@@ -1,20 +1,21 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-func KKTV(c http.Client) Result {
-	resp, err := GET(c, "https://api.kktv.me/v3/ipcheck")
+func KKTV(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://api.kktv.me/v3/ipcheck")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	var res struct {
 		Data struct {
@@ -23,10 +24,11 @@ func KKTV(c http.Client) Result {
 		}
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 	if res.Data.Country == "TW" && res.Data.IsAllowed {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

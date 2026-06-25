@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"regexp"
@@ -16,27 +17,28 @@ func extractTikTokRegion(body string) string {
 	return ""
 }
 
-func TikTok(c http.Client) Result {
-	resp, err := GET(c, "https://www.tiktok.com/explore")
+func TikTok(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.tiktok.com/explore")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
 	if err != nil {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 
 	if strings.Contains(bodyString, "https://www.tiktok.com/hk/notfound") {
-		return Result{Status: StatusNo, Region: "hk"}
+		return core.Result{Status: core.StatusNo, Region: "hk"}
 	}
 
 	if region := extractTikTokRegion(bodyString); region != "" {
 
-		return Result{Status: StatusOK, Region: strings.ToLower(region)}
+		return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
 	}
 
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

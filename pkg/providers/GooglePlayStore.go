@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"regexp"
@@ -16,16 +17,16 @@ func extractGooglePlayStoreRegion(responseBody string) string {
 	return ""
 }
 
-func GooglePlayStore(c http.Client) Result {
-	resp, err := GET(c, "https://play.google.com/store/games")
+func GooglePlayStore(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://play.google.com/store/games")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	bodyString := string(bodyBytes)
 
@@ -33,11 +34,12 @@ func GooglePlayStore(c http.Client) Result {
 		region := extractGooglePlayStoreRegion(bodyString)
 		if region != "" {
 			if region == "CN" {
-				return Result{Status: StatusNo, Region: "cn"}
+				return core.Result{Status: core.StatusNo, Region: "cn"}
 			}
-			return Result{Status: StatusOK, Region: strings.ToLower(region)}
+			return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
 		}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

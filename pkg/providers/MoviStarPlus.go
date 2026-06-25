@@ -1,24 +1,25 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func MoviStarPlus(c http.Client) Result {
-	resp, err := GET(c, "https://contratar.movistarplus.es/")
+func MoviStarPlus(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://contratar.movistarplus.es/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	
 	if resp.StatusCode == 403 {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 	
 	if resp.StatusCode == 200  {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }

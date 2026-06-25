@@ -1,26 +1,28 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func Amediateka(c http.Client) Result {
-	resp, err := GET(c, "https://www.amediateka.ru/")
+func Amediateka(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.amediateka.ru/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	switch resp.StatusCode {
 	case 301, 302:
 		if resp.Header.Get("Location") == "https://www.amediateka.ru/unavailable/index.html?page=https://www.amediateka.ru/" {
-			return Result{Status: StatusNo}
+			return core.Result{Status: core.StatusNo}
 		}
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	case 200:
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	case 503, 445:
-		return Result{Status: StatusBanned}
+		return core.Result{Status: core.StatusBanned}
 	default:
-		return Result{Status: StatusUnexpected}
+		return core.Result{Status: core.StatusUnexpected}
 	}
 }
+

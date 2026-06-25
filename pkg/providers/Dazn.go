@@ -1,25 +1,26 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-func Dazn(c http.Client) Result {
-	resp, err := PostJson(c, "https://startup.core.indazn.com/misl/v5/Startup",
+func Dazn(c http.Client) core.Result {
+	resp, err := core.PostJson(c, "https://startup.core.indazn.com/misl/v5/Startup",
 		`{"LandingPageKey":"generic","Languages":"zh-CN,zh,en","Platform":"web","PlatformAttributes":{},"Manufacturer":"","PromoCode":"","Version":"2"}`,
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
+		return core.Result{Status: core.StatusBanned}
 	}
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	var res struct {
 		Region struct {
@@ -31,16 +32,17 @@ func Dazn(c http.Client) Result {
 	}
 
 	if err := json.Unmarshal(b, &res); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 	if res.Region.IsAllowed {
-		return Result{
-			Status: StatusOK,
+		return core.Result{
+			Status: core.StatusOK,
 			Region: res.Region.GeolocatedCountry,
 		}
 	}
-	return Result{
-		Status: StatusNo,
+	return core.Result{
+		Status: core.StatusNo,
 		Info:   res.Region.DisallowedReason,
 	}
 }
+

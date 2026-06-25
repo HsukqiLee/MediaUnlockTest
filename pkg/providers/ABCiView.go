@@ -1,15 +1,16 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func ABCiView(c http.Client) Result {
-	resp, err := GET(c, "https://api.iview.abc.net.au/v2/show/abc-kids-live-stream/video/LS1604H001S00?embed=highlightVideo,selectedSeries")
+func ABCiView(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://api.iview.abc.net.au/v2/show/abc-kids-live-stream/video/LS1604H001S00?embed=highlightVideo,selectedSeries")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -17,14 +18,15 @@ func ABCiView(c http.Client) Result {
 	bodyString := string(bodyBytes)
 
 	if err != nil {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 
 	if strings.Contains(bodyString, "unavailable outside Australia") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
-	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusOK: {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
+		http.StatusOK: {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

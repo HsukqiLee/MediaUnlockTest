@@ -1,17 +1,19 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"context"
+	"errors"
 	"net/http"
 	"time"
 )
 
-func PrettyDerbyJP(c http.Client) Result {
+func PrettyDerbyJP(c http.Client) core.Result {
 	for i := 0; i < 3; i++ {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		req, _ := http.NewRequestWithContext(ctx, "GET", "https://api-umamusume.cygames.jp/", nil)
-		req.Header.Set("user-agent", UA_Dalvik)
+		req.Header.Set("user-agent", core.UA_Dalvik)
 		req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
 		req.Header.Set("cache-control", "no-cache")
 		req.Header.Set("dnt", "1")
@@ -27,17 +29,18 @@ func PrettyDerbyJP(c http.Client) Result {
 		resp, err := c.Do(req)
 
 		if err != nil {
-			if err.Error() == `Get "https://api-umamusume.cygames.jp/": context deadline exceeded` {
-				return Result{Status: StatusNo}
+			if errors.Is(err, context.DeadlineExceeded) {
+				return core.Result{Status: core.StatusNo}
 			}
 			continue
 		}
 		if resp != nil {
 			defer resp.Body.Close()
 			if resp.StatusCode == 404 {
-				return Result{Status: StatusOK}
+				return core.Result{Status: core.StatusOK}
 			}
 		}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

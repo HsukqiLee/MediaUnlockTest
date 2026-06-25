@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -20,19 +21,19 @@ func extractWowowMetaID(body string) string {
 	return ""
 }
 
-func Wowow(c http.Client) Result {
+func Wowow(c http.Client) core.Result {
 	useDeprecated := false
 	if useDeprecated {
 		return wowow_deprecated(c)
 	}
-	resp, err := PostJson(c, "https://mapi.wowow.co.jp/api/v1/playback/auth", `{"meta_id":81174}`)
+	resp, err := core.PostJson(c, "https://mapi.wowow.co.jp/api/v1/playback/auth", `{"meta_id":81174}`)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	if resp.StatusCode == 403 {
 		var res struct {
@@ -41,33 +42,33 @@ func Wowow(c http.Client) Result {
 			} `json:"error"`
 		}
 		if err := json.Unmarshal(body, &res); err != nil {
-			return Result{Status: StatusErr, Err: err}
+			return core.Result{Status: core.StatusErr, Err: err}
 		}
 		switch res.Error.Code {
 		case 2055:
-			return Result{Status: StatusNo}
+			return core.Result{Status: core.StatusNo}
 		case 2041, 2003:
-			return Result{Status: StatusOK}
+			return core.Result{Status: core.StatusOK}
 		}
 	}
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
 
-func wowow_deprecated(c http.Client) Result {
+func wowow_deprecated(c http.Client) core.Result {
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
-	resp1, err := GET(c, "https://www.wowow.co.jp/assets/config/top_recommend_list.json",
-		H{"Accept", "application/json, text/javascript, */*; q=0.01"},
-		H{"Referer", "https://www.wowow.co.jp/drama/original/"},
-		H{"X-Requested-With", "XMLHttpRequest"},
+	resp1, err := core.GET(c, "https://www.wowow.co.jp/assets/config/top_recommend_list.json",
+		core.H{"Accept", "application/json, text/javascript, */*; q=0.01"},
+		core.H{"Referer", "https://www.wowow.co.jp/drama/original/"},
+		core.H{"X-Requested-With", "XMLHttpRequest"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()
 
 	body1, err := io.ReadAll(resp1.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	var res1 struct {
 		Movie         []interface{} `json:"movie"`
@@ -75,7 +76,7 @@ func wowow_deprecated(c http.Client) Result {
 		Music         []interface{} `json:"music"`
 	}
 	if err := json.Unmarshal(body1, &res1); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 
 	var wodUrl string
@@ -86,7 +87,7 @@ func wowow_deprecated(c http.Client) Result {
 		} else if num, ok := id.(float64); ok {
 			programID = strconv.FormatFloat(num, 'f', 0, 64)
 		}
-		resp2, err := PostJson(c, "https://www.wowow.co.jp/API/new_prg/programdetail.php",
+		resp2, err := core.PostJson(c, "https://www.wowow.co.jp/API/new_prg/programdetail.php",
 			`{"prg_cd": "`+programID+`", "mode": "19"}`,
 		)
 		if err != nil {
@@ -100,7 +101,7 @@ func wowow_deprecated(c http.Client) Result {
 			continue
 		}
 		if err := json.Unmarshal(body2, &res2); err != nil {
-			return Result{Status: StatusErr, Err: err}
+			return core.Result{Status: core.StatusErr, Err: err}
 		}
 		wodUrl = res2.ArchiveURL
 		if wodUrl != "" {
@@ -108,49 +109,51 @@ func wowow_deprecated(c http.Client) Result {
 		}
 	}
 	if wodUrl == "" {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 
-	resp3, err := GET(c, wodUrl)
+	resp3, err := core.GET(c, wodUrl)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp3.Body.Close()
 
 	body3, err := io.ReadAll(resp3.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	metaID := extractWowowMetaID(string(body3))
-	vUid := md5Sum(strconv.FormatInt(timestamp, 10))
+	vUid := core.MD5Sum(strconv.FormatInt(timestamp, 10))
 
-	resp4, err := PostJson(c, "https://mapi.wowow.co.jp/api/v1/playback/auth",
-		`{"meta_id":`+metaID+`,"vuid":"`+vUid+`","device_code":1,"app_id":1,"ua":"`+UA_Browser+`"}`,
-		H{"accept", "application/json, text/plain, */*"},
-		H{"content-type", "application/json;charset=UTF-8"},
-		H{"origin", "https://wod.wowow.co.jp"},
-		H{"referer", "https://wod.wowow.co.jp/"},
-		H{"x-requested-with", "XMLHttpRequest"},
+	resp4, err := core.PostJson(c, "https://mapi.wowow.co.jp/api/v1/playback/auth",
+		`{"meta_id":`+metaID+`,"vuid":"`+vUid+`","device_code":1,"app_id":1,"ua":"`+core.UA_Browser+`"}`,
+		core.H{"accept", "application/json, text/plain, */*"},
+		core.H{"content-type", "application/json;charset=UTF-8"},
+		core.H{"origin", "https://wod.wowow.co.jp"},
+		core.H{"referer", "https://wod.wowow.co.jp/"},
+		core.H{"x-requested-with", "XMLHttpRequest"},
 	)
 
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp4.Body.Close()
 
 	body4, err := io.ReadAll(resp3.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	bodyString4 := string(body4)
 	if strings.Contains(bodyString4, "VPN") || resp4.StatusCode == 403 {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
 	if resp4.StatusCode == 201 {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+
+

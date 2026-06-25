@@ -1,24 +1,26 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func Niconico(c http.Client) Result {
-	resp, err := GET(c, "https://www.nicovideo.jp/watch/so40278367")
+func Niconico(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.nicovideo.jp/watch/so40278367")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	if strings.Contains(string(b), "同じ地域") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
-	return Result{Status: StatusOK}
+	return core.Result{Status: core.StatusOK}
 }
+

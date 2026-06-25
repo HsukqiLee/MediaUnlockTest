@@ -1,15 +1,16 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func Afreeca(c http.Client) Result {
-	resp, err := GET(c, "https://vod.sooplive.co.kr/player/97464151")
+func Afreeca(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://vod.sooplive.co.kr/player/97464151")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -17,14 +18,15 @@ func Afreeca(c http.Client) Result {
 	bodyString := string(bodyBytes)
 
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	if strings.Contains(bodyString, "document.location.href='https://vod.afreecatv.com'") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
-	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusOK: {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
+		http.StatusOK: {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

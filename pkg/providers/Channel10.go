@@ -1,33 +1,35 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func Channel10(c http.Client) Result {
-	resp, err := GET(c, "https://10play.com.au/geo-web")
+func Channel10(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://10play.com.au/geo-web")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	var res struct {
 		Allow bool `json:"allow"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
 		if strings.Contains(string(b), "not available") {
-			return Result{Status: StatusNo}
+			return core.Result{Status: core.StatusNo}
 		}
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 	if res.Allow {
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

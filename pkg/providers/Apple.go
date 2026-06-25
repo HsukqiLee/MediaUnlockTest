@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
@@ -33,21 +34,22 @@ func SupportApple(loc string) bool {
 	return false
 }
 
-func Apple(c http.Client) Result {
-	resp, err := GET(c, "https://gspe1-ssl.ls.apple.com/pep/gcc")
+func Apple(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://gspe1-ssl.ls.apple.com/pep/gcc")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	s := string(b)
-	loc := twoToThreeCode(s)
+	loc := core.TwoToThreeCode(s)
 	region := strings.ToLower(s)
 	if SupportApple(loc) {
-		return Result{Status: StatusOK, Region: region}
+		return core.Result{Status: core.StatusOK, Region: region}
 	}
-	return Result{Status: StatusNo, Region: region}
+	return core.Result{Status: core.StatusNo, Region: region}
 }
+

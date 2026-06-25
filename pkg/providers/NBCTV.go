@@ -1,40 +1,41 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-func NBC_TV(c http.Client) Result {
-	resp, err := PostJson(c, "https://geolocation.digitalsvc.apps.nbcuni.com/geolocation/live/nbc", `{"adobeMvpdId": null, "serviceZip": null, "device": "web"}`,
-		H{"accept", "application/media.geo-v2+json"},
-		H{"accept-encoding", "gzip, deflate, br, zstd"},
-		H{"accept-language", "zh-CN,zh;q=0.9"},
-		H{"app-session-id", "71203A7A-BC80-4452-B8B7-796C564C6EF3"},
-		H{"authorization", `NBC-Basic key="nbc_live", version="3.0", type="cpc"`},
-		H{"cache-control", "no-cache"},
-		H{"client", "oneapp"},
-		H{"content-type", "application/json"},
-		H{"origin", "https://www.nbc.com"},
-		H{"pragma", "no-cache"},
-		H{"priority", "u=1, i"},
-		H{"referer", "https://www.nbc.com/"},
-		H{"sec-ch-ua", `"Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"`},
-		H{"sec-ch-ua-mobile", "?0"},
-		H{"sec-ch-ua-platform", `"Windows"`},
-		H{"sec-fetch-dest", "empty"},
-		H{"sec-fetch-mode", "cors"},
-		H{"sec-fetch-site", "cross-site"},
-		H{"user-agent"},
+func NBC_TV(c http.Client) core.Result {
+	resp, err := core.PostJson(c, "https://geolocation.digitalsvc.apps.nbcuni.com/geolocation/live/nbc", `{"adobeMvpdId": null, "serviceZip": null, "device": "web"}`,
+		core.H{"accept", "application/media.geo-v2+json"},
+		core.H{"accept-encoding", "gzip, deflate, br, zstd"},
+		core.H{"accept-language", "zh-CN,zh;q=0.9"},
+		core.H{"app-session-id", "71203A7A-BC80-4452-B8B7-796C564C6EF3"},
+		core.H{"authorization", `NBC-Basic key="nbc_live", version="3.0", type="cpc"`},
+		core.H{"cache-control", "no-cache"},
+		core.H{"client", "oneapp"},
+		core.H{"content-type", "application/json"},
+		core.H{"origin", "https://www.nbc.com"},
+		core.H{"pragma", "no-cache"},
+		core.H{"priority", "u=1, i"},
+		core.H{"referer", "https://www.nbc.com/"},
+		core.H{"sec-ch-ua", `"Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"`},
+		core.H{"sec-ch-ua-mobile", "?0"},
+		core.H{"sec-ch-ua-platform", `"Windows"`},
+		core.H{"sec-fetch-dest", "empty"},
+		core.H{"sec-fetch-mode", "cors"},
+		core.H{"sec-fetch-site", "cross-site"},
+		core.H{"user-agent"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	var res struct {
@@ -47,16 +48,17 @@ func NBC_TV(c http.Client) Result {
 		} `json:"restrictionDetails"`
 	}
 	if err := json.Unmarshal(b, &res); err != nil {
-		return Result{Status: StatusErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
 
 	if !res.Restricted {
-		return Result{Status: StatusOK, Region: res.RequestInfo.CountryCode}
+		return core.Result{Status: core.StatusOK, Region: res.RequestInfo.CountryCode}
 	}
 
 	if res.RestrictionDetails.Code == "321" {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

@@ -1,24 +1,26 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func Shudder(c http.Client) Result {
-	resp, err := GET(c, "https://www.shudder.com/")
+func Shudder(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://www.shudder.com/")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	s := string(b)
 	if strings.Contains(s, "not available") {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
-	return Result{Status: StatusOK}
+	return core.Result{Status: core.StatusOK}
 }
+

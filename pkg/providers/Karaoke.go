@@ -1,10 +1,14 @@
-package mediaunlocktest
+package providers
 
-import "net/http"
+import (
+	"net/http"
+	"MediaUnlockTest/pkg/core"
+)
 
-func Karaoke(c http.Client) Result {
-	return CheckGETStatus(c, "http://cds1.clubdam.com/vhls-cds1/site/xbox/sample_1.mp4.m3u8", ResultMap{
-		http.StatusForbidden: {Status: StatusNo},
-		http.StatusOK:        {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+func Karaoke(c http.Client) core.Result {
+	return core.CheckGETStatus(c, "http://cds1.clubdam.com/vhls-cds1/site/xbox/sample_1.mp4.m3u8", core.ResultMap{
+		http.StatusForbidden: {Status: core.StatusNo},
+		http.StatusOK:        {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

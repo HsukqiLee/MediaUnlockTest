@@ -1,23 +1,24 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"regexp"
 	"strings"
 )
 
-func MetaAI(c http.Client) Result {
-	res := CheckGETStatus(c, "https://www.meta.ai/ajax", ResultMap{
-		200: {Status: StatusNo},
-		400: {Status: StatusOK},
-		404: {Status: StatusOK},
-	}, Result{Status: StatusUnexpected})
+func MetaAI(c http.Client) core.Result {
+	res := core.CheckGETStatus(c, "https://www.meta.ai/ajax", core.ResultMap{
+		200: {Status: core.StatusNo},
+		400: {Status: core.StatusOK},
+		404: {Status: core.StatusOK},
+	}, core.Result{Status: core.StatusUnexpected})
 
-	if res.Status != StatusOK {
+	if res.Status != core.StatusOK {
 		return res
 	}
 
-	resp, err := GET(c, "https://www.meta.com/legal/")
+	resp, err := core.GET(c, "https://www.meta.com/legal/")
 	if err != nil {
 		return res
 	}
@@ -44,3 +45,4 @@ func MetaAI(c http.Client) Result {
 
 	return res
 }
+

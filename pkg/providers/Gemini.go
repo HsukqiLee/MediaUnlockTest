@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"regexp"
@@ -51,39 +52,40 @@ func extractGeminiRegion(body string) string {
 	return ""
 }
 
-func Gemini(c http.Client) Result {
-	resp, err := GET(c, "https://gemini.google.com/?hl=en",
-		H{"Cookie", "SOCS=CAISOAgeEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjQwODExLjA4X3AwGgV6aC1DTiACGgYIgOfvtQY; NID=516=I_1jljreYQcLJzkCvUL8k6eIiBqaC8_mkGLq8XaPbFdY2MMgL9re9rZw7NC9scKoZJyI3pzxTfTqhklea0KVsKRKeRMyl-TOLZgzpb_rqoL2vH7J2_5Wlef7KTXVuLfArRqcGeFWF4OZ6HBfQqu7BQc_YiFfiXshUK1bAp19DZQOQ_nmzgacv-HSMnOG6wPOJsBD7qNXmf4IuQ;__Secure-ENID=delete"},
+func Gemini(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://gemini.google.com/?hl=en",
+		core.H{"Cookie", "SOCS=CAISOAgeEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjQwODExLjA4X3AwGgV6aC1DTiACGgYIgOfvtQY; NID=516=I_1jljreYQcLJzkCvUL8k6eIiBqaC8_mkGLq8XaPbFdY2MMgL9re9rZw7NC9scKoZJyI3pzxTfTqhklea0KVsKRKeRMyl-TOLZgzpb_rqoL2vH7J2_5Wlef7KTXVuLfArRqcGeFWF4OZ6HBfQqu7BQc_YiFfiXshUK1bAp19DZQOQ_nmzgacv-HSMnOG6wPOJsBD7qNXmf4IuQ;__Secure-ENID=delete"},
 	)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 403 {
-		return Result{Status: StatusBanned}
+		return core.Result{Status: core.StatusBanned}
 	}
 
 	if resp.StatusCode == 302 {
-		return Result{Status: StatusFailed}
+		return core.Result{Status: core.StatusFailed}
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
 
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	regionThreeCode := extractGeminiRegion(bodyString)
-	regionTwoCode := threeToTwoCode(regionThreeCode)
+	regionTwoCode := core.ThreeToTwoCode(regionThreeCode)
 
 	if regionThreeCode != "" && regionTwoCode != "" {
 		if !SupportGemini(regionTwoCode) {
-			return Result{Status: StatusNo, Region: strings.ToLower(regionTwoCode)}
+			return core.Result{Status: core.StatusNo, Region: strings.ToLower(regionTwoCode)}
 		}
-		return Result{Status: StatusOK, Region: strings.ToLower(regionTwoCode)}
+		return core.Result{Status: core.StatusOK, Region: strings.ToLower(regionTwoCode)}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+

@@ -1,18 +1,20 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 )
 
-func RakutenMagazine(c http.Client) Result {
-	resp, err := GET(c, "https://data-cloudauthoring.magazine.rakuten.co.jp/rem_repository/////////.key")
+func RakutenMagazine(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://data-cloudauthoring.magazine.rakuten.co.jp/rem_repository/////////.key")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
-	return ResultFromMapping(resp.StatusCode, ResultMap{
-		http.StatusNotFound:  {Status: StatusOK},
-		http.StatusForbidden: {Status: StatusNo},
-	}, Result{Status: StatusUnexpected})
+	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
+		http.StatusNotFound:  {Status: core.StatusOK},
+		http.StatusForbidden: {Status: core.StatusNo},
+	}, core.Result{Status: core.StatusUnexpected})
 }
+

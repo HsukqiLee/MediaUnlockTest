@@ -1,14 +1,15 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"net/http"
 	"strings"
 )
 
-func Steam(c http.Client) Result {
-	resp, err := GET(c, "https://store.steampowered.com")
+func Steam(c http.Client) core.Result {
+	resp, err := core.GET(c, "https://store.steampowered.com")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
@@ -16,10 +17,11 @@ func Steam(c http.Client) Result {
 		if c.Name == "steamCountry" {
 			i := strings.Index(c.Value, "%")
 			if i == -1 {
-				return Result{Status: StatusNo}
+				return core.Result{Status: core.StatusNo}
 			}
-			return Result{Status: StatusOK, Region: strings.ToLower(c.Value[:i])}
+			return core.Result{Status: core.StatusOK, Region: strings.ToLower(c.Value[:i])}
 		}
 	}
-	return Result{Status: StatusNo}
+	return core.Result{Status: core.StatusNo}
 }
+

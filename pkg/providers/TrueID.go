@@ -1,6 +1,7 @@
-package mediaunlocktest
+package providers
 
 import (
+	"MediaUnlockTest/pkg/core"
 	"io"
 	"net/http"
 	"regexp"
@@ -34,29 +35,29 @@ func extractTrueIDBillboardType(body string) string {
 	return ""
 }
 
-func TrueID(c http.Client) Result {
-	resp1, err := GET(c, "https://tv.trueid.net/th-en/live/thairathtv-hd")
+func TrueID(c http.Client) core.Result {
+	resp1, err := core.GET(c, "https://tv.trueid.net/th-en/live/thairathtv-hd")
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()
 	body1, err := io.ReadAll(resp1.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	channelId := extractTrueIDChannelID(string(body1))
 	authUser := extractTrueIDAuthUser(string(body1))
 	if len(authUser) < 11 {
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	}
 	authKey := authUser[10:]
 
 	req, err := http.NewRequest("GET", "https://tv.trueid.net/api/stream/checkedPlay?channelId="+channelId+"&lang=en&country=th", nil)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
-	req.Header.Set("user-agent", UA_Browser)
+	req.Header.Set("user-agent", core.UA_Browser)
 	req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
 	req.Header.Set("cache-control", "no-cache")
 	req.Header.Set("dnt", "1")
@@ -70,23 +71,25 @@ func TrueID(c http.Client) Result {
 	req.Header.Set("sec-fetch-user", "?1")
 	req.Header.Set("upgrade-insecure-requests", "1")
 	req.SetBasicAuth(authUser, authKey)
-	resp2, err := cdo(c, req)
+	resp2, err := core.Cdo(c, req)
 
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp2.Body.Close()
 	body2, err := io.ReadAll(resp2.Body)
 	if err != nil {
-		return Result{Status: StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
 	switch extractTrueIDBillboardType(string(body2)) {
 	case "GEO_BLOCK":
-		return Result{Status: StatusNo}
+		return core.Result{Status: core.StatusNo}
 	case "LOADING":
-		return Result{Status: StatusOK}
+		return core.Result{Status: core.StatusOK}
 	}
 
-	return Result{Status: StatusUnexpected}
+	return core.Result{Status: core.StatusUnexpected}
 }
+
+
