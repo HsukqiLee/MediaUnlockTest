@@ -3,8 +3,9 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"regexp"
+
+	http "github.com/bogdanfinn/fhttp"
 	//"strings"
 )
 
@@ -35,7 +36,7 @@ func extractTrueIDBillboardType(body string) string {
 	return ""
 }
 
-func TrueID(c http.Client) core.Result {
+func TrueID(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://tv.trueid.net/th-en/live/thairathtv-hd")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -91,5 +92,3 @@ func TrueID(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-
-

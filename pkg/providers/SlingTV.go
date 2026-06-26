@@ -1,11 +1,12 @@
 package providers
 
 import (
-	"net/http"
 	"MediaUnlockTest/pkg/core"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func SlingTV(c http.Client) core.Result {
+func SlingTV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.sling.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -18,4 +19,3 @@ func SlingTV(c http.Client) core.Result {
 		http.StatusFound:     {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

@@ -2,10 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func Lemino(c http.Client) core.Result {
+func Lemino(c core.HttpClient) core.Result {
 	resp, err := core.PostJson(c, "https://if.lemino.docomo.ne.jp/v1/user/delivery/watch/ready",
 		`{"inflow_flows":[null,"crid://plala.iptvf.jp/group/b100ce3"],"play_type":1,"key_download_only":null,"quality":null,"groupcast":null,"avail_status":"1","terminal_type":3,"test_account":0,"content_list":[{"kind":"main","service_id":null,"cid":"00lm78dz30","lid":"a0lsa6kum1","crid":"crid://plala.iptvf.jp/vod/0000000000_00lm78dymn","preview":0,"trailer":0,"auto_play":0,"stop_position":0}]}`,
 		core.H{"accept", "application/json, text/plain, */*"},
@@ -27,4 +28,3 @@ func Lemino(c http.Client) core.Result {
 		http.StatusInternalServerError: {Status: core.StatusErr},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

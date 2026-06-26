@@ -4,7 +4,6 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -21,7 +20,7 @@ func extractWowowMetaID(body string) string {
 	return ""
 }
 
-func Wowow(c http.Client) core.Result {
+func Wowow(c core.HttpClient) core.Result {
 	useDeprecated := false
 	if useDeprecated {
 		return wowow_deprecated(c)
@@ -54,7 +53,7 @@ func Wowow(c http.Client) core.Result {
 	return core.Result{Status: core.StatusUnexpected}
 }
 
-func wowow_deprecated(c http.Client) core.Result {
+func wowow_deprecated(c core.HttpClient) core.Result {
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
 	resp1, err := core.GET(c, "https://www.wowow.co.jp/assets/config/top_recommend_list.json",
 		core.H{"Accept", "application/json, text/javascript, */*; q=0.01"},
@@ -155,5 +154,3 @@ func wowow_deprecated(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-
-

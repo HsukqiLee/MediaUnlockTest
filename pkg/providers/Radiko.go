@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func Radiko(c http.Client) core.Result {
+func Radiko(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://radiko.jp/area?_=1625406539531")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -27,4 +26,3 @@ func Radiko(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

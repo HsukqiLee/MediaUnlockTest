@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func NBA_TV(c http.Client) core.Result {
+func NBA_TV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.nba.com/watch/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,4 +22,3 @@ func NBA_TV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

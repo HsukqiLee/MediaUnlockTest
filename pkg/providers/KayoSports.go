@@ -2,10 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func KayoSports(c http.Client) core.Result {
+func KayoSports(c core.HttpClient) core.Result {
 	return core.CheckGETStatus(c, "https://kayosports.com.au/", core.ResultMap{
 		http.StatusForbidden: {Status: core.StatusNo},
 		http.StatusOK:        {Status: core.StatusOK},
@@ -16,4 +17,3 @@ func KayoSports(c http.Client) core.Result {
 		core.H{"Referer", "https://kayosports.com.au/"},
 	)
 }
-

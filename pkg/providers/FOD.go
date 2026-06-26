@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func FOD(c http.Client) core.Result {
+func FOD(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://geocontrol1.stream.ne.jp/fod-geo/check.xml?time=1624504256")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -26,4 +25,3 @@ func FOD(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

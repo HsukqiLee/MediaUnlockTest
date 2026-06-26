@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func Abema(c http.Client) core.Result {
+func Abema(c core.HttpClient) core.Result {
 	resp, err := core.GET_Dalvik(c, "https://api.abema.io/v1/ip/check?device=android")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -31,4 +30,3 @@ func Abema(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusRestricted, Info: "Oversea Only"}
 }
-

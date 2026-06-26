@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func AcornTV(c http.Client) core.Result {
+func AcornTV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://acorn.tv/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -26,4 +25,3 @@ func AcornTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

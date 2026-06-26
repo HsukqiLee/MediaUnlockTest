@@ -2,10 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 )
 
-func TataPlay(c http.Client) core.Result {
+func TataPlay(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://watch.tataplay.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -21,4 +20,3 @@ func TataPlay(c http.Client) core.Result {
 		return core.Result{Status: core.StatusUnexpected}
 	}
 }
-

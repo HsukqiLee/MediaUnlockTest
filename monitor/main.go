@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"runtime"
 	"strings"
@@ -18,7 +16,6 @@ import (
 
 	"github.com/kardianos/service"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"golang.org/x/net/proxy"
 )
 
 var (
@@ -78,7 +75,6 @@ func (p *program) run() {
 func (p *program) Stop(s service.Service) error {
 	return nil
 }
-
 
 func main() {
 	var (
@@ -146,40 +142,10 @@ func main() {
 			}
 		}
 	}
-	if DnsServers != "" {
-		core.Dialer.Resolver = &net.Resolver{
-			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				return (&net.Dialer{}).DialContext(ctx, "udp", DnsServers)
-			},
-		}
-
-		core.AutoHttpClient.Transport.(*core.CustomTransport).Resolver = core.Dialer.Resolver
-	}
-	if httpProxy != "" {
-		if u, err := url.Parse(httpProxy); err == nil {
-			core.ClientProxy = http.ProxyURL(u)
-			core.AutoHttpClient.Transport.(*core.CustomTransport).Proxy = core.ClientProxy
-		}
-	}
+	core.DNSServers = DnsServers
+	core.HTTPProxy = httpProxy
 	if socksProxy != "" {
-		proxyURL, err := url.Parse(socksProxy)
-		if err != nil {
-			log.Fatal("SOCKS5 地址不合法：", err)
-		}
-		var auth *proxy.Auth
-		if proxyURL.User != nil {
-			username := proxyURL.User.Username()
-			password, _ := proxyURL.User.Password()
-			auth = &proxy.Auth{
-				User:     username,
-				Password: password,
-			}
-		}
-		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
-		if err != nil {
-			log.Fatal("创建 SOCKS5 连接失败：", err)
-		}
-		core.AutoHttpClient.Transport.(*core.CustomTransport).SocksDialer = dialer
+		core.SocksProxy = socksProxy
 	}
 
 	args := []string{}
@@ -235,5 +201,3 @@ func main() {
 		log.Fatal("[ERR] 运行服务时出现错误", err)
 	}
 }
-
-

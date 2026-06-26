@@ -5,10 +5,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -22,7 +20,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/schollz/progressbar/v3"
-	"golang.org/x/net/proxy"
 )
 
 var (
@@ -175,7 +172,6 @@ func ReadSelect() {
 	}
 }
 
-
 func main() {
 	var (
 		Interface   string
@@ -231,41 +227,16 @@ func main() {
 				return (&net.Dialer{}).DialContext(ctx, "udp", DNSServers)
 			},
 		}
-		core.Ipv4Transport.Resolver = core.Dialer.Resolver
-		core.Ipv6Transport.Resolver = core.Dialer.Resolver
-		core.AutoHttpClient.Transport.(*core.CustomTransport).Resolver = core.Dialer.Resolver
+		core.DNSServers = DNSServers
 	}
 	if HTTPProxy != "" {
-		if u, err := url.Parse(HTTPProxy); err == nil {
-			core.ClientProxy = http.ProxyURL(u)
-			core.Ipv4Transport.Proxy = core.ClientProxy
-			core.Ipv6Transport.Proxy = core.ClientProxy
-			core.AutoHttpClient.Transport.(*core.CustomTransport).Proxy = core.ClientProxy
-		}
+		core.HTTPProxy = HTTPProxy
 	}
 	if SocksProxy != "" {
-		proxyURL, err := url.Parse(SocksProxy)
-		if err != nil {
-			log.Fatal("SOCKS5 地址不合法：", err)
-		}
-		var auth *proxy.Auth
-		if proxyURL.User != nil {
-			username := proxyURL.User.Username()
-			password, _ := proxyURL.User.Password()
-			auth = &proxy.Auth{
-				User:     username,
-				Password: password,
-			}
-		}
-		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
-		if err != nil {
-			log.Fatal("创建 SOCKS5 连接失败：", err)
-		}
-
-		core.Ipv4Transport.SocksDialer = dialer
-		core.Ipv6Transport.SocksDialer = dialer
-		core.AutoHttpClient.Transport.(*core.CustomTransport).SocksDialer = dialer
+		core.SocksProxy = SocksProxy
 	}
+	core.InitClients()
+
 	if Conc > 0 {
 		sem = make(chan struct{}, Conc)
 	}
@@ -282,7 +253,7 @@ func main() {
 			m.EuropeTests, m.AfricaTests, m.SouthEastAsiaTests,
 			m.OceaniaTests, m.AITests,
 		}
-		
+
 		found := false
 		for _, list := range allLists {
 			for _, test := range list {
@@ -411,7 +382,7 @@ func main() {
 					IsProxy = true
 					fmt.Println(core.Yellow("正在使用监听地址为 IPv4 的代理，出口 IP：") + core.Red(IP4))
 				} else if IP4 == IP4_1 {
-					fmt.Println(core.Green("未使用 IPv4 代理，有 IPv4 网络"))
+					fmt.Println(core.Green("未使用 IPv4 代理或使用了全局代理，有 IPv4 网络"))
 				} else {
 					fmt.Println(core.Red("无法强制使用 IPv4 网络测试，可能使用 IPv4 代理"))
 					IPV4 = false
@@ -437,7 +408,7 @@ func main() {
 					IsProxy = true
 					fmt.Println(core.Yellow("正在使用监听地址为 IPv6 的代理，出口 IP：") + core.Red(IP6))
 				} else if IP6 == IP6_1 {
-					fmt.Println(core.Green("未使用 IPv6 代理，有 IPv6 网络"))
+					fmt.Println(core.Green("未使用 IPv6 代理或使用了全局代理，有 IPv6 网络"))
 				} else {
 					fmt.Println(core.Red("无法强制使用 IPv6 网络测试，可能使用 IPv6 代理"))
 					IPV6 = false

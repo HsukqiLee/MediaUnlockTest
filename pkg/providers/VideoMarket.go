@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func VideoMarket(c http.Client) core.Result {
+func VideoMarket(c core.HttpClient) core.Result {
 	resp, err := core.PostJson(c, "https://www.videomarket.jp/graphql",
 		`{"operationName": "repPacksOnTab","variables": {"fullTitleId": "292072","groupType": "SINGLE_CHOICE","page": {"current": 1,"size": 20}},"query": "query repPacksOnTab($fullTitleId: String!, $groupType: GroupType!, $page: PageInput!) {\n  repPacksOnTab(fullTitleId: $fullTitleId, groupType: $groupType, page: $page) {\n    repFullPackId\n    groupType\n    packName\n    fullTitleId\n    titleName\n    storyImageUrl16x9\n    playTime\n    subtitleDubType\n    outlines\n    courseIds\n    price\n    discountRate\n    couponPrice\n    couponDiscountRate\n    rentalDays\n    viewDays\n    deliveryExpiredAt\n    salesType\n    counter {\n      currentPage\n      currentResult\n      totalPages\n      totalResults\n      __typename\n    }\n    undiscountedPrice\n    packs {\n      undiscountedPrice\n      canPurchase\n      fullPackId\n      subGroupType\n      fullTitleId\n      qualityConsentType\n      courseIds\n      price\n      discountRate\n      couponPrice\n      couponDiscountRate\n      rentalDays\n      viewDays\n      deliveryExpiredAt\n      salesType\n      extId\n      stories {\n        fullStoryId\n        subtitleDubType\n        encodeVersion\n        isDownloadable\n        isBonusMaterial\n        fileSize\n        __typename\n      }\n      __typename\n    }\n    status {\n      hasBeenPlayed\n      isCourseRegistered\n      isEstPurchased\n      isNowPlaying\n      isPlayable\n      isRented\n      playExpiredAt\n      playableQualityType\n      rentalExpiredAt\n      __typename\n    }\n    __typename\n  }\n}\n"}`,
 		core.H{"authority", "www.videomarket.jp"},
@@ -15,6 +14,9 @@ func VideoMarket(c http.Client) core.Result {
 		core.H{"cookie", "_gid=GA1.2.1853799793.1706147718; VM_REGIST_BANNER_REF_LINK=%2Ftitle%2F292072%2FA292072001999H01; __ulfpc=202401250957239984; _im_vid=01HMZ5C5GNNC6VWSPKD3E4W7YP; __td_signed=true; _td_global=0d11678b-5151-473e-b3a8-4f4d780f26a6; __juicer_sesid_9i3nsdfP_=d36a2e17-011"},
 	)
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned, Err: err}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
@@ -26,6 +28,9 @@ func VideoMarket(c http.Client) core.Result {
 	bodyBytes, err := io.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned, Err: err}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 
@@ -39,4 +44,3 @@ func VideoMarket(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

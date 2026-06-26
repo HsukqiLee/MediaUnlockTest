@@ -3,11 +3,12 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func MaoriTV(c http.Client) core.Result {
+func MaoriTV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/1614493167001/videos/6278939271001",
 		core.H{"Accept", "application/json;pk=BCpkADawqM2E9yW4lLgKIEIV5majz5djzZCIqJiYMkP5yYaYdF6AQYq4isPId1ZLtQdGnK1ErLYG0-r1N-3DzAEdbfvw9SFdDWz_i09pLp8Njx1ybslyIXid-X_Dx31b7-PLdQhJCws-vk6Y"},
 		core.H{"Origin", "https://www.maoritelevision.com"},
@@ -30,4 +31,3 @@ func MaoriTV(c http.Client) core.Result {
 		http.StatusOK: {Status: core.StatusOK},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

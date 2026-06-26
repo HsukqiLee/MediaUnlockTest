@@ -2,7 +2,6 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 	"regexp"
 	"strings"
 )
@@ -25,7 +24,7 @@ func extractViaplayRegion2(url string) string {
 	return ""
 }
 
-func Viaplay(c http.Client) core.Result {
+func Viaplay(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://viaplay.pl")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -60,4 +59,3 @@ func Viaplay(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

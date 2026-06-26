@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func Joyn(c http.Client) core.Result {
+func Joyn(c core.HttpClient) core.Result {
 	url := "https://auth.joyn.de/auth/anonymous"
 	resp, err := core.PostJson(c, url,
 		`{"client_id":"b74b9f27-a994-4c45-b7eb-5b81b1c856e7","client_name":"web","anon_device_id":"b74b9f27-a994-4c45-b7eb-5b81b1c856e7"}`,
@@ -62,4 +61,3 @@ func Joyn(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

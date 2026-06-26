@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func TubiTV(c http.Client) core.Result {
+func TubiTV(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://tubitv.com")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -44,4 +43,3 @@ func TubiTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

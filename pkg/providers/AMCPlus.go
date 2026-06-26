@@ -2,8 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 	"regexp"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
 func extractAMCPlusRegion(url string) string {
@@ -15,7 +16,7 @@ func extractAMCPlusRegion(url string) string {
 	return ""
 }
 
-func AMCPlus(c http.Client) core.Result {
+func AMCPlus(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://www.amcplus.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -52,4 +53,3 @@ func AMCPlus(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusBanned},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

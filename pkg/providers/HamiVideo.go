@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func HamiVideo(c http.Client) core.Result {
+func HamiVideo(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://hamivideo.hinet.net/api/play.do?id=OTT_VOD_0000249064&freeProduct=1")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -31,4 +30,3 @@ func HamiVideo(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

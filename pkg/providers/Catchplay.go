@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func Catchplay(c http.Client) core.Result {
+func Catchplay(c core.HttpClient) core.Result {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://sunapi.catchplay.com/geo", nil)
@@ -50,4 +51,3 @@ func Catchplay(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

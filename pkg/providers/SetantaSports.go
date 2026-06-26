@@ -3,11 +3,12 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
-	"net/http"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func SetantaSports(c http.Client) core.Result {
+func SetantaSports(c core.HttpClient) core.Result {
 	req, err := http.NewRequest("GET", "https://dce-frontoffice.imggaming.com/api/v2/consent-prompt", nil)
 	if err != nil {
 		return core.Result{Status: core.StatusFailed}
@@ -20,7 +21,7 @@ func SetantaSports(c http.Client) core.Result {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	
+
 	var data map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
@@ -41,5 +42,3 @@ func SetantaSports(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-
-

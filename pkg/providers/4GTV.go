@@ -1,11 +1,10 @@
 package providers
 
 import (
-	"net/http"
 	"MediaUnlockTest/pkg/core"
 )
 
-func TW4GTV(c http.Client) core.Result {
+func TW4GTV(c core.HttpClient) core.Result {
 	success, err := core.PostFormBoolSuccess(c, "https://api2.4gtv.tv//Vod/GetVodUrl3",
 		`value=D33jXJ0JVFkBqV%2BZSi1mhPltbejAbPYbDnyI9hmfqjKaQwRQdj7ZKZRAdb16%2FRUrE8vGXLFfNKBLKJv%2BfDSiD%2BZJlUa5Msps2P4IWuTrUP1%2BCnS255YfRadf%2BKLUhIPj`,
 	)
@@ -17,4 +16,3 @@ func TW4GTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

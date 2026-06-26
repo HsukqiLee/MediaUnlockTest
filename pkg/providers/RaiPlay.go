@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func RaiPlay(c http.Client) core.Result {
+func RaiPlay(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://mediapolisvod.rai.it/relinker/relinkerServlet.htm?cont=VxXwi7UcqjApssSlashbjsAghviAeeqqEEqualeeqqEEqual&output=64")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -35,4 +34,3 @@ func RaiPlay(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

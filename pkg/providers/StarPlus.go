@@ -3,7 +3,6 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
 )
@@ -20,7 +19,7 @@ func SupportStarPlus(loc string) bool {
 	return false
 }
 
-func StarPlus(c http.Client) core.Result {
+func StarPlus(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.starplus.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -54,4 +53,3 @@ func StarPlus(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

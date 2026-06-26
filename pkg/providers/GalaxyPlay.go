@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func GalaxyPlay(c http.Client) core.Result {
+func GalaxyPlay(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.glxplay.io/account/device/new")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -39,4 +38,3 @@ func GalaxyPlay(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

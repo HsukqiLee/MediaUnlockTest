@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func NPOStartPlus(c http.Client) core.Result {
+func NPOStartPlus(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://npo.nl/start/api/domain/player-token?productId=LI_NL1_4188102",
 		core.H{"connection", "keep-alive"},
 		core.H{"referer", "https://npo.nl/start/live?channel=NPO1"},
@@ -54,4 +53,3 @@ func NPOStartPlus(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

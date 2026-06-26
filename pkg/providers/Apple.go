@@ -3,7 +3,6 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
@@ -34,7 +33,7 @@ func SupportApple(loc string) bool {
 	return false
 }
 
-func Apple(c http.Client) core.Result {
+func Apple(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://gspe1-ssl.ls.apple.com/pep/gcc")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -52,4 +51,3 @@ func Apple(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo, Region: region}
 }
-

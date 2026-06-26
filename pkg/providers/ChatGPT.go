@@ -3,7 +3,6 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
@@ -19,7 +18,7 @@ func SupportGPT(loc string) bool {
 	return false
 }
 
-func ChatGPT(c http.Client) core.Result {
+func ChatGPT(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://chatgpt.com/cdn-cgi/trace")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -64,4 +63,3 @@ func ChatGPT(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo, Region: strings.ToLower(loc)}
 }
-

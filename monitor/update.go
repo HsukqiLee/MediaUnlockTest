@@ -15,7 +15,7 @@ func checkUpdate(silent bool) {
 		BinaryURLPrefix: "https://unlock.icmp.ing/monitor/latest/unlock-monitor",
 		Silent:          silent,
 	}
-	
+
 	updated := core.CheckUpdate(cfg)
 	if updated {
 		serviceConfig := &service.Config{

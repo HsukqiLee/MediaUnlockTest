@@ -2,11 +2,10 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 	"strings"
 )
 
-func IQiYi(c http.Client) core.Result {
+func IQiYi(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.iq.com")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -27,4 +26,3 @@ func IQiYi(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK, Region: region}
 }
-

@@ -2,11 +2,10 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 	"strings"
 )
 
-func Steam(c http.Client) core.Result {
+func Steam(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://store.steampowered.com")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -24,4 +23,3 @@ func Steam(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

@@ -3,10 +3,9 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 )
 
-func MusicJP(c http.Client) core.Result {
+func MusicJP(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://overseaauth.music-book.jp/globalIpcheck.js")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -21,4 +20,3 @@ func MusicJP(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -24,7 +23,7 @@ func generateHMACSignature(key, data string) string {
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
-func NaverTV(c http.Client) core.Result {
+func NaverTV(c core.HttpClient) core.Result {
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
 	signature := generateHMACSignature(
 		"nbxvs5nwNG9QKEWK0ADjYA4JZoujF4gHcIwvoCxFTPAeamq5eemvt5IWAYXxrbYM",
@@ -69,4 +68,3 @@ func NaverTV(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

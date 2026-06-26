@@ -3,12 +3,11 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
 )
 
-func TNTSports(c http.Client) core.Result {
+func TNTSports(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.tntsports.co.uk/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -41,4 +40,3 @@ func TNTSports(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusNo}
 }
-

@@ -2,10 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func AnimeFesta(c http.Client) core.Result {
+func AnimeFesta(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api-animefesta.iowl.jp/v1/titles/1560",
 		core.H{"accept", "application/json"},
 		core.H{"accept-language", "en-US,en;q=0.9"},
@@ -17,6 +18,9 @@ func AnimeFesta(c http.Client) core.Result {
 		core.H{"x-requested-with", "XMLHttpRequest"},
 	)
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned, Err: err}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
@@ -26,4 +30,3 @@ func AnimeFesta(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

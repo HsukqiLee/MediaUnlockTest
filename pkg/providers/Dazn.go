@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func Dazn(c http.Client) core.Result {
+func Dazn(c core.HttpClient) core.Result {
 	resp, err := core.PostJson(c, "https://startup.core.indazn.com/misl/v5/Startup",
 		`{"LandingPageKey":"generic","Languages":"zh-CN,zh,en","Platform":"web","PlatformAttributes":{},"Manufacturer":"","PromoCode":"","Version":"2"}`,
 	)
@@ -45,4 +44,3 @@ func Dazn(c http.Client) core.Result {
 		Info:   res.Region.DisallowedReason,
 	}
 }
-

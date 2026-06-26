@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func NowTV(c http.Client) core.Result {
+func NowTV(c core.HttpClient) core.Result {
 	resp, err := core.PostJson(c, "https://webtvapi.nowe.com/16/1/getVodURL",
 		`{"contentId":"202403181904703","contentType":"Vod","pin":"","deviceName":"Browser","deviceId":"w-663bcc51-913c-913c-913c-913c913c","deviceType":"WEB","secureCookie":null,"callerReferenceNo":"W17151951620081575","profileId":null,"mupId":null}`,
 	)
@@ -36,4 +35,3 @@ func NowTV(c http.Client) core.Result {
 type noweRes struct {
 	ResponseCode string
 }
-

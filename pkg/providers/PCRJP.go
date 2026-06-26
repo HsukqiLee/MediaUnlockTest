@@ -1,12 +1,11 @@
 package providers
 
 import (
-	"net/http"
 	"MediaUnlockTest/pkg/core"
 )
 
 // Princess Connect Re:Dive Japan
-func PCRJP(c http.Client) core.Result {
+func PCRJP(c core.HttpClient) core.Result {
 	resp, err := core.GET_Dalvik(c, "https://api-priconne-redive.cygames.jp/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -21,4 +20,3 @@ func PCRJP(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

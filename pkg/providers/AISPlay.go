@@ -4,13 +4,14 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func AISPlay(c http.Client) core.Result {
+func AISPlay(c core.HttpClient) core.Result {
 	userId := "09e8b25510"
 	fakeApiKey := core.MD5Sum(core.GenUUID())
 	fakeUdid := core.MD5Sum(core.GenUUID())
@@ -127,4 +128,3 @@ func AISPlay(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

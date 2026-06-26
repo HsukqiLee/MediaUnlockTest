@@ -2,10 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 )
 
-func SOOP(c http.Client) core.Result {
+func SOOP(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://vod.sooplive.co.kr/player/97464151")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}

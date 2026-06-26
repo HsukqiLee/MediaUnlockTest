@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func EurosportRO(c http.Client) core.Result {
+func EurosportRO(c core.HttpClient) core.Result {
 	fakeUuid := core.MD5Sum(core.GenUUID())
 
 	resp1, err := core.GET(c, "https://eu3-prod-direct.eurosport.ro/token?realm=eurosport",
@@ -67,4 +66,3 @@ func EurosportRO(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

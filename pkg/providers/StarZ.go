@@ -4,12 +4,14 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func Starz(c http.Client) core.Result {
+func Starz(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.starz.com/sapi/header/v1/starz/us/109448574b2147ccbc494b429ff5ef1b", core.H{"Referer", "https://www.starz.com/us/en/"})
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned, Err: err}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
@@ -52,4 +54,3 @@ func Starz(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

@@ -5,13 +5,12 @@ import (
 	m "MediaUnlockTest/pkg/providers"
 	"context"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
 )
 
 // ExecuteTestsParallel 并行执行所有测试（不按地区分组）
-func ExecuteTestsParallel(regions []regionItem, client http.Client, ipType int) {
+func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType int) {
 	startTime := time.Now()
 
 	// 收集所有启用的测试，并记录地区信息
@@ -100,6 +99,7 @@ func ExecuteTestsParallel(regions []regionItem, client http.Client, ipType int) 
 				}()
 
 				core.ResetSessionHeaders()
+				client = core.NewHttpClient(ipType)
 				result := test.Func(client)
 				result.CachedResult = false
 
@@ -216,7 +216,7 @@ func ExecuteTestsParallel(regions []regionItem, client http.Client, ipType int) 
 
 }
 
-func ExecuteTests(regions []regionItem, client http.Client, ipType int) {
+func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 	startTime := time.Now()
 
 	for _, region := range regions {
@@ -331,6 +331,7 @@ func ExecuteTests(regions []regionItem, client http.Client, ipType int) {
 					}()
 
 					core.ResetSessionHeaders()
+					client = core.NewHttpClient(ipType)
 					result := test.Func(client)
 					result.CachedResult = false
 

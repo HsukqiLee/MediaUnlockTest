@@ -4,11 +4,12 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func Copilot(c http.Client) core.Result {
+func Copilot(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://copilot.microsoft.com/c/api/user?api-version=2")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -34,4 +35,3 @@ func Copilot(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

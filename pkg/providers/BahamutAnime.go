@@ -4,13 +4,13 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
-	"net/http/cookiejar"
+	tls_client "github.com/bogdanfinn/tls-client"
 	"strings"
 )
 
-func BahamutAnime(c http.Client) core.Result {
-	c.Jar, _ = cookiejar.New(nil)
+func BahamutAnime(c core.HttpClient) core.Result {
+	jar := tls_client.NewCookieJar()
+	c.SetCookieJar(jar)
 
 	headers := core.GetRealisticHeaders("html")
 	headers = append(headers, core.H{"x-custom-headers", "true"})
@@ -99,4 +99,3 @@ func BahamutAnime(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

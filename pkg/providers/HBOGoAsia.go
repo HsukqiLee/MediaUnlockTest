@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func HboGoAsia(c http.Client) core.Result {
+func HboGoAsia(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api2.hbogoasia.com/v1/geog?lang=undefined&version=0&bundleId=www.hbogoasia.com")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -30,4 +29,3 @@ func HboGoAsia(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK, Region: strings.ToLower(res.Country)}
 }
-

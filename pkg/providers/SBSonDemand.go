@@ -2,12 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-    "io"
-	"net/http"
 	"encoding/json"
+	"io"
 )
 
-func SBSonDemand(c http.Client) core.Result {
+func SBSonDemand(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.sbs.com.au/api/v3/network?context=odwebsite")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -20,7 +19,7 @@ func SBSonDemand(c http.Client) core.Result {
 	var res struct {
 		Get struct {
 			Response struct {
-			    CountryCode string `json:"country_code"`
+				CountryCode string `json:"country_code"`
 			} `json:"response"`
 		} `json:"get"`
 	}

@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func KPlus(c http.Client) core.Result {
+func KPlus(c core.HttpClient) core.Result {
 	resp, err := core.PostJson(c, "https://tvapi-sgn.solocoo.tv/v1/provision", `{"osVersion":"Windows 10","deviceModel":"Edge","deviceType":"PC","deviceSerial":"w7ab83550-c0aa-11ee-bf07-531681e47537","deviceOem":"Edge","devicePrettyName":"Edge 121.0.0.0","appVersion":"11.0","language":"en_US","brand":"vstv","featureLevel":5}`)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -39,4 +38,3 @@ func KPlus(c http.Client) core.Result {
 		return core.Result{Status: core.StatusNo}
 	}
 }
-

@@ -2,12 +2,16 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func ThreeNow(c http.Client) core.Result {
+func ThreeNow(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://bravo-livestream.fullscreen.nz/index.m3u8")
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned, Err: err}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
@@ -17,4 +21,3 @@ func ThreeNow(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-
