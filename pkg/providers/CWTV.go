@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func CW_TV(c http.Client) core.Result {
+func CW_TV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.cwtv.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,4 +22,3 @@ func CW_TV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

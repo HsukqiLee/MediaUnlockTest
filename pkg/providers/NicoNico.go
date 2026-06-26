@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func Niconico(c http.Client) core.Result {
+func Niconico(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.nicovideo.jp/watch/so40278367")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,4 +22,3 @@ func Niconico(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

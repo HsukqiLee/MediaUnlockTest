@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func ClipTV(c http.Client) core.Result {
+func ClipTV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://cliptv.vn/truyen-hinh")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -33,4 +32,3 @@ func ClipTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

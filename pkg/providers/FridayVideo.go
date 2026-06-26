@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net/http"
 )
 
-func FridayVideo(c http.Client) core.Result {
+func FridayVideo(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://video.friday.tw/api2/streaming/get?streamingId=122581&streamingType=2&contentType=4&contentId=1&clientId=",
 		core.H{"user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"},
 	)
@@ -42,4 +41,3 @@ func FridayVideo(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

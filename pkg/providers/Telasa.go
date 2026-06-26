@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"net/http"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func Telasa(c http.Client) core.Result {
+func Telasa(c core.HttpClient) core.Result {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://api-videopass-anon.kddi-video.com/v1/playback/system_status", nil)
@@ -45,4 +46,3 @@ func Telasa(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

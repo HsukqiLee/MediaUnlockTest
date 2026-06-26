@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 )
 
-func LiTV(c http.Client) core.Result {
+func LiTV(c core.HttpClient) core.Result {
 	deviceID, err := getLiTVDeviceID(c)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -61,7 +60,7 @@ func LiTV(c http.Client) core.Result {
 	return core.Result{Status: core.StatusNo}
 }
 
-func getLiTVDeviceID(c http.Client) (string, error) {
+func getLiTVDeviceID(c core.HttpClient) (string, error) {
 	resp, err := core.PostJson(c, "https://www.litv.tv/api/generate-device-id", "",
 		core.H{"Origin", "https://www.litv.tv"},
 		core.H{"Referer", "https://www.litv.tv/"},

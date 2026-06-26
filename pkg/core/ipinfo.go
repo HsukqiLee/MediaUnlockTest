@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"net/http"
+	http "github.com/bogdanfinn/fhttp"
 	"strings"
 	"time"
 )
@@ -29,7 +29,7 @@ func GetDetailedIPInfo(url string, ipType int) (*IPInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
-	var client http.Client
+	var client HttpClient
 	switch ipType {
 	case 6:
 		client = Ipv6HttpClient
@@ -74,7 +74,7 @@ func GetIPInfo(url string, ipType int, formatType string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
-	var client http.Client
+	var client HttpClient
 	switch ipType {
 	case 6:
 		client = Ipv6HttpClient

@@ -2,7 +2,6 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 	"regexp"
 )
 
@@ -15,7 +14,7 @@ func extractSkyShowTimeRegion(url string) string {
 	return ""
 }
 
-func SkyShowTime(c http.Client) core.Result {
+func SkyShowTime(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.skyshowtime.com/",
 		core.H{"Cookie", "sat_track=true; AMCVS_99B971AC61C1E36F0A495FC6@AdobeOrg=1; AMCV_99B971AC61C1E36F0A495FC6@AdobeOrg=179643557|MCIDTS|19874|MCMID|36802229575946481753961418923958457479|MCOPTOUT-1717079521s|NONE|vVersion|5.5.0"},
 	)
@@ -41,4 +40,3 @@ func SkyShowTime(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

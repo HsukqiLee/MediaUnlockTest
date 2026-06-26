@@ -4,11 +4,12 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"context"
 	"errors"
-	"net/http"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func PrettyDerbyJP(c http.Client) core.Result {
+func PrettyDerbyJP(c core.HttpClient) core.Result {
 	for i := 0; i < 3; i++ {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -43,4 +44,3 @@ func PrettyDerbyJP(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

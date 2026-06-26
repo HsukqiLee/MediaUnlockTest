@@ -2,10 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 )
 
-func Amediateka(c http.Client) core.Result {
+func Amediateka(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.amediateka.ru/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -25,4 +24,3 @@ func Amediateka(c http.Client) core.Result {
 		return core.Result{Status: core.StatusUnexpected}
 	}
 }
-

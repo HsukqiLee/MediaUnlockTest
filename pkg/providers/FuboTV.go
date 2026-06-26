@@ -4,12 +4,11 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"crypto/rand"
 	"io"
-	"net/http"
 	"strconv"
 	"strings"
 )
 
-func FuboTV(c http.Client) core.Result {
+func FuboTV(c core.HttpClient) core.Result {
 	// Generate cryptographically secure random number
 	randomBytes := make([]byte, 1)
 	_, err := rand.Read(randomBytes)
@@ -35,4 +34,3 @@ func FuboTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

@@ -3,7 +3,6 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
@@ -19,7 +18,7 @@ func SupportNLZIET(loc string) bool {
 	return false
 }
 
-func NLZIET(c http.Client) core.Result {
+func NLZIET(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://nlziet.nl/cdn-cgi/trace")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -46,4 +45,3 @@ func NLZIET(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func NBC_TV(c http.Client) core.Result {
+func NBC_TV(c core.HttpClient) core.Result {
 	resp, err := core.PostJson(c, "https://geolocation.digitalsvc.apps.nbcuni.com/geolocation/live/nbc", `{"adobeMvpdId": null, "serviceZip": null, "device": "web"}`,
 		core.H{"accept", "application/media.geo-v2+json"},
 		core.H{"accept-encoding", "gzip, deflate, br, zstd"},
@@ -61,4 +60,3 @@ func NBC_TV(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

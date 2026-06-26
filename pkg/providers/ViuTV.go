@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func ViuTV(c http.Client) core.Result {
+func ViuTV(c core.HttpClient) core.Result {
 	resp, err := core.PostJson(c, "https://api.viu.now.com/p8/3/getLiveURL",
 		`{"callerReferenceNo":"20210726112323","contentId":"099","contentType":"Channel","channelno":"099","mode":"prod","deviceId":"29b3cb117a635d5b56","deviceType":"ANDROID_WEB"}`,
 	)
@@ -32,4 +31,3 @@ func ViuTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

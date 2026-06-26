@@ -4,12 +4,11 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strconv"
 	"time"
 )
 
-func Channel5(c http.Client) core.Result {
+func Channel5(c core.HttpClient) core.Result {
 	timestamp := time.Now().Unix()
 	resp, err := core.GET(c, "https://cassie.channel5.com/api/v2/live_media/my5desktopng/C5.json?timestamp="+strconv.FormatInt(timestamp, 10)+"&auth=0_rZDiY0hp_TNcDyk2uD-Kl40HqDbXs7hOawxyqPnbI")
 	if err != nil {
@@ -43,4 +42,3 @@ func Channel5(c http.Client) core.Result {
 		return core.Result{Status: core.StatusUnexpected}
 	}
 }
-

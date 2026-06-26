@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func ParamountPlus(c http.Client) core.Result {
+func ParamountPlus(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.paramountplus.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,4 +22,3 @@ func ParamountPlus(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

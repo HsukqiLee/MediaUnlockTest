@@ -4,33 +4,32 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
 )
 
 func extractDisneyPlusRegion(body string) string {
-    re := regexp.MustCompile(`"countryCode"\s*:\s*"([^"]+)"`)
-    match := re.FindStringSubmatch(body)
-    if len(match) > 1 {
-        return match[1]
-    }
-    return ""
+	re := regexp.MustCompile(`"countryCode"\s*:\s*"([^"]+)"`)
+	match := re.FindStringSubmatch(body)
+	if len(match) > 1 {
+		return match[1]
+	}
+	return ""
 }
 
 func extractDisneyPlusSupport(body string) bool {
-    re := regexp.MustCompile(`"inSupportedLocation"\s*:\s*(false|true)`)
-    match := re.FindStringSubmatch(body)
-    if len(match) > 1 && match[1] == "true" {
-        return true
-    }
-    return false
+	re := regexp.MustCompile(`"inSupportedLocation"\s*:\s*(false|true)`)
+	match := re.FindStringSubmatch(body)
+	if len(match) > 1 && match[1] == "true" {
+		return true
+	}
+	return false
 }
 
-func DisneyPlus(c http.Client) core.Result {
+func DisneyPlus(c core.HttpClient) core.Result {
 	resp1, err := core.PostJson(c, "https://disney.api.edge.bamgrid.com/devices",
-	`{"deviceFamily":"browser","applicationRuntime":"chrome","deviceProfile":"windows","attributes":{}}`,
-	     core.H{"authorization", "Bearer ZGlzbmV5JmJyb3dzZXImMS4wLjA.Cu56AgSfBTDag5NiRA81oLHkDZfu5L3CKadnefEAY84"},
+		`{"deviceFamily":"browser","applicationRuntime":"chrome","deviceProfile":"windows","attributes":{}}`,
+		core.H{"authorization", "Bearer ZGlzbmV5JmJyb3dzZXImMS4wLjA.Cu56AgSfBTDag5NiRA81oLHkDZfu5L3CKadnefEAY84"},
 	)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -40,11 +39,11 @@ func DisneyPlus(c http.Client) core.Result {
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
-    bodyString1 := string(body1)
+	bodyString1 := string(body1)
 	if strings.Contains(bodyString1, "403 ERROR") {
 		return core.Result{Status: core.StatusNo}
 	}
-	
+
 	var res1 struct {
 		Assertion string `json:"assertion"`
 	}
@@ -53,8 +52,8 @@ func DisneyPlus(c http.Client) core.Result {
 	}
 
 	resp2, err := core.PostForm(c, "https://disney.api.edge.bamgrid.com/token",
-	    `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange&latitude=0&longitude=0&platform=browser&subject_token=` + res1.Assertion + `&subject_token_type=urn%3Abamtech%3Aparams%3Aoauth%3Atoken-type%3Adevice`,
-	    core.H{"authorization", "ZGlzbmV5JmJyb3dzZXImMS4wLjA.Cu56AgSfBTDag5NiRA81oLHkDZfu5L3CKadnefEAY84"},
+		`grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange&latitude=0&longitude=0&platform=browser&subject_token=`+res1.Assertion+`&subject_token_type=urn%3Abamtech%3Aparams%3Aoauth%3Atoken-type%3Adevice`,
+		core.H{"authorization", "ZGlzbmV5JmJyb3dzZXImMS4wLjA.Cu56AgSfBTDag5NiRA81oLHkDZfu5L3CKadnefEAY84"},
 	)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -64,21 +63,21 @@ func DisneyPlus(c http.Client) core.Result {
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
-    
-    bodyString2 := string(body2)
+
+	bodyString2 := string(body2)
 	if strings.Contains(bodyString2, "forbidden-location") || resp2.StatusCode == 403 {
 		return core.Result{Status: core.StatusNo}
 	}
-	
+
 	resp3, err := core.GET(c, "https://www.disneyplus.com")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp3.Body.Close()
-    if strings.Contains(resp3.Request.URL.String(), "preview") || strings.Contains(resp3.Request.URL.String(), "unavailable") {
+	if strings.Contains(resp3.Request.URL.String(), "preview") || strings.Contains(resp3.Request.URL.String(), "unavailable") {
 		return core.Result{Status: core.StatusNo}
 	}
-    
+
 	var res2 struct {
 		RefreshToken string `json:"refresh_token"`
 	}
@@ -87,8 +86,8 @@ func DisneyPlus(c http.Client) core.Result {
 	}
 
 	resp4, err := core.PostJson(c, "https://disney.api.edge.bamgrid.com/graph/v1/device/graphql",
-	    `{"query":"mutation refreshToken($input: RefreshTokenInput!) {\n            refreshToken(refreshToken: $input) {\n                activeSession {\n                    sessionId\n                }\n            }\n        }","variables":{"input":{"refreshToken":"` + res2.RefreshToken + `"}}}`,
-	    core.H{"authorization", "ZGlzbmV5JmJyb3dzZXImMS4wLjA.Cu56AgSfBTDag5NiRA81oLHkDZfu5L3CKadnefEAY84"},
+		`{"query":"mutation refreshToken($input: RefreshTokenInput!) {\n            refreshToken(refreshToken: $input) {\n                activeSession {\n                    sessionId\n                }\n            }\n        }","variables":{"input":{"refreshToken":"`+res2.RefreshToken+`"}}}`,
+		core.H{"authorization", "ZGlzbmV5JmJyb3dzZXImMS4wLjA.Cu56AgSfBTDag5NiRA81oLHkDZfu5L3CKadnefEAY84"},
 	)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -100,15 +99,14 @@ func DisneyPlus(c http.Client) core.Result {
 	}
 	bodyString4 := string(body4)
 
-    if !extractDisneyPlusSupport(bodyString4) {
-        return core.Result{Status: core.StatusNo}
-    }
+	if !extractDisneyPlusSupport(bodyString4) {
+		return core.Result{Status: core.StatusNo}
+	}
 
-    region := extractDisneyPlusRegion(bodyString4)
+	region := extractDisneyPlusRegion(bodyString4)
 	if region == "" {
 		return core.Result{Status: core.StatusUnexpected}
 	}
-    
-    return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
-}
 
+	return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
+}

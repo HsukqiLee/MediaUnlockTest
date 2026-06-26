@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"net/http"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func MyTvSuper(c http.Client) core.Result {
+func MyTvSuper(c core.HttpClient) core.Result {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	r, err := http.NewRequestWithContext(ctx, "GET", "https://www.mytvsuper.com/api/auth/getSession/self/", nil)
@@ -46,5 +47,3 @@ func MyTvSuper(c http.Client) core.Result {
 type mytvsuperRes struct {
 	Region int
 }
-
-

@@ -4,24 +4,24 @@ import (
 	"context"
 	"crypto/md5"
 	"crypto/rand"
-	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net"
-	"net/http"
-	"net/url"
+	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
-	"github.com/google/uuid"
-	utls "github.com/refraction-networking/utls"
+	http "github.com/bogdanfinn/fhttp"
+	tls_client "github.com/bogdanfinn/tls-client"
+	"github.com/bogdanfinn/tls-client/profiles"
 
-	"golang.org/x/net/http2"
-	"golang.org/x/net/proxy"
+	"github.com/google/uuid"
 )
 
 var (
@@ -35,6 +35,8 @@ var (
 	StatusFailed     = 5
 	StatusUnexpected = 6
 )
+
+type HttpClient = tls_client.HttpClient
 
 type Result struct {
 	Status       int
@@ -56,168 +58,70 @@ var (
 	}
 )
 
-var Dialer = &net.Dialer{
-	Timeout:   15 * time.Second, // 从30秒减少到15秒
-	KeepAlive: 30 * time.Second, // 从30秒减少到30秒（保持不变）
-	// Resolver:  &net.Resolver{},
-}
+var (
+	Ipv4HttpClient HttpClient
+	Ipv6HttpClient HttpClient
+	AutoHttpClient HttpClient
+	SocksProxy     string
+	HTTPProxy      string
+	DNSServers     string
+	Dialer         = &net.Dialer{
+		Timeout:   15 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+)
 
-var ClientProxy = http.ProxyFromEnvironment
-
-func UseLastResponse(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
-
-type CustomTransport struct {
-	Dialer      *net.Dialer
-	Resolver    *net.Resolver
-	Network     string
-	Proxy       func(*http.Request) (*url.URL, error)
-	Base        *http.Transport
-	SocksDialer proxy.Dialer
-}
-
-func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	dialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
-		if t.SocksDialer != nil {
-			return t.SocksDialer.Dial(t.Network, addr)
+func buildClientOptions(disableIPv4, disableIPv6 bool) []tls_client.HttpClientOption {
+	options := []tls_client.HttpClientOption{
+		tls_client.WithTimeoutSeconds(6),
+		tls_client.WithClientProfile(profiles.Chrome_120),
+		tls_client.WithCustomRedirectFunc(func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}),
+	}
+	if disableIPv4 {
+		options = append(options, tls_client.WithDisableIPV4())
+	}
+	if disableIPv6 {
+		options = append(options, tls_client.WithDisableIPV6())
+	}
+	if SocksProxy != "" {
+		options = append(options, tls_client.WithProxyUrl(SocksProxy))
+	} else if HTTPProxy != "" {
+		options = append(options, tls_client.WithProxyUrl(HTTPProxy))
+	}
+	if DNSServers != "" {
+		Dialer.Resolver = &net.Resolver{
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				return (&net.Dialer{}).DialContext(ctx, "udp", DNSServers)
+			},
 		}
-		if t.Resolver != nil {
-			host, port, err := net.SplitHostPort(addr)
-			if err != nil {
-				return nil, err
-			}
-			ips, err := t.Resolver.LookupIP(ctx, "ip", host)
-			if err != nil {
-				return nil, err
-			}
-			var filteredIPs []net.IP
-			for _, ip := range ips {
-				if (t.Network == "tcp4" && ip.To4() != nil) || (t.Network == "tcp6" && ip.To4() == nil) || t.Network == "tcp" {
-					filteredIPs = append(filteredIPs, ip)
-				}
-			}
-			for _, ip := range filteredIPs {
-				ipAddr := net.JoinHostPort(ip.String(), port)
-				conn, err := t.Dialer.DialContext(ctx, t.Network, ipAddr)
-				if err == nil {
-					return conn, nil
-				}
-			}
-			return nil, fmt.Errorf("failed to connect to any resolved IP addresses for %s", addr)
-		}
-		return t.Dialer.DialContext(ctx, t.Network, addr)
 	}
-	t.Base.DialContext = dialContext
-	t.Base.Proxy = t.Proxy
-	if err := http2.ConfigureTransport(t.Base); err == nil {
-		t.Base.ForceAttemptHTTP2 = true
+	options = append(options, tls_client.WithDialer(*Dialer))
+	return options
+}
+
+func InitClients() {
+	var err error
+	Ipv4HttpClient, err = tls_client.NewHttpClient(tls_client.NewNoopLogger(), buildClientOptions(false, true)...)
+	if err != nil {
+		panic(err)
 	}
-	return t.Base.RoundTrip(req)
-}
 
-var Ipv4Transport = &CustomTransport{
-	Dialer:   Dialer,
-	Resolver: Dialer.Resolver,
-	Network:  "tcp4",
-	Proxy:    ClientProxy,
-	Base: &http.Transport{
-		MaxIdleConns:           200,              // 从100增加到200
-		MaxIdleConnsPerHost:    20,               // 新增：每个主机的最大空闲连接数
-		IdleConnTimeout:        60 * time.Second, // 从90秒减少到60秒
-		TLSHandshakeTimeout:    20 * time.Second, // 从30秒减少到20秒
-		ExpectContinueTimeout:  1 * time.Second,
-		TLSClientConfig:        tlsConfig,
-		MaxResponseHeaderBytes: 262144,
-		DisableCompression:     true, // 新增：禁用压缩以提升速度
-		ForceAttemptHTTP2:      true, // 新增：强制尝试HTTP/2
-	},
-}
+	Ipv6HttpClient, err = tls_client.NewHttpClient(tls_client.NewNoopLogger(), buildClientOptions(true, false)...)
+	if err != nil {
+		panic(err)
+	}
 
-var Ipv4HttpClient = http.Client{
-	Timeout:       20 * time.Second, // 从30秒减少到20秒
-	CheckRedirect: UseLastResponse,
-	Transport:     Ipv4Transport,
-}
-
-var Ipv6Transport = &CustomTransport{
-	Dialer:   Dialer,
-	Resolver: Dialer.Resolver,
-	Network:  "tcp6",
-	Proxy:    ClientProxy,
-	Base: &http.Transport{
-		MaxIdleConns:           200,              // 从100增加到200
-		MaxIdleConnsPerHost:    20,               // 新增：每个主机的最大空闲连接数
-		IdleConnTimeout:        60 * time.Second, // 从90秒减少到60秒
-		TLSHandshakeTimeout:    20 * time.Second, // 从30秒减少到20秒
-		ExpectContinueTimeout:  1 * time.Second,
-		TLSClientConfig:        tlsConfig,
-		MaxResponseHeaderBytes: 262144,
-		DisableCompression:     true, // 新增：禁用压缩以提升速度
-		ForceAttemptHTTP2:      true, // 新增：强制尝试HTTP/2
-	},
-}
-
-var Ipv6HttpClient = http.Client{
-	Timeout:       20 * time.Second, // 从30秒减少到20秒
-	CheckRedirect: UseLastResponse,
-	Transport:     Ipv6Transport,
-}
-
-var AutoHttpClient = NewAutoHttpClient()
-
-func AutoTransport() *CustomTransport {
-	return &CustomTransport{
-		Dialer:   Dialer,
-		Resolver: Dialer.Resolver,
-		Network:  "tcp",
-		Proxy:    ClientProxy,
-		Base: &http.Transport{
-			MaxIdleConns:           200,              // 从100增加到200
-			MaxIdleConnsPerHost:    20,               // 新增：每个主机的最大空闲连接数
-			IdleConnTimeout:        60 * time.Second, // 从90秒减少到60秒
-			TLSHandshakeTimeout:    20 * time.Second, // 从30秒减少到20秒
-			ExpectContinueTimeout:  1 * time.Second,
-			TLSClientConfig:        tlsConfig,
-			MaxResponseHeaderBytes: 262144,
-			DisableCompression:     true, // 新增：禁用压缩以提升速度
-			ForceAttemptHTTP2:      true, // 新增：强制尝试HTTP/2
-		},
+	AutoHttpClient, err = tls_client.NewHttpClient(tls_client.NewNoopLogger(), buildClientOptions(false, false)...)
+	if err != nil {
+		panic(err)
 	}
 }
-
-func NewAutoHttpClient() http.Client {
-	return http.Client{
-		Timeout:       20 * time.Second, // 从30秒减少到20秒
-		CheckRedirect: UseLastResponse,
-		Transport:     AutoTransport(),
-	}
-}
-
-func createEdgeTLSConfig() *tls.Config {
-	spec, _ := utls.UTLSIdToSpec(utls.HelloEdge_Auto)
-
-	return &tls.Config{
-		InsecureSkipVerify: true,
-		MinVersion:         spec.TLSVersMin,
-		MaxVersion:         spec.TLSVersMax,
-		CipherSuites:       spec.CipherSuites,
-		ClientSessionCache: tls.NewLRUClientSessionCache(32),
-		NextProtos:         []string{"h2", "http/1.1"},
-		CurvePreferences: []tls.CurveID{
-			tls.X25519,
-			tls.CurveP256,
-			tls.CurveP384,
-			tls.CurveP521,
-		},
-		PreferServerCipherSuites: false,
-		SessionTicketsDisabled:   false,
-	}
-}
-
-var tlsConfig = createEdgeTLSConfig()
 
 type H [2]string
 
-func GET(c http.Client, url string, headers ...H) (*http.Response, error) {
+func GET(c HttpClient, url string, headers ...H) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -241,7 +145,7 @@ func GET(c http.Client, url string, headers ...H) (*http.Response, error) {
 	return Cdo(c, req)
 }
 
-func GET_Dalvik(c http.Client, url string) (*http.Response, error) {
+func GET_Dalvik(c HttpClient, url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -252,9 +156,9 @@ func GET_Dalvik(c http.Client, url string) (*http.Response, error) {
 
 var ErrNetwork = errors.New("network error")
 
-func Cdo(c http.Client, req *http.Request) (resp *http.Response, err error) {
-	deadline := time.Now().Add(30 * time.Second)
-	for i := 0; i < 3; i++ {
+func Cdo(c HttpClient, req *http.Request) (resp *http.Response, err error) {
+	deadline := time.Now().Add(14 * time.Second)
+	for i := 0; i < 2; i++ {
 		if time.Now().After(deadline) {
 			break
 		}
@@ -272,7 +176,7 @@ func Cdo(c http.Client, req *http.Request) (resp *http.Response, err error) {
 	}
 	return nil, err
 }
-func PostJson(c http.Client, url string, data string, headers ...H) (*http.Response, error) {
+func PostJson(c HttpClient, url string, data string, headers ...H) (*http.Response, error) {
 	req, err := http.NewRequest("POST", url, strings.NewReader(data))
 	if err != nil {
 		return nil, err
@@ -286,7 +190,7 @@ func PostJson(c http.Client, url string, data string, headers ...H) (*http.Respo
 	return Cdo(c, req)
 }
 
-func PostForm(c http.Client, url string, data string, headers ...H) (*http.Response, error) {
+func PostForm(c HttpClient, url string, data string, headers ...H) (*http.Response, error) {
 	req, err := http.NewRequest("POST", url, strings.NewReader(data))
 	if err != nil {
 		return nil, err
@@ -474,13 +378,6 @@ type SessionHeaders struct {
 	DNT            string
 }
 
-func ResetSessionHeaders() {
-	ClientSessionHeaders.UserAgent = generateEdgeUserAgent()
-	ClientSessionHeaders.SecChUA = generateSecChUA()
-	ClientSessionHeaders.AcceptLanguage = getRandomAcceptLanguage()
-	ClientSessionHeaders.DNT = strconv.Itoa(secureRandInt(2))
-}
-
 func NewSessionHeaders() *SessionHeaders {
 	return &SessionHeaders{
 		UserAgent:      generateEdgeUserAgent(),
@@ -531,7 +428,7 @@ func ResultFromMapping(statusCode int, m ResultMap, defaultResult Result) Result
 }
 
 // CheckStatus 使用 GET 请求，并通过 ResultMap 返回对应 Result，支持默认 Result 及可选 headers
-func CheckGETStatus(c http.Client, url string, mapping ResultMap, defaultResult Result, headers ...H) Result {
+func CheckGETStatus(c HttpClient, url string, mapping ResultMap, defaultResult Result, headers ...H) Result {
 	resp, err := GET(c, url, headers...)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -541,7 +438,7 @@ func CheckGETStatus(c http.Client, url string, mapping ResultMap, defaultResult 
 }
 
 // CheckDalvikStatus 使用 GET_Dalvik 请求，并通过 ResultMap 返回对应 Result，支持默认 Result
-func CheckDalvikStatus(c http.Client, url string, mapping ResultMap, defaultResult Result) Result {
+func CheckDalvikStatus(c HttpClient, url string, mapping ResultMap, defaultResult Result) Result {
 	resp, err := GET_Dalvik(c, url)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -550,7 +447,7 @@ func CheckDalvikStatus(c http.Client, url string, mapping ResultMap, defaultResu
 	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
 }
 
-func PostFormBoolSuccess(c http.Client, url, data string, headers ...H) (bool, error) {
+func PostFormBoolSuccess(c HttpClient, url, data string, headers ...H) (bool, error) {
 	resp, err := PostForm(c, url, data, headers...)
 	if err != nil {
 		return false, err
@@ -568,7 +465,7 @@ func PostFormBoolSuccess(c http.Client, url, data string, headers ...H) (bool, e
 }
 
 // CheckPostFormStatus 使用 POST 表单请求，并通过 ResultMap 返回对应 Result，支持默认 Result 及可选 headers
-func CheckPostFormStatus(c http.Client, url, data string, mapping ResultMap, defaultResult Result, headers ...H) Result {
+func CheckPostFormStatus(c HttpClient, url, data string, mapping ResultMap, defaultResult Result, headers ...H) Result {
 	resp, err := PostForm(c, url, data, headers...)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -578,7 +475,7 @@ func CheckPostFormStatus(c http.Client, url, data string, mapping ResultMap, def
 }
 
 // CheckPostJsonStatus 使用 POST JSON 请求，并通过 ResultMap 返回对应 Result，支持默认 Result 及可选 headers
-func CheckPostJsonStatus(c http.Client, url, data string, mapping ResultMap, defaultResult Result, headers ...H) Result {
+func CheckPostJsonStatus(c HttpClient, url, data string, mapping ResultMap, defaultResult Result, headers ...H) Result {
 	resp, err := PostJson(c, url, data, headers...)
 	if err != nil {
 		return Result{Status: StatusNetworkErr, Err: err}
@@ -587,3 +484,48 @@ func CheckPostJsonStatus(c http.Client, url, data string, mapping ResultMap, def
 	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
 }
 
+var sessionMutex sync.RWMutex
+
+func NewHttpClient(ipType int) HttpClient {
+	var disableIPv4, disableIPv6 bool
+	if ipType == 4 {
+		disableIPv6 = true
+	} else if ipType == 6 {
+		disableIPv4 = true
+	}
+	client, _ := tls_client.NewHttpClient(tls_client.NewNoopLogger(), buildClientOptions(disableIPv4, disableIPv6)...)
+	return client
+}
+
+func ResetSessionHeaders() {
+	sessionMutex.Lock()
+	defer sessionMutex.Unlock()
+	ClientSessionHeaders.UserAgent = ""
+	ClientSessionHeaders.SecChUA = ""
+	ClientSessionHeaders.AcceptLanguage = ""
+	ClientSessionHeaders.DNT = "0"
+}
+
+func SetSessionHeaders(h *SessionHeaders) {
+	sessionMutex.Lock()
+	defer sessionMutex.Unlock()
+	ClientSessionHeaders = h
+}
+
+// IsWAFBlockError checks if the network error is caused by a WAF drop/timeout
+func IsWAFBlockError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) ||
+		errors.Is(err, context.DeadlineExceeded) || os.IsTimeout(err) ||
+		errors.Is(err, syscall.ECONNRESET) || errors.Is(err, syscall.ECONNABORTED) {
+		return true
+	}
+	// utls 或 http2 等底层依赖有时只返回字符串错误，且没有导出 Error 变量
+	errStr := err.Error()
+	if strings.Contains(errStr, "stream error") || strings.Contains(errStr, "handshake failure") || strings.Contains(errStr, "connection reset") {
+		return true
+	}
+	return false
+}

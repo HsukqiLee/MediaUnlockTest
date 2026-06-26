@@ -2,10 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 )
 
-func SkyGo(c http.Client) core.Result {
+func SkyGo(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://skyid.sky.com/authorise/skygo?response_type=token&client_id=sky&appearance=compact&redirect_uri=skygo://auth")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,7 +22,7 @@ func SkyGo(c http.Client) core.Result {
 	return core.Result{Status: core.StatusUnexpected}
 }
 
-func SkyGo_NZ(c http.Client) core.Result {
+func SkyGo_NZ(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://linear-s.stream.skyone.co.nz/sky-sport-1.mpd")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -39,4 +38,3 @@ func SkyGo_NZ(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

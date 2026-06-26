@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func bilibili(c http.Client, url string) core.Result {
+func bilibili(c core.HttpClient, url string) core.Result {
 	resp, err := core.GET(c, url)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -35,27 +34,26 @@ func bilibili(c http.Client, url string) core.Result {
 	return core.Result{Status: core.StatusUnexpected}
 }
 
-func BilibiliHKMO(c http.Client) core.Result {
+func BilibiliHKMO(c core.HttpClient) core.Result {
 	return bilibili(c, "https://api.bilibili.com/pgc/player/web/playurl?avid=473502608&cid=845838026&qn=0&type=&otype=json&ep_id=678506&fourk=1&fnver=0&fnval=16&module=bangumi")
 }
 
-func BilibiliTW(c http.Client) core.Result {
+func BilibiliTW(c core.HttpClient) core.Result {
 	return bilibili(c, "https://api.bilibili.com/pgc/player/web/playurl?avid=50762638&cid=100279344&qn=0&type=&otype=json&ep_id=268176&fourk=1&fnver=0&fnval=16&module=bangumi")
 }
 
-func BilibiliSEA(c http.Client) core.Result {
+func BilibiliSEA(c core.HttpClient) core.Result {
 	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=347666")
 }
 
-func BilibiliTH(c http.Client) core.Result {
+func BilibiliTH(c core.HttpClient) core.Result {
 	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=10077726")
 }
 
-func BilibiliID(c http.Client) core.Result {
+func BilibiliID(c core.HttpClient) core.Result {
 	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=11130043")
 }
 
-func BilibiliVN(c http.Client) core.Result {
+func BilibiliVN(c core.HttpClient) core.Result {
 	return bilibili(c, "https://api.bilibili.tv/intl/gateway/web/playurl?s_locale=en_US&platform=web&ep_id=11405745")
 }
-

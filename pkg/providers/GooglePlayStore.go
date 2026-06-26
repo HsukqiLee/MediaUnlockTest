@@ -3,7 +3,6 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
 )
@@ -17,7 +16,7 @@ func extractGooglePlayStoreRegion(responseBody string) string {
 	return ""
 }
 
-func GooglePlayStore(c http.Client) core.Result {
+func GooglePlayStore(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://play.google.com/store/games")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -42,4 +41,3 @@ func GooglePlayStore(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

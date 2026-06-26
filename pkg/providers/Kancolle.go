@@ -2,14 +2,14 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func Kancolle(c http.Client) core.Result {
+func Kancolle(c core.HttpClient) core.Result {
 	return core.CheckDalvikStatus(c, "https://w00g.kancolle-server.com/kcscontents/news/", core.ResultMap{
 		http.StatusOK:        {Status: core.StatusOK},
 		http.StatusForbidden: {Status: core.StatusNo},
 		http.StatusFound:     {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

@@ -1,9 +1,8 @@
 package main
 
 import (
-	mt "MediaUnlockTest/pkg/providers"
 	core "MediaUnlockTest/pkg/core"
-	"net/http"
+	mt "MediaUnlockTest/pkg/providers"
 	"sync"
 	"time"
 )
@@ -26,7 +25,7 @@ var (
 )
 
 type TEST struct {
-	Client  http.Client
+	Client  core.HttpClient
 	Results []*result
 	Wg      *sync.WaitGroup
 }
@@ -100,7 +99,7 @@ type result struct {
 	Value core.Result
 }
 
-func (T *TEST) excute(Name string, F func(client http.Client) core.Result) {
+func (T *TEST) excute(Name string, F func(client core.HttpClient) core.Result) {
 	r := &result{Name: Name}
 	T.Results = append(T.Results, r)
 	T.Wg.Add(1)
@@ -114,7 +113,8 @@ func (T *TEST) excute(Name string, F func(client http.Client) core.Result) {
 		} else {
 			defer T.Wg.Done()
 		}
-		r.Value = F(T.Client)
+		client := core.NewHttpClient(0)
+		r.Value = F(client)
 	}()
 }
 
@@ -173,5 +173,3 @@ func (T *TEST) Oceania() {
 func (T *TEST) AI() {
 	T.executeList(mt.AITests)
 }
-
-

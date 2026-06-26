@@ -3,12 +3,13 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"context"
-	"net/http"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
 // Project Sekai: Colorful Stage
-func PJSK(c http.Client) core.Result {
+func PJSK(c core.HttpClient) core.Result {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://game-version.sekai.colorfulpalette.org/1.8.1/3ed70b6a-8352-4532-b819-108837926ff5", nil)
@@ -31,4 +32,3 @@ func PJSK(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

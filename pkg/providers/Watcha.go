@@ -2,7 +2,6 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 	//"regexp"
 	//"strings"
 )
@@ -29,7 +28,7 @@ if region != "" {
 }
 */
 
-func Watcha(c http.Client) core.Result {
+func Watcha(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://watcha.com/api/aio_browses/tvod/all?size=3")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -69,4 +68,3 @@ func Watcha(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

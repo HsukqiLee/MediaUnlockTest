@@ -3,10 +3,9 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 )
 
-func Sky_CH(c http.Client) core.Result {
+func Sky_CH(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://gateway.prd.sky.ch/user/customer/create")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -29,4 +28,3 @@ func Sky_CH(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

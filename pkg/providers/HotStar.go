@@ -2,11 +2,10 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 	"strings"
 )
 
-func Hotstar(c http.Client) core.Result {
+func Hotstar(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.hotstar.com/o/v1/page/1557?offset=0&size=20&tao=0&tas=20")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -37,4 +36,3 @@ func Hotstar(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

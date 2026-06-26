@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func TVBAnywhere(c http.Client) core.Result {
+func TVBAnywhere(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://uapisfm.tvbanywhere.com.sg/geoip/check/platform/android")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -33,4 +32,3 @@ type tvbAnywhereRes struct {
 	AllowInThisCountry bool `json:"allow_in_this_country"`
 	Country            string
 }
-

@@ -3,15 +3,17 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
 )
 
-func LineTV(c http.Client) core.Result {
+func LineTV(c core.HttpClient) core.Result {
 	// GET the drama/episode page which has SSR data in window.__INITIAL_STATE__
 	resp, err := core.GET(c, "https://www.linetv.tw/drama/11829/eps/1")
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned, Err: err}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()

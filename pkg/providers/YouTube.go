@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"bufio"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func YoutubeRegion(c http.Client) core.Result {
+func YoutubeRegion(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.youtube.com/premium", core.H{"Cookie", "YSC=BiCUU3-5Gdk; CONSENT=YES+cb.20220301-11-p0.en+FX+700; GPS=1; VISITOR_INFO1_LIVE=4VwPMkB7W5A; SOCS=CAISOAgDEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjQwNTIxLjA3X3AxGgV6aC1DTiACGgYIgNTEsgY; PREF=f7=4000&tz=Asia.Shanghai&f4=4000000; _gcl_au=1.1.1809531354.1646633279"})
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -38,7 +37,7 @@ func YoutubeRegion(c http.Client) core.Result {
 	return core.Result{Status: core.StatusNo}
 }
 
-func YoutubeCDN(c http.Client) core.Result {
+func YoutubeCDN(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://redirector.googlevideo.com/report_mapping")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -96,4 +95,3 @@ func findAirCode(code string) string {
 	}
 	return code
 }
-

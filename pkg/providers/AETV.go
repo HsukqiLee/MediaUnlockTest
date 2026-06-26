@@ -4,12 +4,13 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"net/url"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func AETV(c http.Client) core.Result {
+func AETV(c core.HttpClient) core.Result {
 	// Step 1: Request stream manifest
 	step1Url := "https://dai.google.com/ondemand/hls/content/2540935/vid/2400478275868/streams"
 	step1Data := `dai-dlid=default_delivery_60101&afid=59946479&adobe_id=17218268117322661452685981206066538688&asnw=171213&caid=305489&imafw__fw_ae=nonauthenticated&imafw__fw_vcid2=2395239744222918&devicename=Desktop&imafw_csid=aetv.desktop.video&imafw__fw_player_height=901&imafw__fw_player_width=474&imafw__fw_us_privacy=1---&imafw__fw_site_page=https%3A%2F%2Fplay.aetv.com%2Fshows%2Fozark-law%2Fseason-1%2Fepisode-1&ltd=1&imafw__fw_h_user_agent=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F144.0.0.0%20Safari%2F537.36%20Edg%2F144.0.0.0&imafw_prof=171213%3Aaetn_desktop_ae_googlessai_vod&metr=1031&nw=171213&pvrn=7469863039993294&ssnw=171213&vprn=7469863039993294&flag=%2Bsltp%2Bvicb%2Bslcb%2Bamsl%2Bamcb%2Bssus%2Bemcr%2Bfbad%2Bdtrd%2Bplay&resp=vmap1&cld=1&ctv=0&correlator=3412237903465914&ptt=20&osd=2&sdr=1&sdki=41&sdkv=h.3.740.0&uach=WyJXaW5kb3dzIiwiMTUuMC4wIiwieDg2IiwiIiwiMTQ0LjAuMzcxOS45MiIsbnVsbCwwLG51bGwsIjY0IixbWyJOb3QoQTpCcmFuZCIsIjguMC4wLjAiXSxbIkNocm9taXVtIiwiMTQ0LjAuNzU1OS45NyJdLFsiTWljcm9zb2Z0IEVkZ2UiLCIxNDQuMC4zNzE5LjkyIl1dLDBd&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F144.0.0.0%20Safari%2F537.36%20Edg%2F144.0.0.0&eid=44751890%2C95322027%2C95331589%2C95332046&frm=0&omid_p=Google1%2Fh.3.740.0&sdk_apis=7&sid=6C436384-F48F-4AEA-8FCA-9F3633757A74&ssss=gima&ref=https%3A%2F%2Fplay.aetv.com%2Fshows%2Fozark-law%2Fseason-1%2Fepisode-1&url=https%3A%2F%2Fplay.aetv.com%2Fshows%2Fozark-law%2Fseason-1%2Fepisode-1&wta=0&us_privacy=1---&gpp_sid=-1&eoidce=1`
@@ -127,4 +128,3 @@ func AETV(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected, Info: "Step 2 status: " + resp2.Status}
 }
-

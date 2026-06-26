@@ -2,10 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func Popcornflix(c http.Client) core.Result {
+func Popcornflix(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://popcornflix-prod.cloud.seachange.com/cms/popcornflix/clientconfiguration/versions/2")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -17,4 +18,3 @@ func Popcornflix(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

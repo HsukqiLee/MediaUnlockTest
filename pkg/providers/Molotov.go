@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func Molotov(c http.Client) core.Result {
+func Molotov(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://fapi.molotov.tv/v1/open-europe/is-france")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -36,4 +35,3 @@ func Molotov(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusNo}
 }
-

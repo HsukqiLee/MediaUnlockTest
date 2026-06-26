@@ -2,13 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 )
 
-func MyVideo(c http.Client) core.Result {
-	c.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	}
+func MyVideo(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.myvideo.net.tw/login.do")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -25,4 +21,3 @@ func MyVideo(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

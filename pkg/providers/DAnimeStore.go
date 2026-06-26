@@ -3,11 +3,12 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func DAnimeStore(c http.Client) core.Result {
+func DAnimeStore(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://animestore.docomo.ne.jp/animestore/reg_pc")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -29,4 +30,3 @@ func DAnimeStore(c http.Client) core.Result {
 		http.StatusFound: {Status: core.StatusOK},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

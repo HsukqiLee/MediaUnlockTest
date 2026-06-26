@@ -3,12 +3,11 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
 )
 
-func NowGG(c http.Client) core.Result {
+func NowGG(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://now.gg/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}

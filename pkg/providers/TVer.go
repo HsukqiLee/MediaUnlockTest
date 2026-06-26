@@ -4,8 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"regexp"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
 func extractTVerPolicyKey(body string) string {
@@ -31,7 +32,7 @@ func isValidTVerEpisodeID(id string) bool {
 	return re.MatchString(id)
 }
 
-func TVer(c http.Client) core.Result {
+func TVer(c core.HttpClient) core.Result {
 	useDeprecated := false
 	if useDeprecated {
 		return tver_deprecated(c)
@@ -53,7 +54,7 @@ func TVer(c http.Client) core.Result {
 	return core.Result{Status: core.StatusUnexpected}
 }
 
-func tver_deprecated(c http.Client) core.Result {
+func tver_deprecated(c core.HttpClient) core.Result {
 	resp1, err := core.PostForm(c, "https://platform-api.tver.jp/v2/api/platform_users/browser/create", "device_type=pc",
 		core.H{"origin", "https://s.tver.jp"},
 		core.H{"referer", "https://s.tver.jp/"},
@@ -220,4 +221,3 @@ func tver_deprecated(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

@@ -3,10 +3,11 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
-	"net/http/cookiejar"
+	tls_client "github.com/bogdanfinn/tls-client"
 	"regexp"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
 func extractBingRegion(responseBody string) string {
@@ -18,8 +19,9 @@ func extractBingRegion(responseBody string) string {
 	return ""
 }
 
-func Bing(c http.Client) core.Result {
-	c.Jar, _ = cookiejar.New(nil)
+func Bing(c core.HttpClient) core.Result {
+	jar := tls_client.NewCookieJar()
+	c.SetCookieJar(jar)
 	resp, err := core.GET(c, "https://www.bing.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -59,4 +61,3 @@ func Bing(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

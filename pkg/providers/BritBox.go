@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func BritBox(c http.Client) core.Result {
+func BritBox(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.britbox.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,4 +22,3 @@ func BritBox(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

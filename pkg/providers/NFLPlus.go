@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func NFLPlus(c http.Client) core.Result {
+func NFLPlus(c core.HttpClient) core.Result {
 	url := "https://www.nfl.com/plus/"
 	resp, err := core.GET(c, url)
 	if err != nil {
@@ -24,4 +23,3 @@ func NFLPlus(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

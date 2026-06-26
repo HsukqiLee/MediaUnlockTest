@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func KKTV(c http.Client) core.Result {
+func KKTV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.kktv.me/v3/ipcheck")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -31,4 +30,3 @@ func KKTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func DiscoveryPlus(c http.Client) core.Result {
+func DiscoveryPlus(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://us1-prod-direct.discoveryplus.com/token?deviceId=d1a4a5d25212400d1e6985984604d740&realm=go&shortlived=true")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -52,7 +51,7 @@ func DiscoveryPlus(c http.Client) core.Result {
 	return core.Result{Status: core.StatusNo}
 }
 
-func DiscoveryPlus_UK(c http.Client) core.Result {
+func DiscoveryPlus_UK(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://disco-api.discoveryplus.co.uk/token?realm=questuk&deviceId=61ee588b07c4df08c02861ecc1366a592c4ad02d08e8228ecfee67501d98bf47&shortlived=true")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -100,4 +99,3 @@ func DiscoveryPlus_UK(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

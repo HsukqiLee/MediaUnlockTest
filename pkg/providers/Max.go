@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func Max(c http.Client) core.Result {
+func Max(c core.HttpClient) core.Result {
 	resp1, err := core.GET(c, "https://default.any-any.prd.api.max.com/token?realm=bolt&deviceId=afbb5daa-c327-461d-9460-d8e4b3ee4a1f",
 		core.H{"x-device-info", "beam/5.0.0 (desktop/desktop; Windows/10; afbb5daa-c327-461d-9460-d8e4b3ee4a1f/da0cdd94-5a39-42ef-aa68-54cbc1b852c3)"},
 		core.H{"x-disco-client", "WEB:10:beam:5.2.1"},
@@ -118,4 +117,3 @@ func Max(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

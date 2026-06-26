@@ -3,11 +3,12 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func BBCiPlayer(c http.Client) core.Result {
+func BBCiPlayer(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/bbc_one_london/format/json/jsfunc/JS_callbacks0")
 
 	if err != nil {
@@ -33,4 +34,3 @@ func BBCiPlayer(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

@@ -4,10 +4,9 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 )
 
-func Tving(c http.Client) core.Result {
+func Tving(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.tving.com/v2a/media/stream/info?apiKey=1e7952d0917d6aab1f0293a063697610&mediaCode=RV60891248")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -44,4 +43,3 @@ func Tving(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusNo}
 }
-

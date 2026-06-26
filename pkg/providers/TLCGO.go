@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func TlcGo(c http.Client) core.Result {
+func TlcGo(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://atlas.ngtv.io/v2/locate",
 		core.H{"app-id", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuZXR3b3JrIjoiYWxsIiwicHJvZHVjdCI6InByaXNtIiwicGxhdGZvcm0iOiJ3ZWIiLCJhcHBJZCI6ImFsbC1wcmlzbS13ZWItNzI4aGtyIn0.4Fk4E28ffoFgCIcgNSG8xX5TP2n3PIU6c3jadumKULo"},
 	)
@@ -28,4 +27,3 @@ func TlcGo(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

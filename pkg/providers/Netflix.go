@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func NetflixRegion(c http.Client) core.Result {
+func NetflixRegion(c core.HttpClient) core.Result {
 	// 70143836 绝命毒师
 	// 80018499 test
 	// 81280792 乐高
@@ -59,7 +58,7 @@ func NetflixRegion(c http.Client) core.Result {
 	return core.Result{Status: core.StatusUnexpected}
 }
 
-func NetflixCDN(c http.Client) core.Result {
+func NetflixCDN(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.fast.com/netflix/speedtest/v2?https=true&token=YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm&urlCount=5")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -87,4 +86,3 @@ func NetflixCDN(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK, Region: res.Targets[0].Location.Country}
 }
-

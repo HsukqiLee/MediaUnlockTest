@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func Shudder(c http.Client) core.Result {
+func Shudder(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.shudder.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,4 +22,3 @@ func Shudder(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

@@ -2,10 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func PandaTV(c http.Client) core.Result {
+func PandaTV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.pandalive.co.kr/v1/live/play")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -17,4 +18,3 @@ func PandaTV(c http.Client) core.Result {
 		http.StatusForbidden:  {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

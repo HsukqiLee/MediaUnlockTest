@@ -4,11 +4,10 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func Channel10(c http.Client) core.Result {
+func Channel10(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://10play.com.au/geo-web")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -32,4 +31,3 @@ func Channel10(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-

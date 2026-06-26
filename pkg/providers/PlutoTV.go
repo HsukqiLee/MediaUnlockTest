@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func PlutoTV(c http.Client) core.Result {
+func PlutoTV(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://pluto.tv/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -23,4 +22,3 @@ func PlutoTV(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusOK}
 }
-

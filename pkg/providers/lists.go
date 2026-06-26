@@ -1,14 +1,12 @@
 package providers
 
 import (
-	"net/http"
-
 	core "MediaUnlockTest/pkg/core"
 )
 
 type TestItem struct {
 	Name       string
-	Func       func(client http.Client) core.Result
+	Func       func(client core.HttpClient) core.Result
 	SupportsV6 bool
 }
 
@@ -28,7 +26,7 @@ var GlobeTests = []TestItem{
 	{"TikTok", TikTok, false},
 	{"TVBAnywhere+", TVBAnywhere, false},
 	{"Viu.com", ViuCom, false},
-	{"Wikipedia", WikipediaEditable, true},
+	{"Wikipedia Editability", WikipediaEditability, true},
 	{"Youtube CDN", YoutubeCDN, true},
 	{"Youtube Premium", YoutubeRegion, true},
 }
@@ -66,7 +64,7 @@ var JapanTests = []TestItem{
 	{"D Anime Store", DAnimeStore, false},
 	{"DMM", DMM, false},
 	{"DMM TV", DMMTV, true},
-	{"EroGameSpace", EroGameSpace, false},
+	{"ErogameScape", ErogameScape, false},
 	{"FOD(Fuji TV)", FOD, false},
 	{"Hulu Japan", HuluJP, false},
 	{"J:COM On Demand", J_COM_ON_DEMAND, false},
@@ -124,7 +122,6 @@ var NorthAmericaTests = []TestItem{
 	{"Hulu", Hulu, true},
 	{"KOCOWA+", KOCOWA, false},
 	{"MGM+", MGMPlus, false},
-	{"MathsSpot", MathsSpot, false},
 	{"Max", Max, true},
 	{"NBC TV", NBC_TV, true},
 	{"NFL+", NFLPlus, false},
@@ -155,7 +152,6 @@ var EuropeTests = []TestItem{
 	{"Eurosport RO", EurosportRO, false},
 	{"Setanta Sports", SetantaSports, true},
 	{"KOCOWA+", KOCOWA, false},
-	{"MathsSpot", MathsSpot, false},
 	{"Max", Max, true},
 	{"SonyLiv", SonyLiv, true},
 	{"GB", nil, true},
@@ -190,7 +186,6 @@ var EuropeTests = []TestItem{
 
 var AfricaTests = []TestItem{
 	{"DSTV", DSTV, false},
-	{"Showmax", Showmax, true},
 }
 
 var SouthEastAsiaTests = []TestItem{
@@ -245,12 +240,8 @@ var OceaniaTests = []TestItem{
 }
 
 var AITests = []TestItem{
-	{"ChatGPT", ChatGPT, true},
-	{"Claude", Claude, true},
-	{"Copilot", Copilot, true},
+	{"OpenAI ChatGPT", ChatGPT, true},
+	{"Anthropic Claude", Claude, true},
+	{"Microsoft Copilot", Copilot, true},
 	{"Google Gemini", Gemini, true},
-	{"Meta AI", MetaAI, true},
-	{"Sora", Sora, true},
 }
-
-

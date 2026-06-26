@@ -3,7 +3,6 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
 )
@@ -52,7 +51,7 @@ func extractGeminiRegion(body string) string {
 	return ""
 }
 
-func Gemini(c http.Client) core.Result {
+func Gemini(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://gemini.google.com/?hl=en",
 		core.H{"Cookie", "SOCS=CAISOAgeEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjQwODExLjA4X3AwGgV6aC1DTiACGgYIgOfvtQY; NID=516=I_1jljreYQcLJzkCvUL8k6eIiBqaC8_mkGLq8XaPbFdY2MMgL9re9rZw7NC9scKoZJyI3pzxTfTqhklea0KVsKRKeRMyl-TOLZgzpb_rqoL2vH7J2_5Wlef7KTXVuLfArRqcGeFWF4OZ6HBfQqu7BQc_YiFfiXshUK1bAp19DZQOQ_nmzgacv-HSMnOG6wPOJsBD7qNXmf4IuQ;__Secure-ENID=delete"},
 	)
@@ -88,4 +87,3 @@ func Gemini(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

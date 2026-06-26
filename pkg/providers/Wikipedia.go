@@ -3,11 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
 )
 
-func WikipediaEditable(c http.Client) core.Result {
+func WikipediaEditability(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://zh.wikipedia.org/w/index.php?title=Wikipedia%3A%E6%B2%99%E7%9B%92&action=edit")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -35,4 +34,3 @@ func WikipediaEditable(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

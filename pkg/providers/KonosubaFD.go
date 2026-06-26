@@ -3,11 +3,12 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"context"
-	"net/http"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func KonosubaFD(c http.Client) core.Result {
+func KonosubaFD(c core.HttpClient) core.Result {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "POST", "https://api.konosubafd.jp/api/masterlist", nil)
@@ -27,4 +28,3 @@ func KonosubaFD(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

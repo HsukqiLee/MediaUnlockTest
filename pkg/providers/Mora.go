@@ -2,14 +2,14 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
-	"net/http/cookiejar"
+	tls_client "github.com/bogdanfinn/tls-client"
 	"net/url"
 	"strings"
 )
 
-func Mora(c http.Client) core.Result {
-	c.Jar, _ = cookiejar.New(nil)
+func Mora(c core.HttpClient) core.Result {
+	jar := tls_client.NewCookieJar()
+	c.SetCookieJar(jar)
 	resp1, err := core.PostForm(c, "https://mora.jp/env/regist",
 		`returnUrl=`+url.QueryEscape(`/buy?__requestToken=1713764407153&amp;returnUrl=https%3A%2F%2Fmora.jp%2Fpackage%2F43000087%2FTFDS01006B00Z%2F%3Ffmid%3DTOPRNKS%26trackMaterialNo%3D31168909&amp;fromMoraUx=false&amp;deleteMaterial=`)+`&userAgent=`+core.UA_Browser+`&onTouchend=true`,
 	)
@@ -39,5 +39,3 @@ func Mora(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-
-

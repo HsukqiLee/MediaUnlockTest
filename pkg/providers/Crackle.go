@@ -2,10 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 )
 
-func Crackle(c http.Client) core.Result {
+func Crackle(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://prod-api.crackle.com/appconfig",
 		core.H{"Origin", "https://www.crackle.com"},
 		core.H{"Referer", "https://www.crackle.com/"},
@@ -27,4 +26,3 @@ func Crackle(c http.Client) core.Result {
 		return core.Result{Status: core.StatusUnexpected}
 	}
 }
-

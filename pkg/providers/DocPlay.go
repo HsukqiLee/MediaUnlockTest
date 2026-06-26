@@ -3,11 +3,12 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func DocPlay(c http.Client) core.Result {
+func DocPlay(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://www.docplay.com/subscribe")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -30,4 +31,3 @@ func DocPlay(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

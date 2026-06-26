@@ -2,10 +2,9 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
 )
 
-func ITVX(c http.Client) core.Result {
+func ITVX(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://simulcast.itv.com/playlist/itvonline/ITV",
 		core.H{"x-custom-headers", "true"},
 		core.H{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0"},
@@ -36,4 +35,3 @@ func ITVX(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"net/http"
 	"strings"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func Spotify(c http.Client) core.Result {
+func Spotify(c core.HttpClient) core.Result {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "POST", "https://spclient.wg.spotify.com/signup/public/v1/account", strings.NewReader(
@@ -34,16 +35,16 @@ func Spotify(c http.Client) core.Result {
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
-	
+
 	if resp.StatusCode == 403 {
 		return core.Result{Status: core.StatusBanned}
 	}
-	
+
 	var res struct {
-	    Status            int
-	    Country           string
-	    IsCountryLaunched bool `json:"is_country_launched"`
-    }
+		Status            int
+		Country           string
+		IsCountryLaunched bool `json:"is_country_launched"`
+	}
 	if err := json.Unmarshal(b, &res); err != nil {
 		return core.Result{Status: core.StatusErr, Err: err}
 	}
@@ -55,5 +56,3 @@ func Spotify(c http.Client) core.Result {
 	}
 	return core.Result{Status: core.StatusNo}
 }
-
-

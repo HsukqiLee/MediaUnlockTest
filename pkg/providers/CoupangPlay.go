@@ -2,10 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"net/http"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func CoupangPlay(c http.Client) core.Result {
+func CoupangPlay(c core.HttpClient) core.Result {
 	resp, err := core.GET_Dalvik(c, "https://www.coupangplay.com/")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -21,4 +22,3 @@ func CoupangPlay(c http.Client) core.Result {
 		http.StatusForbidden: {Status: core.StatusBanned},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-

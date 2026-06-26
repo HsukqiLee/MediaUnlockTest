@@ -5,12 +5,13 @@ import (
 	"context"
 	"errors"
 	"io"
-	"net/http"
 	"strings"
 	"time"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func EroGameSpace(c http.Client) core.Result {
+func ErogameScape(c core.HttpClient) core.Result {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	req, _ := http.NewRequestWithContext(ctx, "GET", "https://erogamescape.org/~ap2/ero/toukei_kaiseki/", nil)
@@ -40,4 +41,3 @@ func EroGameSpace(c http.Client) core.Result {
 
 	return core.Result{Status: core.StatusUnexpected}
 }
-

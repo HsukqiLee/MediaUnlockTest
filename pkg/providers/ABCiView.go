@@ -3,11 +3,12 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
-	"net/http"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
-func ABCiView(c http.Client) core.Result {
+func ABCiView(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.iview.abc.net.au/v2/show/abc-kids-live-stream/video/LS1604H001S00?embed=highlightVideo,selectedSeries")
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -29,4 +30,3 @@ func ABCiView(c http.Client) core.Result {
 		http.StatusOK: {Status: core.StatusOK},
 	}, core.Result{Status: core.StatusUnexpected})
 }
-
