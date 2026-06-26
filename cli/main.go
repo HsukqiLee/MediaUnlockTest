@@ -185,7 +185,7 @@ func main() {
 		ShowVersion bool
 		CheckUpdate bool
 		NF          bool
-		TestMode    bool
+		TestMode    string
 		IPMode      int
 		IP4_1       string
 		IP6_1       string
@@ -201,7 +201,7 @@ func main() {
 	flag.BoolVar(&ShowVersion, "v", false, "Show version information and exit")
 	flag.BoolVar(&CheckUpdate, "u", false, "Update to latest version")
 	flag.BoolVar(&NF, "nf", false, "Only test Netflix availability")
-	flag.BoolVar(&TestMode, "test", false, "Run in test mode (only checks Viaplay)")
+	flag.StringVar(&TestMode, "test", "", "Run in test mode for a specific provider (e.g., -test LiTV)")
 	flag.BoolVar(&Debug, "debug", false, "Enable debug mode for verbose output")
 	flag.IntVar(&IPMode, "m", 0, "Connection mode: 0=auto (default), 4=IPv4 only, 6=IPv6 only")
 	flag.Uint64Var(&Conc, "conc", 0, "Max concurrent tests (0=unlimited)")
@@ -275,10 +275,34 @@ func main() {
 		return
 	}
 
-	if TestMode {
-
-		fmt.Println("Amediateka", ShowSingleResult(m.Amediateka(core.AutoHttpClient)))
-
+	if TestMode != "" {
+		allLists := [][]m.TestItem{
+			m.GlobeTests, m.TaiwanTests, m.HongKongTests, m.JapanTests,
+			m.KoreaTests, m.NorthAmericaTests, m.SouthAmericaTests,
+			m.EuropeTests, m.AfricaTests, m.SouthEastAsiaTests,
+			m.OceaniaTests, m.AITests,
+		}
+		
+		found := false
+		for _, list := range allLists {
+			for _, test := range list {
+				if strings.EqualFold(test.Name, TestMode) {
+					if test.Func != nil {
+						fmt.Println(test.Name, ShowSingleResult(test.Func(core.AutoHttpClient)))
+					} else {
+						fmt.Println(test.Name, "Test function is nil")
+					}
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+		if !found {
+			fmt.Println("Test", TestMode, "not found")
+		}
 		return
 	}
 
