@@ -488,9 +488,10 @@ var sessionMutex sync.RWMutex
 
 func NewHttpClient(ipType int) HttpClient {
 	var disableIPv4, disableIPv6 bool
-	if ipType == 4 {
+	switch ipType {
+	case 4:
 		disableIPv6 = true
-	} else if ipType == 6 {
+	case 6:
 		disableIPv4 = true
 	}
 	client, _ := tls_client.NewHttpClient(tls_client.NewNoopLogger(), buildClientOptions(disableIPv4, disableIPv6)...)
