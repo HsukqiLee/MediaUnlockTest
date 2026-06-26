@@ -120,7 +120,7 @@ jobs:
           linux-loong64, linux-mips, linux-mips64, linux-mips64le, linux-mipsle,
           linux-ppc64, linux-ppc64le, linux-riscv64, linux-s390x,
           darwin-amd64, darwin-arm64,
-          windows-amd64, windows-arm64, windows-386, windows-arm7, windows-arm6, windows-arm5,
+          windows-amd64, windows-arm64, windows-386,
           freebsd-amd64, freebsd-arm64, freebsd-386, freebsd-arm7, freebsd-arm6, freebsd-arm5, freebsd-riscv64,
           netbsd-amd64, netbsd-arm64, netbsd-386, netbsd-arm7, netbsd-arm6, netbsd-arm5,
           openbsd-amd64, openbsd-arm64, openbsd-386, openbsd-arm7, openbsd-arm6, openbsd-arm5, openbsd-ppc64
