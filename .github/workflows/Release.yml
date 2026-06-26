@@ -218,6 +218,10 @@ jobs:
           go-version: '1.26'
           cache: true
 
+      - name: Install UPX
+        if: "!contains(fromJson('[\"linux-mips\",\"linux-mips64\",\"linux-mips64le\",\"linux-mipsle\",\"linux-riscv64\",\"linux-s390x\",\"linux-loong64\",\"linux-ppc64\",\"linux-ppc64le\",\"darwin-amd64\",\"darwin-arm64\",\"freebsd-riscv64\",\"openbsd-ppc64\"]'), matrix.platform)"
+        run: sudo apt-get install -y upx-ucl
+
       - name: Cache Go Build
         uses: actions/cache@v6
         with:
@@ -431,9 +435,16 @@ jobs:
           fi
           
           if [ "${{ matrix.cgo }}" = "true" ]; then
-            go build -tags netcgo -ldflags="$FLAGS" -o "build/$BINARY_NAME" .
+            go build -trimpath -tags netcgo -ldflags="$FLAGS" -o "build/$BINARY_NAME" .
           else
-            go build -ldflags="$FLAGS" -o "build/$BINARY_NAME" .
+            go build -trimpath -ldflags="$FLAGS" -o "build/$BINARY_NAME" .
+          fi
+          
+          # Compress with UPX if supported for this platform
+          SKIP_UPX_PLATFORMS="linux-mips linux-mips64 linux-mips64le linux-mipsle linux-riscv64 linux-s390x linux-loong64 linux-ppc64 linux-ppc64le darwin-amd64 darwin-arm64 freebsd-riscv64 openbsd-ppc64"
+          if ! echo "$SKIP_UPX_PLATFORMS" | grep -qw "${{ matrix.platform }}"; then
+            echo "🗜️ Compressing $BINARY_NAME with UPX..."
+            upx --best "build/$BINARY_NAME" 2>/dev/null || echo "⚠️ UPX skipped for $BINARY_NAME"
           fi
           
           echo "✅ Built: $BINARY_NAME"
