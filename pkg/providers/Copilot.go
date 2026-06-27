@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"strings"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func Copilot(c core.HttpClient) core.Result {
@@ -16,7 +14,15 @@ func Copilot(c core.HttpClient) core.Result {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 200 {
+	switch resp.StatusCode {
+	case 302:
+		if resp.Header.Get("Location") == "/" {
+			return core.Result{Status: core.StatusBanned}
+		}
+		fallthrough
+	case 403:
+		return core.Result{Status: core.StatusNo}
+	case 200:
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -31,7 +37,5 @@ func Copilot(c core.HttpClient) core.Result {
 			return core.Result{Status: core.StatusOK, Region: strings.ToLower(res.RegionCode)}
 		}
 	}
-	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusForbidden: {Status: core.StatusNo},
-	}, core.Result{Status: core.StatusUnexpected})
+	return core.Result{Status: core.StatusUnexpected}
 }

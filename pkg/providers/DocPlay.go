@@ -19,13 +19,18 @@ func DocPlay(c core.HttpClient) core.Result {
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
-	body := string(b)
 
-	if strings.Contains(body, "DocPlay hasn't launched in your part of the world yet.") {
+	if strings.Contains(string(b), "DocPlay hasn't launched in your part of the world yet.") {
 		return core.Result{Status: core.StatusNo}
 	}
 
-	if resp.StatusCode == http.StatusSeeOther || resp.StatusCode == http.StatusOK {
+	switch resp.StatusCode {
+	case http.StatusTemporaryRedirect:
+		if strings.Contains(resp.Header.Get("Location"), "geoblocked") {
+			return core.Result{Status: core.StatusNo}
+		}
+		fallthrough
+	case http.StatusSeeOther, http.StatusOK:
 		return core.Result{Status: core.StatusOK}
 	}
 

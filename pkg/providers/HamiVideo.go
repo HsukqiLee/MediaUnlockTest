@@ -9,6 +9,9 @@ import (
 func HamiVideo(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://hamivideo.hinet.net/api/play.do?id=OTT_VOD_0000249064&freeProduct=1")
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()

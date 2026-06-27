@@ -25,6 +25,9 @@ func Catchplay(c core.HttpClient) core.Result {
 
 	resp, err := core.Cdo(c, req)
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
