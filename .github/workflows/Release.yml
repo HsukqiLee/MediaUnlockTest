@@ -104,12 +104,34 @@ jobs:
           fi
         shell: bash
 
-  # 并行构建不同平台的二进制文件
-  build:
+  # 预下载依赖，避免 matrix 中的每个任务重复下载
+  prep-deps:
     needs: update-version
     if: |
       always() && 
       (needs.update-version.result == 'success' || needs.update-version.result == 'skipped') &&
+      (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.source == 'build'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Download Dependencies
+        run: go mod download
+
+  # 并行构建不同平台的二进制文件
+  build:
+    needs: [update-version, prep-deps]
+    if: |
+      always() && 
+      (needs.update-version.result == 'success' || needs.update-version.result == 'skipped') &&
+      (needs.prep-deps.result == 'success' || needs.prep-deps.result == 'skipped') &&
       (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.source == 'build'))
     strategy:
       matrix:
