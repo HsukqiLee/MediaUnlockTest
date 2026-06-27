@@ -191,6 +191,7 @@ func main() {
 		IP6_2       string
 		err         error
 		IsProxy     bool
+		ForceUpdate bool
 	)
 	flag.StringVar(&Interface, "I", "", "Source IP or network interface to use for connections")
 	flag.StringVar(&DNSServers, "dns-servers", "", "Custom DNS servers (format: ip:port)")
@@ -198,6 +199,7 @@ func main() {
 	flag.StringVar(&SocksProxy, "socks-proxy", "", "SOCKS5 proxy URL (format: socks5://user:pass@host:port)")
 	flag.BoolVar(&ShowVersion, "v", false, "Show version information and exit")
 	flag.BoolVar(&CheckUpdate, "u", false, "Update to latest version")
+	flag.BoolVar(&ForceUpdate, "f", false, "Force update even if already on the latest version")
 	flag.BoolVar(&NF, "nf", false, "Only test Netflix availability")
 	flag.StringVar(&TestMode, "test", "", "Run in test mode for a specific provider (e.g., -test LiTV)")
 	flag.BoolVar(&Debug, "debug", false, "Enable debug mode for verbose output")
@@ -211,7 +213,7 @@ func main() {
 		return
 	}
 	if CheckUpdate {
-		checkUpdate()
+		checkUpdate(ForceUpdate)
 		return
 	}
 	if Interface != "" {
@@ -266,7 +268,7 @@ func main() {
 					shortFuncName = parts[len(parts)-1]
 					shortFuncName = strings.TrimSuffix(shortFuncName, "-fm")
 				}
-				
+
 				if strings.EqualFold(test.Name, TestMode) || (shortFuncName != "" && strings.EqualFold(shortFuncName, TestMode)) {
 					if test.Func != nil {
 						fmt.Println(test.Name, ShowSingleResult(test.Func(core.AutoHttpClient)))
