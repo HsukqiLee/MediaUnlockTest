@@ -68,7 +68,7 @@ jobs:
             echo "Version in mediaunlock.go is already up to date"
           fi
           
-          # 2. Update VERSION file and homepage/api/latest only if not a prerelease
+          # 2. Update VERSION file only if not a prerelease
           if [ "$IS_PRERELEASE" = "false" ]; then
             if [ -f VERSION ]; then
               FILE_TAG=$(cat VERSION)
@@ -82,16 +82,14 @@ jobs:
               echo "VERSION file content: $(cat VERSION)"
               git add VERSION
 
-              cp VERSION homepage/api/latest
-              git add homepage/api/latest
-              echo "homepage/api/latest synced with VERSION"
+
 
               CHANGES=1
             else
               echo "VERSION file is already up to date"
             fi
           else
-            echo "Prerelease detected, skipping VERSION and api/latest update"
+            echo "Prerelease detected, skipping VERSION update"
           fi
 
           # 4. Commit and push if any changes were made
