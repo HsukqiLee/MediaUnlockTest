@@ -2,8 +2,8 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"encoding/json"
 	"io"
+	"strings"
 )
 
 func GalaxyPlay(c core.HttpClient) core.Result {
@@ -23,16 +23,12 @@ func GalaxyPlay(c core.HttpClient) core.Result {
 		if err != nil {
 			return core.Result{Status: core.StatusNetworkErr, Err: err}
 		}
-		var res struct {
-			ErrorCode int `json:"errorCode"`
-		}
-		if len(body) > 0 && body[0] == '<' {
+		bodyStr := string(body)
+		if len(bodyStr) > 0 && bodyStr[0] == '<' {
 			return core.Result{Status: core.StatusNo}
 		}
-		if err := json.Unmarshal(body, &res); err != nil {
-			return core.Result{Status: core.StatusErr, Err: err}
-		}
-		if res.ErrorCode == 495 {
+		
+		if strings.Contains(bodyStr, `"errorCode": 495`) || strings.Contains(bodyStr, "not available in your region") {
 			return core.Result{Status: core.StatusNo}
 		}
 	}

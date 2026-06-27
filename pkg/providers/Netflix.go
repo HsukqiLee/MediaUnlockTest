@@ -61,6 +61,9 @@ func NetflixRegion(c core.HttpClient) core.Result {
 func NetflixCDN(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://api.fast.com/netflix/speedtest/v2?https=true&token=YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm&urlCount=5")
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	if resp.StatusCode == 403 {

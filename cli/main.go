@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -257,7 +259,15 @@ func main() {
 		found := false
 		for _, list := range allLists {
 			for _, test := range list {
-				if strings.EqualFold(test.Name, TestMode) {
+				var shortFuncName string
+				if test.Func != nil {
+					funcName := runtime.FuncForPC(reflect.ValueOf(test.Func).Pointer()).Name()
+					parts := strings.Split(funcName, ".")
+					shortFuncName = parts[len(parts)-1]
+					shortFuncName = strings.TrimSuffix(shortFuncName, "-fm")
+				}
+				
+				if strings.EqualFold(test.Name, TestMode) || (shortFuncName != "" && strings.EqualFold(shortFuncName, TestMode)) {
 					if test.Func != nil {
 						fmt.Println(test.Name, ShowSingleResult(test.Func(core.AutoHttpClient)))
 					} else {
