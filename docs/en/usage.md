@@ -24,6 +24,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |`-m`|Mode: 0=Auto (Default), 4=IPv4 Only, 6=IPv6 Only|`-m 4` Only test IPv4|
 |`-v`|Show version and exit|`-v`|
 |`-u`|Check and update to latest version|`-u`|
+|`-f`|Force update to the latest version (use with `-u`)|`-u -f`|
 
 ### Performance Optimization
 

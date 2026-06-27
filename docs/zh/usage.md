@@ -24,6 +24,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |`-m`|连接模式：0=自动（默认），4=仅IPv4，6=仅IPv6|`-m 4` 仅测试IPv4|
 |`-v`|显示版本信息并退出|`-v`|
 |`-u`|检查并更新到最新版本|`-u`|
+|`-f`|强制执行更新（即使已是最新版本，需配合 `-u`）|`-u -f`|
 
 ### 性能优化
 

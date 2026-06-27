@@ -55,6 +55,7 @@ const PARAMS = {
     { flag: '-debug', title: '调试模式', desc: '输出详细的错误和调试信息，用于排查测试中的问题', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -debug' },
     { flag: '-conc [数值]', title: '并发请求数', desc: '调整同时发送的请求数量，提高检测速度，默认为系统自动选择', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -conc 10' },
     { flag: '-u', title: '检查更新', desc: '检查并获取最新版本的脚本，确保使用最新功能', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -u' },
+    { flag: '-f', title: '强制更新', desc: '配合 -u 使用，强制执行更新（即使已是最新版本）', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -u -f' },
     { flag: '-v', title: '显示版本', desc: '输出当前脚本的版本信息，便于判断是否需要更新', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -v' },
     { flag: '-test [名称]', title: '单个测试', desc: '运行单个测试项，支持使用显示名称（如 "Disney+"）或函数名（如 "DisneyPlus"）精确匹配', cmd: './unlock-test -test Disney+' },
   ],

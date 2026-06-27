@@ -20,6 +20,7 @@ type UpdateConfig struct {
 	VersionURL      string
 	BinaryURLPrefix string
 	Silent          bool
+	ForceUpdate     bool
 }
 
 type Downloader struct {
@@ -81,7 +82,7 @@ func CheckUpdate(cfg UpdateConfig) bool {
 	}
 	version := parts[0]
 
-	if version == Version {
+	if !cfg.ForceUpdate && strings.TrimPrefix(version, "v") == strings.TrimPrefix(Version, "v") {
 		if !cfg.Silent {
 			fmt.Println("已经是最新版本")
 		}
