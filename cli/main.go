@@ -20,7 +20,7 @@ import (
 	core "MediaUnlockTest/pkg/core"
 	m "MediaUnlockTest/pkg/providers"
 
-	"github.com/fatih/color"
+
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -45,13 +45,7 @@ var (
 	sem         chan struct{}
 	ResultLines []*result
 	bar         *progressbar.ProgressBar
-	Red         = color.New(color.FgRed).SprintFunc()
-	Green       = color.New(color.FgGreen).SprintFunc()
-	Yellow      = color.New(color.FgYellow).SprintFunc()
-	Blue        = color.New(color.FgBlue).SprintFunc()
-	Purple      = color.New(color.FgMagenta).SprintFunc()
-	SkyBlue     = color.New(color.FgCyan).SprintFunc()
-	White       = color.New(color.FgWhite).SprintFunc()
+
 	resultCache = make(map[string]core.Result)
 	cacheMutex  sync.RWMutex
 

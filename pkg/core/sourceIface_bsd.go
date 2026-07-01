@@ -1,13 +1,12 @@
-//go:build netbsd
-// +build netbsd
+//go:build darwin || freebsd || netbsd || openbsd
 
 package core
 
 import (
 	"fmt"
 	"net"
-	"syscall"
 	"strings"
+	"syscall"
 )
 
 func init() {
@@ -73,7 +72,7 @@ func init() {
 						if sockaddr != nil {
 							innerErr = syscall.Bind(int(fd), sockaddr)
 							if innerErr == nil {
-								return 
+								return
 							}
 						}
 					}

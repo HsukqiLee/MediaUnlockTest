@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	http "github.com/bogdanfinn/fhttp"
 	"io"
 	"net"
-	http "github.com/bogdanfinn/fhttp"
 	"strings"
 	"time"
 )

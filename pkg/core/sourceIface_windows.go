@@ -6,8 +6,8 @@ package core
 import (
 	"fmt"
 	"net"
-	"syscall"
 	"strings"
+	"syscall"
 )
 
 func init() {
@@ -73,7 +73,7 @@ func init() {
 						if sockaddr != nil {
 							innerErr = syscall.Bind(syscall.Handle(fd), sockaddr)
 							if innerErr == nil {
-								return 
+								return
 							}
 						}
 					}
