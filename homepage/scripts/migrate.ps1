@@ -1,7 +1,11 @@
+param (
+    [string]$TargetDir = "$env:ProgramFiles\MediaUnlockTest"
+)
+
 Write-Host "清理旧版二进制文件"
 
 # 定义目标目录
-$targetDir = "$env:ProgramFiles\MediaUnlockTest"
+$targetDir = $TargetDir
 
 # 确保目标目录存在
 if (-not (Test-Path -Path $targetDir)) {
@@ -29,16 +33,6 @@ switch ($env:PROCESSOR_ARCHITECTURE) {
     'AMD64' { $arch = 'amd64' }
     'x86'   { $arch = '386' }
     'ARM64' { $arch = 'arm64' }
-    'ARM' {
-        $arch = 'arm7'
-        Write-Host "当前架构为 ARM 32，默认下载 ARMv7 版本"
-        Write-Host "如果无法执行可自行到 Releases 页面下载"
-    }
-    'ARM32' {
-        $arch = 'arm7'
-        Write-Host "当前架构为 ARM 32，默认下载 ARMv7 版本"
-        Write-Host "如果无法执行可自行到 Releases 页面下载"
-    }
     default {
         Write-Error "不支持的系统架构: $env:PROCESSOR_ARCHITECTURE"
         exit 1
@@ -47,7 +41,7 @@ switch ($env:PROCESSOR_ARCHITECTURE) {
 
 
 # 下载文件的函数
-function Download-File {
+function Invoke-DownloadFile {
     param (
         [string]$url,
         [string]$output
@@ -62,7 +56,7 @@ function Download-File {
 
 # 下载并安装 unlock-test
 $unlockTestUrl = "https://unlock.icmp.ing/test/latest/unlock-test_windows_${arch}.exe"
-Download-File -url $unlockTestUrl -output "$targetDir\unlock-test.exe"
+Invoke-DownloadFile -url $unlockTestUrl -output "$targetDir\unlock-test.exe"
 if (Test-Path -Path "$targetDir\unlock-test.exe") {
     Write-Host "unlock-test 更新成功"
     & "$targetDir\unlock-test.exe" -v
@@ -70,7 +64,7 @@ if (Test-Path -Path "$targetDir\unlock-test.exe") {
 
 # 下载并安装 unlock-monitor
 $unlockMonitorUrl = "https://unlock.icmp.ing/monitor/latest/unlock-monitor_windows_${arch}.exe"
-Download-File -url $unlockMonitorUrl -output "$targetDir\unlock-monitor.exe"
+Invoke-DownloadFile -url $unlockMonitorUrl -output "$targetDir\unlock-monitor.exe"
 if (Test-Path -Path "$targetDir\unlock-monitor.exe") {
     Write-Host "unlock-monitor 更新成功"
     & "$targetDir\unlock-monitor.exe" -v

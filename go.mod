@@ -1,6 +1,6 @@
 module MediaUnlockTest
 
-go 1.26.0
+go 1.26.4
 
 require (
 	github.com/bogdanfinn/fhttp v0.6.8
