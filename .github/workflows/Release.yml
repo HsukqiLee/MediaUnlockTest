@@ -123,6 +123,22 @@ jobs:
       - name: Download Dependencies
         run: go mod download
 
+      - name: Cache Android NDK
+        id: cache-ndk
+        uses: actions/cache@v6
+        with:
+          path: /home/runner/android-ndk
+          key: android-ndk-r27d
+
+      - name: Setup Android NDK (Prep)
+        if: steps.cache-ndk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /home/runner/android-ndk
+          wget -q https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
+          unzip -q android-ndk-r27d-linux.zip -d /home/runner/android-ndk
+          mv /home/runner/android-ndk/android-ndk-r27d /home/runner/android-ndk/ndk
+          rm android-ndk-r27d-linux.zip
+
   # 并行构建不同平台的二进制文件
   build:
     needs: [update-version, prep-deps]
@@ -255,9 +271,10 @@ jobs:
         if: matrix.cgo == true && steps.cache-ndk.outputs.cache-hit != 'true'
         run: |
           mkdir -p $HOME/android-ndk
-          wget https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
+          wget -q https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
           unzip -q android-ndk-r27d-linux.zip -d $HOME/android-ndk
           mv $HOME/android-ndk/android-ndk-r27d $HOME/android-ndk/ndk
+          rm android-ndk-r27d-linux.zip
           
       - name: Set NDK Environment Variables
         if: matrix.cgo == true
