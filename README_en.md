@@ -1,5 +1,11 @@
 # MediaUnlockTest
 
+[![Release](https://img.shields.io/github/v/release/HsukqiLee/MediaUnlockTest?style=flat-square)](https://github.com/HsukqiLee/MediaUnlockTest/releases)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/HsukqiLee/MediaUnlockTest?style=flat-square)](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/go.mod)
+[![Go Report Card](https://goreportcard.com/badge/github.com/HsukqiLee/MediaUnlockTest?style=flat-square)](https://goreportcard.com/report/github.com/HsukqiLee/MediaUnlockTest)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/71a113901b8f4c4c9020d908c8254011)](https://app.codacy.com/gh/HsukqiLee/MediaUnlockTest/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![GitHub stars](https://img.shields.io/github/stars/HsukqiLee/MediaUnlockTest?style=flat-square)](https://github.com/HsukqiLee/MediaUnlockTest/stargazers)
+
 [中文文档](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/README.md) | **English Docs**
 
 > Faster media unlock test tool
