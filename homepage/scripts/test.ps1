@@ -1,5 +1,8 @@
+param (
+    [string]$TargetDir = "$env:ProgramFiles\MediaUnlockTest"
+)
 
-$targetDir = "$env:ProgramFiles\MediaUnlockTest"
+$targetDir = $TargetDir
 
 
 if (-not (Test-Path -Path $targetDir)) {
@@ -11,16 +14,6 @@ switch ($env:PROCESSOR_ARCHITECTURE) {
     'AMD64' { $arch = 'amd64' }
     'x86'   { $arch = '386' }
     'ARM64' { $arch = 'arm64' }
-    'ARM' {
-        $arch = 'arm7'
-        Write-Host "当前架构为 ARM 32，默认下载 ARMv7 版本"
-        Write-Host "如果无法执行可自行到 Releases 页面下载"
-    }
-    'ARM32' {
-        $arch = 'arm7'
-        Write-Host "当前架构为 ARM 32，默认下载 ARMv7 版本"
-        Write-Host "如果无法执行可自行到 Releases 页面下载"
-    }
     default {
         Write-Error "不支持的系统架构: $env:PROCESSOR_ARCHITECTURE"
         exit 1
@@ -28,7 +21,7 @@ switch ($env:PROCESSOR_ARCHITECTURE) {
 }
 
 
-function Download-File {
+function Invoke-DownloadFile {
     param (
         [string]$url,
         [string]$output
@@ -52,7 +45,7 @@ if (Test-Path -Path $unlockTestPath) {
     Start-Process -FilePath $unlockTestPath -ArgumentList '-u' -NoNewWindow -Wait
 }
 else {
-    Download-File -url $unlockTestUrl -output $unlockTestNewPath
+    Invoke-DownloadFile -url $unlockTestUrl -output $unlockTestNewPath
     if (Test-Path -Path $unlockTestNewPath) {
         Rename-Item -Path $unlockTestNewPath -NewName "unlock-test.exe"
         Write-Host "unlock-test 安装成功"
