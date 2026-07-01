@@ -5,6 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/HsukqiLee/MediaUnlockTest?style=flat-square)](https://goreportcard.com/report/github.com/HsukqiLee/MediaUnlockTest)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/71a113901b8f4c4c9020d908c8254011)](https://app.codacy.com/gh/HsukqiLee/MediaUnlockTest/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![GitHub stars](https://img.shields.io/github/stars/HsukqiLee/MediaUnlockTest?style=flat-square)](https://github.com/HsukqiLee/MediaUnlockTest/stargazers)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest?ref=badge_shield)
 
 **中文文档** | [English Docs](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/README_en.md)
 
@@ -96,3 +97,6 @@ Made with ❤️ By **Hsukqi Lee**.
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=HsukqiLee/MediaUnlockTest&type=Date)](https://star-history.com/#HsukqiLee/MediaUnlockTest&Date)
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest?ref=badge_large)
