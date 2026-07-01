@@ -122,7 +122,7 @@ func CheckUpdate(cfg UpdateConfig) bool {
 			return false
 		}
 		defer resp.Body.Close()
-		
+
 		var pbBar *progressbar.ProgressBar
 		if !cfg.Silent {
 			pbBar = progressbar.DefaultBytes(resp.ContentLength, "下载进度")
