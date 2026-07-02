@@ -18,6 +18,10 @@ on:
         description: 'Docker Tag (for prerelease source)'
         required: true
         default: 'preview'    
+
+permissions:
+  contents: read
+
 jobs:
   # 版本更新（在构建之前）
   update-version:
