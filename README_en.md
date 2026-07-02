@@ -5,6 +5,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/71a113901b8f4c4c9020d908c8254011)](https://app.codacy.com/gh/HsukqiLee/MediaUnlockTest/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![GitHub stars](https://img.shields.io/github/stars/HsukqiLee/MediaUnlockTest?style=flat-square)](https://github.com/HsukqiLee/MediaUnlockTest/stargazers)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest?ref=badge_shield)
+[![FOSSA Security](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest?ref=badge_shield&issueType=security)
 
 [中文文档](https://github.com/HsukqiLee/MediaUnlockTest/blob/main/README.md) | **English Docs**
 

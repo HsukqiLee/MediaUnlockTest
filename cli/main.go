@@ -20,7 +20,6 @@ import (
 	core "MediaUnlockTest/pkg/core"
 	m "MediaUnlockTest/pkg/providers"
 
-
 	"github.com/schollz/progressbar/v3"
 )
 

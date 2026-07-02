@@ -3,8 +3,8 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
-	"io"
 	tls_client "github.com/bogdanfinn/tls-client"
+	"io"
 	"strings"
 )
 

@@ -27,7 +27,7 @@ func GalaxyPlay(c core.HttpClient) core.Result {
 		if len(bodyStr) > 0 && bodyStr[0] == '<' {
 			return core.Result{Status: core.StatusNo}
 		}
-		
+
 		if strings.Contains(bodyStr, `"errorCode": 495`) || strings.Contains(bodyStr, "not available in your region") {
 			return core.Result{Status: core.StatusNo}
 		}
