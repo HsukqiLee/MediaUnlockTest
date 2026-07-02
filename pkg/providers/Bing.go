@@ -2,12 +2,11 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	tls_client "github.com/bogdanfinn/tls-client"
 	"io"
 	"regexp"
 	"strings"
 
-	http "github.com/bogdanfinn/fhttp"
+	tls_client "github.com/bogdanfinn/tls-client"
 )
 
 func extractBingRegion(responseBody string) string {
@@ -58,6 +57,6 @@ func Bing(c core.HttpClient) core.Result {
 	}
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusForbidden: {Status: core.StatusNo},
+		403: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }

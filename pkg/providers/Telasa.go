@@ -2,24 +2,12 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"context"
 	"encoding/json"
 	"io"
-	"time"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func Telasa(c core.HttpClient) core.Result {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://api-videopass-anon.kddi-video.com/v1/playback/system_status", nil)
-	if err != nil {
-		return core.Result{Status: core.StatusNetworkErr, Err: err}
-	}
-	req.Header.Set("X-Device-ID", "d36f8e6b-e344-4f5e-9a55-90aeb3403799")
-
-	resp, err := core.Cdo(c, req)
+	resp, err := core.GET(c, "https://api-videopass-anon.kddi-video.com/v1/playback/system_status", core.H{"X-Device-ID", "d36f8e6b-e344-4f5e-9a55-90aeb3403799"})
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}

@@ -4,8 +4,6 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"io"
 	"strings"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func DAnimeStore(c core.HttpClient) core.Result {
@@ -27,6 +25,6 @@ func DAnimeStore(c core.HttpClient) core.Result {
 	}
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusFound: {Status: core.StatusOK},
+		302: {Status: core.StatusOK},
 	}, core.Result{Status: core.StatusUnexpected})
 }

@@ -6,19 +6,13 @@ import (
 	"errors"
 	"io"
 	"strings"
-	"time"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func ErogameScape(c core.HttpClient) core.Result {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	req, _ := http.NewRequestWithContext(ctx, "GET", "https://erogamescape.org/~ap2/ero/toukei_kaiseki/", nil)
-	resp, err := c.Do(req)
+	resp, err := core.GET(c, "https://erogamescape.org/~ap2/ero/toukei_kaiseki/")
 
 	if err != nil {
-		if errors.Is(err, io.EOF) || errors.Is(err, context.DeadlineExceeded) {
+		if errors.Is(err, io.EOF) || errors.Is(err, context.DeadlineExceeded) || strings.Contains(err.Error(), "timeout") {
 			return core.Result{Status: core.StatusNo}
 		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}

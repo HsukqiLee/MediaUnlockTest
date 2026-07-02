@@ -2,8 +2,6 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func Wavve(c core.HttpClient) core.Result {
@@ -14,9 +12,9 @@ func Wavve(c core.HttpClient) core.Result {
 	defer resp.Body.Close()
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusOK:        {Status: core.StatusOK},
-		http.StatusForbidden: {Status: core.StatusBanned},
-		421:                  {Status: core.StatusNo},
-		550:                  {Status: core.StatusNo},
+		200: {Status: core.StatusOK},
+		403: {Status: core.StatusBanned},
+		421: {Status: core.StatusNo},
+		550: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }

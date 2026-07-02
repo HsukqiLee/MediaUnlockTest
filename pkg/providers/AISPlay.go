@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func AISPlay(c core.HttpClient) core.Result {
@@ -124,7 +122,7 @@ func AISPlay(c core.HttpClient) core.Result {
 	defer resp4.Body.Close()
 
 	return core.ResultFromMapping(resp4.StatusCode, core.ResultMap{
-		http.StatusOK:        {Status: core.StatusOK},
-		http.StatusForbidden: {Status: core.StatusNo},
+		200: {Status: core.StatusOK},
+		403: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }

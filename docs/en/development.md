@@ -13,7 +13,7 @@
 -   `monitor/`: Monitor service entry point.
 -   `docker/`: Docker build files.
 
-## Core Library (`checks/mediaunlock.go`)
+## Core Library (`pkg/core/`)
 
 The `checks` package provides tools for building checks.
 

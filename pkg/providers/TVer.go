@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"regexp"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func extractTVerPolicyKey(body string) string {
@@ -156,7 +154,6 @@ func tver_deprecated(c core.HttpClient) core.Result {
 	AccountID := res3.Video.AccountID
 	PlayerID := res3.Video.PlayerID
 	VideoID := res3.Video.VideoID
-	VideoRefID := res3.Video.VideoRefID
 
 	resp4, err := core.GET(c, "https://players.brightcove.net/"+AccountID+"/"+PlayerID+"_default/index.min.js",
 		core.H{"Referer", "https://tver.jp/"},
@@ -175,22 +172,12 @@ func tver_deprecated(c core.HttpClient) core.Result {
 	PolicyKey := extractTVerPolicyKey(string(body4))
 	DeliveryConfigID := extractTVerDeliveryConfigID(string(body4))
 
-	var resp5 *http.Response
-	if true { //VideoRefID == "" {
-		resp5, err = core.GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/"+VideoID+"?config_id="+DeliveryConfigID,
-			core.H{"accept", "application/json;pk=" + PolicyKey},
-			core.H{"origin", "https://tver.jp"},
-			core.H{"referer", "https://tver.jp/"},
-			core.H{"accept-language", "en-US,en;q=0.9"},
-		)
-	} else {
-		resp5, err = core.GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/ref%3A"+VideoRefID,
-			core.H{"accept", "application/json;pk=" + PolicyKey},
-			core.H{"origin", "https://tver.jp"},
-			core.H{"referer", "https://tver.jp/"},
-			core.H{"accept-language", "en-US,en;q=0.9"},
-		)
-	}
+	resp5, err := core.GET(c, "https://edge.api.brightcove.com/playback/v1/accounts/"+AccountID+"/videos/"+VideoID+"?config_id="+DeliveryConfigID,
+		core.H{"accept", "application/json;pk=" + PolicyKey},
+		core.H{"origin", "https://tver.jp"},
+		core.H{"referer", "https://tver.jp/"},
+		core.H{"accept-language", "en-US,en;q=0.9"},
+	)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}

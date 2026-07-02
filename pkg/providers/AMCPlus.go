@@ -3,8 +3,6 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"regexp"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func extractAMCPlusRegion(url string) string {
@@ -49,7 +47,7 @@ func AMCPlus(c core.HttpClient) core.Result {
 	}
 
 	return core.ResultFromMapping(resp1.StatusCode, core.ResultMap{
-		http.StatusOK:        {Status: core.StatusOK, Region: "us"},
-		http.StatusForbidden: {Status: core.StatusBanned},
+		200: {Status: core.StatusOK, Region: "us"},
+		403: {Status: core.StatusBanned},
 	}, core.Result{Status: core.StatusUnexpected})
 }

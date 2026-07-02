@@ -2,9 +2,10 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	tls_client "github.com/bogdanfinn/tls-client"
 	"net/url"
 	"strings"
+
+	tls_client "github.com/bogdanfinn/tls-client"
 )
 
 func Mora(c core.HttpClient) core.Result {

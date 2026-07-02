@@ -2,14 +2,12 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func CanalPlus(c core.HttpClient) core.Result {
 	return core.CheckGETStatus(c, "https://boutique-tunnel.canalplus.com/", core.ResultMap{
-		http.StatusOK:        {Status: core.StatusOK},
-		http.StatusFound:     {Status: core.StatusNo},
-		http.StatusForbidden: {Status: core.StatusBanned},
+		200: {Status: core.StatusOK},
+		302: {Status: core.StatusNo},
+		403: {Status: core.StatusBanned},
 	}, core.Result{Status: core.StatusUnexpected})
 }

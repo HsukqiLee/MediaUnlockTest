@@ -4,8 +4,6 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"io"
 	"strings"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func MaoriTV(c core.HttpClient) core.Result {
@@ -28,6 +26,6 @@ func MaoriTV(c core.HttpClient) core.Result {
 	}
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusOK: {Status: core.StatusOK},
+		200: {Status: core.StatusOK},
 	}, core.Result{Status: core.StatusUnexpected})
 }

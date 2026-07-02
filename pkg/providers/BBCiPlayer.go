@@ -4,8 +4,6 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"io"
 	"strings"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func BBCiPlayer(c core.HttpClient) core.Result {
@@ -31,6 +29,6 @@ func BBCiPlayer(c core.HttpClient) core.Result {
 	}
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusForbidden: {Status: core.StatusNo},
+		403: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }

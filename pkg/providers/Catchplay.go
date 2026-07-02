@@ -2,28 +2,17 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"context"
 	"encoding/json"
 	"io"
 	"strings"
-	"time"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func Catchplay(c core.HttpClient) core.Result {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://sunapi.catchplay.com/geo", nil)
-	if err != nil {
-		return core.Result{Status: core.StatusNetworkErr, Err: err}
-	}
-	req.Header.Set("authorization", "Basic NTQ3MzM0NDgtYTU3Yi00MjU2LWE4MTEtMzdlYzNkNjJmM2E0Ok90QzR3elJRR2hLQ01sSDc2VEoy")
-	req.Header.Set("accept", "application/json, text/plain, */*")
-	req.Header.Set("accept-language", "zh-TW,zh;q=0.9,en;q=0.8")
-	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-
-	resp, err := core.Cdo(c, req)
+	resp, err := core.GET(c, "https://sunapi.catchplay.com/geo",
+		core.H{"authorization", "Basic NTQ3MzM0NDgtYTU3Yi00MjU2LWE4MTEtMzdlYzNkNjJmM2E0Ok90QzR3elJRR2hLQ01sSDc2VEoy"},
+		core.H{"accept", "application/json, text/plain, */*"},
+		core.H{"accept-language", "zh-TW,zh;q=0.9,en;q=0.8"},
+	)
 	if err != nil {
 		if core.IsWAFBlockError(err) {
 			return core.Result{Status: core.StatusBanned}

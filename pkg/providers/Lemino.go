@@ -2,8 +2,6 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func Lemino(c core.HttpClient) core.Result {
@@ -23,8 +21,8 @@ func Lemino(c core.HttpClient) core.Result {
 	defer resp.Body.Close()
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusOK:                  {Status: core.StatusOK},
-		http.StatusForbidden:           {Status: core.StatusNo},
-		http.StatusInternalServerError: {Status: core.StatusErr},
+		200: {Status: core.StatusOK},
+		403: {Status: core.StatusNo},
+		500: {Status: core.StatusErr},
 	}, core.Result{Status: core.StatusUnexpected})
 }

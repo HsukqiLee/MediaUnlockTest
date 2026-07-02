@@ -2,8 +2,6 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func Ofiii(c core.HttpClient) core.Result {
@@ -14,7 +12,7 @@ func Ofiii(c core.HttpClient) core.Result {
 	defer resp.Body.Close()
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusOK:         {Status: core.StatusOK},
-		http.StatusBadRequest: {Status: core.StatusNo},
+		200: {Status: core.StatusOK},
+		400: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }

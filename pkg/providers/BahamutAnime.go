@@ -3,9 +3,10 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"encoding/json"
-	tls_client "github.com/bogdanfinn/tls-client"
 	"io"
 	"strings"
+
+	tls_client "github.com/bogdanfinn/tls-client"
 )
 
 func BahamutAnime(c core.HttpClient) core.Result {

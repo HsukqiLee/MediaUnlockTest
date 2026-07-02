@@ -2,8 +2,6 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func SlingTV(c core.HttpClient) core.Result {
@@ -14,8 +12,8 @@ func SlingTV(c core.HttpClient) core.Result {
 	defer resp.Body.Close()
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusOK:        {Status: core.StatusOK},
-		http.StatusForbidden: {Status: core.StatusNo},
-		http.StatusFound:     {Status: core.StatusNo},
+		200: {Status: core.StatusOK},
+		403: {Status: core.StatusNo},
+		302: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }

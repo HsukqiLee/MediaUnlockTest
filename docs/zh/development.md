@@ -13,7 +13,7 @@
 -   `monitor/`: 监控服务入口。
 -   `docker/`: Docker 构建文件。
 
-## 核心库 (`checks/mediaunlock.go`)
+## 核心库 (`pkg/core/`)
 
 `checks` 包提供了构建检测所需的基础工具。
 

@@ -2,29 +2,17 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"context"
-	"time"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func KonosubaFD(c core.HttpClient) core.Result {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "POST", "https://api.konosubafd.jp/api/masterlist", nil)
-	if err != nil {
-		return core.Result{Status: core.StatusNetworkErr, Err: err}
-	}
-	req.Header.Set("User-Agent", "pj0007/212 CFNetwork/1240.0.4 Darwin/20.6.0")
-
-	resp, err := core.Cdo(c, req)
+	resp, err := core.RequestRaw(c, "POST", "https://api.konosubafd.jp/api/masterlist", "", core.H{"User-Agent", "pj0007/212 CFNetwork/1240.0.4 Darwin/20.6.0"})
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
 
 	return core.ResultFromMapping(resp.StatusCode, core.ResultMap{
-		http.StatusOK:        {Status: core.StatusOK},
-		http.StatusForbidden: {Status: core.StatusNo},
+		200: {Status: core.StatusOK},
+		403: {Status: core.StatusNo},
 	}, core.Result{Status: core.StatusUnexpected})
 }

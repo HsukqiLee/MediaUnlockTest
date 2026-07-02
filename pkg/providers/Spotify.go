@@ -2,30 +2,17 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"context"
 	"encoding/json"
 	"io"
 	"strings"
-	"time"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func Spotify(c core.HttpClient) core.Result {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "POST", "https://spclient.wg.spotify.com/signup/public/v1/account", strings.NewReader(
+	resp, err := core.PostJson(c, "https://spclient.wg.spotify.com/signup/public/v1/account",
 		`birth_day=11&birth_month=11&birth_year=2000&collect_personal_info=undefined&creation_flow=&creation_point=https%3A%2F%2Fwww.spotify.com%2Fhk-en%2F&displayname=Gay%20Lord&gender=male&iagree=1&key=a1e486e2729f46d6bb368d6b2bcda326&platform=www&referrer=&send-email=0&thirdpartyemail=0&identifier_token=AgE6YTvEzkReHNfJpO114514`,
-	))
-	if err != nil {
-		return core.Result{Status: core.StatusNetworkErr, Err: err}
-	}
-	req.Header.Add("Accept-Language", "en")
-	req.Header.Add("User-Agent", core.UA_Browser)
-	req.Header.Set("content-type", "application/json")
-	req.Header.Set("cache-control", "no-cache")
-
-	resp, err := core.Cdo(c, req)
+		core.H{"Accept-Language", "en"},
+		core.H{"cache-control", "no-cache"},
+	)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}

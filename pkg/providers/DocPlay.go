@@ -4,8 +4,6 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"io"
 	"strings"
-
-	http "github.com/bogdanfinn/fhttp"
 )
 
 func DocPlay(c core.HttpClient) core.Result {
@@ -25,12 +23,12 @@ func DocPlay(c core.HttpClient) core.Result {
 	}
 
 	switch resp.StatusCode {
-	case http.StatusTemporaryRedirect:
+	case 307:
 		if strings.Contains(resp.Header.Get("Location"), "geoblocked") {
 			return core.Result{Status: core.StatusNo}
 		}
 		fallthrough
-	case http.StatusSeeOther, http.StatusOK:
+	case 303, 200:
 		return core.Result{Status: core.StatusOK}
 	}
 
