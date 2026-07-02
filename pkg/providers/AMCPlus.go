@@ -6,7 +6,7 @@ import (
 )
 
 func extractAMCPlusRegion(url string) string {
-	re := regexp.MustCompile(`https://www\.amcplus\.com/countries/(\w{2})`)
+	re := regexp.MustCompile(`^https://www\.amcplus\.com/countries/(\w{2})`)
 	matches := re.FindStringSubmatch(url)
 	if len(matches) > 1 {
 		return matches[1]

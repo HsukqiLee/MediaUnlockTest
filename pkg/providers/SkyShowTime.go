@@ -6,7 +6,7 @@ import (
 )
 
 func extractSkyShowTimeRegion(url string) string {
-	re := regexp.MustCompile(`https://www.skyshowtime.com/([a-z]{2})\?`)
+	re := regexp.MustCompile(`^https://www\.skyshowtime\.com/([a-z]{2})\?`)
 	matches := re.FindStringSubmatch(url)
 	if len(matches) > 1 {
 		return matches[1]
