@@ -32,6 +32,11 @@ export default {
       return new Response(latestVersion.trim(), { status: 200 });
     }
 
+    if (pathname === '/api/release-notes') {
+      const notes = await getLatestReleaseNotes(repo, token);
+      return new Response(notes, { status: 200, headers: {'Content-Type': 'text/plain; charset=utf-8'} });
+    }
+
     const regex = /^\/(test|monitor)\/([^/]+)\/(.*)$/;
     const match = pathname.match(regex);
     if (match) {
@@ -87,4 +92,29 @@ async function getLatestVersion(repo, token, fallbackVer) {
   }
 
   return fallbackVer;
+}
+
+async function getLatestReleaseNotes(repo, token) {
+  const headers = {
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'MediaUnlockTest-CF-Worker',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${repo}/releases/latest`,
+      { headers }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.body || 'No release notes available.';
+    }
+  } catch (e) {
+    console.error('GitHub API error:', e);
+  }
+  return 'Failed to fetch release notes.';
 }

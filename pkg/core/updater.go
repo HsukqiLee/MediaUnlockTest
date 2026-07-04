@@ -101,6 +101,15 @@ func CheckUpdate(cfg UpdateConfig) bool {
 		fmt.Println("发布时间：", timestamp.Format("2006-01-02 15:04:05"))
 		fmt.Println("运行系统：", runtime.GOOS)
 		fmt.Println("运行架构：", runtime.GOARCH)
+
+		notesURL := "https://unlock.icmp.ing/api/release-notes"
+		if resp, err := http.Get(notesURL); err == nil {
+			if b, err := io.ReadAll(resp.Body); err == nil && len(b) > 0 {
+				fmt.Println("\n更新日志：\n" + string(b))
+				fmt.Println("--------------------------------")
+			}
+			resp.Body.Close()
+		}
 	}
 
 	OS, ARCH := runtime.GOOS, runtime.GOARCH
