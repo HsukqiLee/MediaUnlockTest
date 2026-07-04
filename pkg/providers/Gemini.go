@@ -4,6 +4,7 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"io"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -34,12 +35,7 @@ func SupportGemini(loc string) bool {
 		"TV", "VI", "UG", "UA", "AE", "GB", "US", "UM", "UY", "UZ",
 		"VU", "VA", "VE", "VN", "WF", "EH", "YE", "ZM", "ZW",
 	}
-	for _, s := range GEMINI_SUPPORT_COUNTRY {
-		if loc == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(GEMINI_SUPPORT_COUNTRY, loc)
 }
 
 func extractGeminiRegion(body string) string {

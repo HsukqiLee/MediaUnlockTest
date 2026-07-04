@@ -2,7 +2,7 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
-	"io"
+	"slices"
 	"strings"
 )
 
@@ -20,35 +20,14 @@ func SupportClaude(loc string) bool {
 		"ZA", "KR", "ES", "LK", "SR", "SE", "CH", "TW", "TJ", "TZ", "TH", "TL", "TG", "TO", "TT", "TN",
 		"TR", "TM", "TV", "UG", "UA", "AE", "GB", "US", "UY", "UZ", "VU", "VA", "VN", "ZM", "ZW",
 	}
-	for _, s := range CLAUDE_SUPPORT_COUNTRY {
-		if loc == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(CLAUDE_SUPPORT_COUNTRY, loc)
 }
 
 func Claude(c core.HttpClient) core.Result {
-	resp, err := core.GET(c, "https://claude.ai/cdn-cgi/trace")
+	loc, err := core.GetCloudflareTraceLoc(c, "https://claude.ai/cdn-cgi/trace")
 	if err != nil {
-		return core.Result{Status: core.StatusNetworkErr, Err: err}
+		return core.Result{Status: core.StatusErr, Err: err}
 	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return core.Result{Status: core.StatusNetworkErr, Err: err}
-	}
-	s := string(b)
-	i := strings.Index(s, "loc=")
-	if i == -1 {
-		return core.Result{Status: core.StatusUnexpected}
-	}
-	s = s[i+4:]
-	i = strings.Index(s, "\n")
-	if i == -1 {
-		return core.Result{Status: core.StatusUnexpected}
-	}
-	loc := s[:i]
 	if loc == "T1" {
 		return core.Result{Status: core.StatusOK, Region: "tor"}
 	}
