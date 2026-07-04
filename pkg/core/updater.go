@@ -21,6 +21,7 @@ type UpdateConfig struct {
 	BinaryURLPrefix string
 	Silent          bool
 	ForceUpdate     bool
+	JustCheck       bool
 }
 
 type Downloader struct {
@@ -102,13 +103,17 @@ func CheckUpdate(cfg UpdateConfig) bool {
 		fmt.Println("运行系统：", runtime.GOOS)
 		fmt.Println("运行架构：", runtime.GOARCH)
 
-		notesURL := "https://unlock.icmp.ing/api/release-notes"
-		if resp, err := http.Get(notesURL); err == nil {
-			if b, err := io.ReadAll(resp.Body); err == nil && len(b) > 0 {
-				fmt.Println("\n更新日志：\n" + string(b))
-				fmt.Println("--------------------------------")
+		if cfg.JustCheck {
+			notesURL := "https://unlock.icmp.ing/api/release-notes"
+			if resp, err := http.Get(notesURL); err == nil {
+				if b, err := io.ReadAll(resp.Body); err == nil && len(b) > 0 {
+					fmt.Println("\n更新日志：\n" + string(b))
+					fmt.Println("--------------------------------")
+				}
+				resp.Body.Close()
 			}
-			resp.Body.Close()
+			fmt.Printf("\n提示: 发现新版本，请运行 %s -u 进行更新\n", cfg.AppName)
+			return false
 		}
 	}
 
@@ -196,6 +201,14 @@ func CheckUpdate(cfg UpdateConfig) bool {
 	}
 	if !cfg.Silent {
 		fmt.Println("[OK]", cfg.AppName, "更新成功")
+		notesURL := "https://unlock.icmp.ing/api/release-notes"
+		if resp, err := http.Get(notesURL); err == nil {
+			if b, err := io.ReadAll(resp.Body); err == nil && len(b) > 0 {
+				fmt.Println("\n更新日志：\n" + string(b))
+				fmt.Println("--------------------------------")
+			}
+			resp.Body.Close()
+		}
 	} else {
 		log.Println("[OK]", cfg.AppName, "后台更新成功")
 	}

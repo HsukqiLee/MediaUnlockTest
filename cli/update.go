@@ -14,3 +14,15 @@ func checkUpdate(force bool) {
 	}
 	core.CheckUpdate(cfg)
 }
+
+func checkUpdateOnly() {
+	cfg := core.UpdateConfig{
+		AppName:         "unlock-test",
+		VersionURL:      "https://unlock.icmp.ing/test/latest/version",
+		BinaryURLPrefix: "https://unlock.icmp.ing/test/latest/unlock-test",
+		Silent:          false,
+		ForceUpdate:     false,
+		JustCheck:       true,
+	}
+	core.CheckUpdate(cfg)
+}

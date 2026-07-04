@@ -491,4 +491,6 @@ func main() {
 	ShowCounts()
 	fmt.Println()
 	ShowAD()
+	fmt.Println()
+	checkUpdateOnly()
 }
