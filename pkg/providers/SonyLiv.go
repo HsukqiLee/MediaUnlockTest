@@ -4,6 +4,7 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"io"
 	"regexp"
+	"slices"
 )
 
 func SupportSonyLiv(loc string) bool {
@@ -12,12 +13,7 @@ func SupportSonyLiv(loc string) bool {
 		"FR", "GB", "GR", "HK", "ID", "IE", "IN", "IT", "KW", "LK", "MO", "MV", "MY", "NL", "NO",
 		"NP", "NZ", "OM", "PH", "PK", "PL", "PT", "QA", "SA", "SE", "SG", "TH", "TW", "US",
 	}
-	for _, s := range SONYLIV_SUPPORT_COUNTRY {
-		if loc == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(SONYLIV_SUPPORT_COUNTRY, loc)
 }
 
 func extractSonyLivCountryCode(text string) string {

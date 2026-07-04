@@ -70,9 +70,9 @@ func wowow_deprecated(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	var res1 struct {
-		Movie         []interface{} `json:"movie"`
-		DramaOriginal []interface{} `json:"drama_original"`
-		Music         []interface{} `json:"music"`
+		Movie         []any `json:"movie"`
+		DramaOriginal []any `json:"drama_original"`
+		Music         []any `json:"music"`
 	}
 	if err := json.Unmarshal(body1, &res1); err != nil {
 		return core.Result{Status: core.StatusErr, Err: err}

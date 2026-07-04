@@ -73,27 +73,11 @@ func BahamutAnime(c core.HttpClient) core.Result {
 			return core.Result{Status: core.StatusOK, Region: "tw"}
 		}
 
-		resp4, err := core.GET(c, "https://ani.gamer.com.tw/cdn-cgi/trace", headers...)
+		loc, err := core.GetCloudflareTraceLoc(c, "https://ani.gamer.com.tw/cdn-cgi/trace", headers...)
 		if err != nil {
-			return core.Result{Status: core.StatusNetworkErr, Err: err}
-		}
-		defer resp4.Body.Close()
-		b4, err := io.ReadAll(resp4.Body)
-		if err != nil {
-			return core.Result{Status: core.StatusNetworkErr, Err: err}
+			return core.Result{Status: core.StatusErr, Err: err}
 		}
 
-		bodyString := string(b4)
-		index := strings.Index(bodyString, "loc=")
-		if index == -1 {
-			return core.Result{Status: core.StatusUnexpected}
-		}
-		bodyString = bodyString[index+4:]
-		index = strings.Index(bodyString, "\n")
-		if index == -1 {
-			return core.Result{Status: core.StatusUnexpected}
-		}
-		loc := bodyString[:index]
 		if len(loc) == 2 {
 			return core.Result{Status: core.StatusOK, Region: strings.ToLower(loc)}
 		}

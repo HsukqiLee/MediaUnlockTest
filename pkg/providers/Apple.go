@@ -3,6 +3,7 @@ package providers
 import (
 	"MediaUnlockTest/pkg/core"
 	"io"
+	"slices"
 	"strings"
 )
 
@@ -25,12 +26,7 @@ func SupportApple(loc string) bool {
 		"JAM", "ARM", "YEM", "IRQ", "ISR", "ITA", "IND", "IDN", "GBR", "VGB", "JOR", "VNM", "ZMB", "JEY", "TCD", "GIB",
 		"CHL", "CAF", "CHN", "NRU", "VAT", "FJI",
 	}
-	for _, s := range APPLE_SUPPORT_COUNTRY {
-		if loc == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(APPLE_SUPPORT_COUNTRY, loc)
 }
 
 func Apple(c core.HttpClient) core.Result {

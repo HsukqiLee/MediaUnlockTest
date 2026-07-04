@@ -16,11 +16,11 @@ func IQiYi(c core.HttpClient) core.Result {
 	if s == "" {
 		return core.Result{Status: core.StatusNo}
 	}
-	i := strings.Index(s, ":")
-	if i == -1 {
+	_, after, ok := strings.Cut(s, ":")
+	if !ok {
 		return core.Result{Status: core.StatusNo}
 	}
-	region := s[i+1:]
+	region := after
 	if region == "ntw" {
 		region = "tw"
 	}

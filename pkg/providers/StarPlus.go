@@ -4,6 +4,7 @@ import (
 	"MediaUnlockTest/pkg/core"
 	"io"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -11,12 +12,7 @@ func SupportStarPlus(loc string) bool {
 	var STARPLUS_SUPPORT_COUNTRY = []string{
 		"BR", "MX", "AR", "CL", "CO", "PE", "UY", "EC", "PA", "CR", "PY", "BO", "GT", "NI", "DO", "SV", "HN", "VE",
 	}
-	for _, s := range STARPLUS_SUPPORT_COUNTRY {
-		if loc == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(STARPLUS_SUPPORT_COUNTRY, loc)
 }
 
 func StarPlus(c core.HttpClient) core.Result {
