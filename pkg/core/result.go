@@ -49,6 +49,9 @@ func CheckGETStatus(c HttpClient, url string, mapping ResultMap, defaultResult R
 func CheckDalvikStatus(c HttpClient, url string, mapping ResultMap, defaultResult Result) Result {
 	resp, err := GET_Dalvik(c, url)
 	if err != nil {
+		if IsWAFBlockError(err) {
+			return Result{Status: StatusBanned}
+		}
 		return Result{Status: StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
@@ -91,3 +94,28 @@ func CheckPostJsonStatus(c HttpClient, url, data string, mapping ResultMap, defa
 	defer resp.Body.Close()
 	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
 }
+
+func CheckStatus(c HttpClient, url string, mapping ResultMap, defaultResult Result) Result {
+	resp, err := GET(c, url)
+	if err != nil {
+		if IsWAFBlockError(err) {
+			return Result{Status: StatusBanned}
+		}
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp.Body.Close()
+	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
+}
+
+func CheckStatusWithTimeout(c HttpClient, url string, mapping ResultMap, defaultResult Result, timeout int) Result {
+	resp, err := GETWithTimeout(c, url, timeout)
+	if err != nil {
+		if IsWAFBlockError(err) {
+			return Result{Status: StatusBanned, Info: "WAF Timeout"}
+		}
+		return Result{Status: StatusNetworkErr, Err: err}
+	}
+	defer resp.Body.Close()
+	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
+}
+

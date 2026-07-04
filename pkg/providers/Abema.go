@@ -7,8 +7,11 @@ import (
 )
 
 func Abema(c core.HttpClient) core.Result {
-	resp, err := core.GET_Dalvik(c, "https://api.abema.io/v1/ip/check?device=android")
+	resp, err := core.GET(c, "https://api.abema.io/v1/ip/check?device=android")
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()

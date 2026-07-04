@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -32,7 +33,7 @@ var (
 
 func buildClientOptions(disableIPv4, disableIPv6 bool) []tls_client.HttpClientOption {
 	options := []tls_client.HttpClientOption{
-		tls_client.WithTimeoutSeconds(6),
+		tls_client.WithTimeoutSeconds(30),
 		tls_client.WithClientProfile(profiles.Chrome_120),
 		tls_client.WithCustomRedirectFunc(func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -92,15 +93,24 @@ func NewHttpClient(ipType int) HttpClient {
 
 type H [2]string
 
-func doRequest(c HttpClient, method, url string, reqType string, body string, useRealisticHeaders bool, headers ...H) (*http.Response, error) {
+func doRequest(c HttpClient, method, url string, reqType string, body string, useRealisticHeaders bool, timeout int, headers ...H) (*http.Response, error) {
 	var req *http.Request
 	var err error
+
+	ctx := context.Background()
+	var cancel context.CancelFunc
+	if timeout <= 0 {
+		timeout = 6 // 默认 6 秒超时
+	}
+	ctx, cancel = context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
+
 	if body != "" {
-		req, err = http.NewRequest(method, url, strings.NewReader(body))
+		req, err = http.NewRequestWithContext(ctx, method, url, strings.NewReader(body))
 	} else {
-		req, err = http.NewRequest(method, url, nil)
+		req, err = http.NewRequestWithContext(ctx, method, url, nil)
 	}
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
@@ -119,23 +129,62 @@ func doRequest(c HttpClient, method, url string, reqType string, body string, us
 		req.Header.Set(h[0], h[1])
 	}
 
+	if GlobalLogLevel >= LevelInfo {
+		LogInfo("Request: %s %s", req.Method, req.URL.String())
+		LogInfo("Request Headers: %v", req.Header)
+		if body != "" {
+			LogInfo("Request Body: %s", body)
+		}
+	}
+
 	addRandomDelay()
-	return DoWithRetry(c, req)
+	resp, err := DoWithRetry(c, req)
+
+	if GlobalLogLevel >= LevelInfo {
+		if err != nil {
+			LogError("Response Error for %s: %v", req.URL.String(), err)
+		} else if resp != nil {
+			LogInfo("Response Status: %s (%d) for %s", resp.Status, resp.StatusCode, req.URL.String())
+			LogInfo("Response Headers: %v", resp.Header)
+
+			if resp.Body != nil {
+				bodyBytes, err := io.ReadAll(resp.Body)
+				if err == nil {
+					resp.Body.Close()
+					resp.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+					bodyStr := string(bodyBytes)
+					if len(bodyStr) > 512 {
+						LogInfo("Response Body: %s... (truncated)", bodyStr[:512])
+					} else {
+						LogInfo("Response Body: %s", bodyStr)
+					}
+				}
+			}
+		}
+	}
+
+	if resp != nil && resp.Body != nil {
+		resp.Body = &cancelTimerBody{ReadCloser: resp.Body, cancel: cancel}
+	} else {
+		cancel()
+	}
+
+	return resp, err
 }
 
 // GET performs a GET request with realistic default headers
 func GET(c HttpClient, url string, headers ...H) (*http.Response, error) {
-	return doRequest(c, "GET", url, "html", "", true, headers...)
+	return doRequest(c, "GET", url, "html", "", true, 0, headers...)
 }
 
 // GETRaw performs a GET request WITHOUT injecting realistic default headers
 func GETRaw(c HttpClient, url string, headers ...H) (*http.Response, error) {
-	return doRequest(c, "GET", url, "html", "", false, headers...)
+	return doRequest(c, "GET", url, "html", "", false, 0, headers...)
 }
 
 // RequestRaw performs a generic request WITHOUT injecting realistic default headers
 func RequestRaw(c HttpClient, method, url string, body string, headers ...H) (*http.Response, error) {
-	return doRequest(c, method, url, "raw", body, false, headers...)
+	return doRequest(c, method, url, "raw", body, false, 0, headers...)
 }
 
 func GET_Dalvik(c HttpClient, url string) (*http.Response, error) {
@@ -146,7 +195,7 @@ var ErrNetwork = errors.New("network error")
 
 func DoWithRetry(c HttpClient, req *http.Request) (resp *http.Response, err error) {
 	deadline := time.Now().Add(14 * time.Second)
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		if time.Now().After(deadline) {
 			break
 		}
@@ -166,11 +215,11 @@ func DoWithRetry(c HttpClient, req *http.Request) (resp *http.Response, err erro
 }
 
 func PostJson(c HttpClient, url string, data string, headers ...H) (*http.Response, error) {
-	return doRequest(c, "POST", url, "json", data, true, headers...)
+	return doRequest(c, "POST", url, "json", data, true, 0, headers...)
 }
 
 func PostForm(c HttpClient, url string, data string, headers ...H) (*http.Response, error) {
-	return doRequest(c, "POST", url, "form", data, true, headers...)
+	return doRequest(c, "POST", url, "form", data, true, 0, headers...)
 }
 
 // IsWAFBlockError checks if the network error is caused by a WAF drop/timeout
@@ -190,3 +239,24 @@ func IsWAFBlockError(err error) bool {
 	}
 	return false
 }
+
+func GETWithTimeout(c HttpClient, url string, timeout int, headers ...H) (*http.Response, error) {
+	return doRequest(c, "GET", url, "html", "", true, timeout, headers...)
+}
+
+
+func PostJsonWithTimeout(c HttpClient, url string, data string, timeout int, headers ...H) (*http.Response, error) {
+	return doRequest(c, "POST", url, "json", data, true, timeout, headers...)
+}
+
+
+type cancelTimerBody struct {
+	io.ReadCloser
+	cancel context.CancelFunc
+}
+
+func (b *cancelTimerBody) Close() error {
+	b.cancel()
+	return b.ReadCloser.Close()
+}
+

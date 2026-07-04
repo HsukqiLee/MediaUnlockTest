@@ -19,15 +19,15 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 		region string
 	}
 	var allTests []testWithRegion
-	var regionOrder []string                     // 记录地区顺序
-	var regionSubGroups map[string][]interface{} // 记录每个地区的测试和子分组
+	var regionOrder []string             // 记录地区顺序
+	var regionSubGroups map[string][]any // 记录每个地区的测试和子分组
 
 	for _, region := range regions {
 		if !region.Enabled {
 			continue
 		}
 		regionOrder = append(regionOrder, region.Name)
-		var regionItems []interface{}
+		var regionItems []any
 
 		for _, test := range region.Tests {
 			if test.Func == nil {
@@ -41,7 +41,7 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 		}
 
 		if regionSubGroups == nil {
-			regionSubGroups = make(map[string][]interface{})
+			regionSubGroups = make(map[string][]any)
 		}
 		regionSubGroups[region.Name] = regionItems
 	}
@@ -100,7 +100,11 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 
 				core.ResetSessionHeaders()
 				client = core.NewHttpClient(ipType)
+
+				core.LogDebug("Calling test function: %s (ipType: %d)", test.Name, ipType)
 				result := test.Func(client)
+				core.LogDebug("Test function returned: %s -> Status: %d, Region: %s, Info: %s, Err: %v", test.Name, result.Status, result.Region, result.Info, result.Err)
+
 				result.CachedResult = false
 
 				select {
@@ -332,7 +336,11 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 
 					core.ResetSessionHeaders()
 					client = core.NewHttpClient(ipType)
+
+					core.LogDebug("Calling test function: %s (ipType: %d)", test.Name, ipType)
 					result := test.Func(client)
+					core.LogDebug("Test function returned: %s -> Status: %d, Region: %s, Info: %s, Err: %v", test.Name, result.Status, result.Region, result.Info, result.Err)
+
 					result.CachedResult = false
 
 					cacheMutex.Lock()

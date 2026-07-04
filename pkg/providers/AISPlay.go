@@ -15,7 +15,7 @@ func AISPlay(c core.HttpClient) core.Result {
 	fakeUdid := core.MD5Sum(core.GenUUID())
 	timestamp := time.Now().Unix()
 
-	resp1, err := core.PostJson(c, "https://web-tls.ais-vidnt.com/device/login/?d=gstweb&gst=1&user="+userId+"&pass=e49e9f9e7f", `------WebKitFormBoundaryBj2RhUIW7BtRvfK0--\r\n`,
+	resp1, err := core.PostJsonWithTimeout(c, "https://web-tls.ais-vidnt.com/device/login/?d=gstweb&gst=1&user="+userId+"&pass=e49e9f9e7f", `------WebKitFormBoundaryBj2RhUIW7BtRvfK0--\r\n`, 15,
 		core.H{"accept-language", "th"},
 		core.H{"api-version", "2.8.2"},
 		core.H{"api_key", fakeApiKey},
@@ -28,6 +28,9 @@ func AISPlay(c core.HttpClient) core.Result {
 		core.H{"udid", fakeUdid},
 	)
 	if err != nil {
+		if core.IsWAFBlockError(err) {
+			return core.Result{Status: core.StatusBanned}
+		}
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp1.Body.Close()

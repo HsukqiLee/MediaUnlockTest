@@ -24,48 +24,37 @@ import (
 )
 
 var (
-	IPV4        bool = true
-	IPV6        bool = true
-	M           bool
-	HK          bool
-	TW          bool
-	JP          bool
-	KR          bool
-	NA          bool
-	SA          bool
-	EU          bool
-	AFR         bool
-	SEA         bool
-	OCEA        bool
-	AI          bool
-	Debug       bool   = false
-	Conc        uint64 = 0
-	Cache       bool   = false
-	sem         chan struct{}
-	ResultLines []*result
-	bar         *progressbar.ProgressBar
-
-	resultCache = make(map[string]core.Result)
-	cacheMutex  sync.RWMutex
-
-	// 全局超时控制 - 优化超时时间
-	testTimeout   = 15 * time.Second // 单个测试超时时间从30秒减少到15秒
-	regionTimeout = 3 * time.Minute  // 整个地区测试超时时间从5分钟减少到3分钟
-
-	// 新增：正在进行的测试状态管理
-	activeTestsMutex sync.RWMutex
-	activeTests      = make(map[string]bool)
-
-	// 新增：全局进度条显示控制
-	ShowActive bool = true // 是否显示正在进行的测试
-
-	// 新增：进度条描述缓存，避免重复更新
+	IPV4                     bool = true
+	IPV6                     bool = true
+	M                        bool
+	HK                       bool
+	TW                       bool
+	JP                       bool
+	KR                       bool
+	NA                       bool
+	SA                       bool
+	EU                       bool
+	AFR                      bool
+	SEA                      bool
+	OCEA                     bool
+	AI                       bool
+	Debug                    bool   = false
+	Conc                     uint64 = 0
+	Cache                    bool   = false
+	sem                      chan struct{}
+	ResultLines              []*result
+	bar                      *progressbar.ProgressBar
+	resultCache              = make(map[string]core.Result)
+	cacheMutex               sync.RWMutex
+	testTimeout              = 15 * time.Second
+	regionTimeout            = 3 * time.Minute
+	activeTestsMutex         sync.RWMutex
+	activeTests                   = make(map[string]bool)
+	ShowActive               bool = true
 	progressDescriptionCache string
 	progressDescMu           sync.Mutex
-
-	// 进度条更新协程控制
-	updaterStopChan chan struct{}
-	updaterMutex    sync.Mutex
+	updaterStopChan          chan struct{}
+	updaterMutex             sync.Mutex
 )
 
 type TestItem struct {
@@ -134,7 +123,7 @@ func ReadSelect() {
 		fmt.Println(core.Yellow("输入中止，检测已取消。"))
 		os.Exit(0)
 	case input := <-inputChan:
-		for _, c := range strings.Split(input, " ") {
+		for c := range strings.SplitSeq(input, " ") {
 			switch c {
 			case "0":
 				M = true
@@ -185,6 +174,8 @@ func main() {
 		err         error
 		IsProxy     bool
 		ForceUpdate bool
+		LogLevel    string
+		LogFile     string
 	)
 	flag.StringVar(&Interface, "I", "", "Source IP or network interface to use for connections")
 	flag.StringVar(&DNSServers, "dns-servers", "", "Custom DNS servers (format: ip:port)")
@@ -200,7 +191,17 @@ func main() {
 	flag.Uint64Var(&Conc, "conc", 0, "Max concurrent tests (0=unlimited)")
 	flag.BoolVar(&ShowActive, "show-active", true, "Show active tests in progress bar (default: true)")
 	flag.BoolVar(&Cache, "cache", false, "Enable caching and sequential region execution (default: false)")
+	flag.StringVar(&LogLevel, "loglevel", "", "Log level (debug, info, warning, error). Only valid if -debug is enabled.")
+	flag.StringVar(&LogFile, "logfile", "", "Output log to file. Only valid if -debug is enabled.")
 	flag.Parse()
+
+	// -loglevel and -logfile are only effective when -debug is enabled
+	if !Debug {
+		LogLevel = ""
+		LogFile = ""
+	}
+	core.InitLogger(LogLevel, LogFile)
+
 	if ShowVersion {
 		fmt.Println(core.Version)
 		return
@@ -251,33 +252,40 @@ func main() {
 			m.OceaniaTests, m.AITests,
 		}
 
-		found := false
-		for _, list := range allLists {
-			for _, test := range list {
-				var shortFuncName string
-				if test.Func != nil {
-					funcName := runtime.FuncForPC(reflect.ValueOf(test.Func).Pointer()).Name()
-					parts := strings.Split(funcName, ".")
-					shortFuncName = parts[len(parts)-1]
-					shortFuncName = strings.TrimSuffix(shortFuncName, "-fm")
-				}
-
-				if strings.EqualFold(test.Name, TestMode) || (shortFuncName != "" && strings.EqualFold(shortFuncName, TestMode)) {
+		testNames := strings.SplitSeq(TestMode, ",")
+		for targetName := range testNames {
+			targetName = strings.TrimSpace(targetName)
+			if targetName == "" {
+				continue
+			}
+			found := false
+			for _, list := range allLists {
+				for _, test := range list {
+					var shortFuncName string
 					if test.Func != nil {
-						fmt.Println(test.Name, ShowSingleResult(test.Func(core.AutoHttpClient)))
-					} else {
-						fmt.Println(test.Name, "Test function is nil")
+						funcName := runtime.FuncForPC(reflect.ValueOf(test.Func).Pointer()).Name()
+						parts := strings.Split(funcName, ".")
+						shortFuncName = parts[len(parts)-1]
+						shortFuncName = strings.TrimSuffix(shortFuncName, "-fm")
 					}
-					found = true
+
+					if strings.EqualFold(test.Name, targetName) || (shortFuncName != "" && strings.EqualFold(shortFuncName, targetName)) {
+						if test.Func != nil {
+							fmt.Println(test.Name, ShowSingleResult(test.Func(core.AutoHttpClient)))
+						} else {
+							fmt.Println(test.Name, "Test function is nil")
+						}
+						found = true
+						break
+					}
+				}
+				if found {
 					break
 				}
 			}
-			if found {
-				break
+			if !found {
+				fmt.Println("Test", targetName, "not found")
 			}
-		}
-		if !found {
-			fmt.Println("Test", TestMode, "not found")
 		}
 		return
 	}
@@ -376,20 +384,20 @@ func main() {
 			if err != nil {
 				if IP4_1 != "" || IP4_2 != "" {
 					IsProxy = true
-					fmt.Println(core.Yellow("正在使用系统代理，且无法通过 IPv4 连接代理"))
+					fmt.Println(core.Yellow("无法通过代理连接国际 IPv4 网络"))
 				} else {
 					IPV4 = false
-					fmt.Println(core.Red("未使用 IPv4 代理，无 IPv4 网络"))
+					fmt.Println(core.Red("无 IPv4 网络"))
 				}
 			} else {
 				IPV4 = true
 				if IP4_1 != IP4_2 || IP4_1 != IP4 {
 					IsProxy = true
-					fmt.Println(core.Yellow("正在使用监听地址为 IPv4 的代理，出口 IP：") + core.Red(IP4))
+					fmt.Println(core.Yellow("正在使用代理 (IPv4)，出口 IP：") + core.Red(IP4))
 				} else if IP4 == IP4_1 {
-					fmt.Println(core.Green("未使用 IPv4 代理或使用了全局代理，有 IPv4 网络"))
+					fmt.Println(core.Green("未使用代理或使用了全局代理，且具有 IPv4 网络"))
 				} else {
-					fmt.Println(core.Red("无法强制使用 IPv4 网络测试，可能使用 IPv4 代理"))
+					fmt.Println(core.Red("存在 IPv4 网络，但出口 IP 异常"))
 					IPV4 = false
 					if IPMode == 4 {
 						IPV6 = false
@@ -400,22 +408,21 @@ func main() {
 		if IPMode == 0 || IPMode == 6 {
 			IP6, err := core.GetIPInfo("https://www.cloudflare.com/cdn-cgi/trace", 6, "cloudflare")
 			if err != nil {
-				if IP6_1 != "" && IP6_2 != "" {
-					IsProxy = true
-					fmt.Println(core.Yellow("正在使用系统代理，且无法通过 IPv6 连接代理"))
+				IPV6 = false
+				if IP6_1 != "" || IP6_2 != "" {
+					fmt.Println(core.Red("存在部分 IPv6 网络 (如国内)，但无法通过 IPv6 访问国际网络"))
 				} else {
-					IPV6 = false
-					fmt.Println(core.Red("未使用 IPv6 代理，无 IPv6 网络"))
+					fmt.Println(core.Red("无 IPv6 网络"))
 				}
 			} else {
 				IPV6 = true
 				if IP6_1 != IP6_2 && IP6_1 != IP6 {
 					IsProxy = true
-					fmt.Println(core.Yellow("正在使用监听地址为 IPv6 的代理，出口 IP：") + core.Red(IP6))
+					fmt.Println(core.Yellow("正在使用代理 (IPv6)，出口 IP：") + core.Red(IP6))
 				} else if IP6 == IP6_1 {
-					fmt.Println(core.Green("未使用 IPv6 代理或使用了全局代理，有 IPv6 网络"))
+					fmt.Println(core.Green("未使用代理或使用了全局代理，且具有 IPv6 网络"))
 				} else {
-					fmt.Println(core.Red("无法强制使用 IPv6 网络测试，可能使用 IPv6 代理"))
+					fmt.Println(core.Red("存在 IPv6 网络，但出口 IP 异常"))
 					IPV6 = false
 					if IPMode == 6 {
 						IPV4 = false

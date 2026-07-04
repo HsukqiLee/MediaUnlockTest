@@ -13,6 +13,9 @@ func Molotov(c core.HttpClient) core.Result {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == 502 {
+		return core.Result{Status: core.StatusBanned}
+	}
 	if resp.StatusCode != 200 {
 		return core.Result{Status: core.StatusNo}
 	}
@@ -33,5 +36,5 @@ func Molotov(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusOK}
 	}
 
-	return core.Result{Status: core.StatusNo}
+	return core.Result{Status: core.StatusUnexpected}
 }

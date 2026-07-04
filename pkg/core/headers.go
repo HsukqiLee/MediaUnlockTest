@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"strconv"
 	"sync"
 
@@ -9,8 +8,9 @@ import (
 )
 
 var (
-	UA_Browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
-	UA_Dalvik  = "Dalvik/2.1.0 (Linux; U; Android 11; M2006J10C Build/RP1A.200720.011)"
+	UA_Browser      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+	UA_Dalvik       = "Dalvik/2.1.0 (Linux; U; Android 11; M2006J10C Build/RP1A.200720.011)"
+	SecChUA_Browser = `"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"`
 
 	ClientSessionHeaders = &SessionHeaders{
 		UserAgent:      "",
@@ -21,23 +21,6 @@ var (
 )
 
 var sessionMutex sync.RWMutex
-
-func generateEdgeUserAgent() string {
-	edgeVersion := secureRandInRange(136, 140)
-	chromiumVersion := edgeVersion
-
-	return fmt.Sprintf("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%d.0.0.0 Safari/537.36 Edg/%d.0.0.0",
-		chromiumVersion, edgeVersion)
-}
-
-func generateSecChUA() string {
-	edgeVersion := secureRandInRange(136, 140)
-	chromiumVersion := edgeVersion
-	notBrandVersion := secureRandInRange(20, 29)
-
-	return fmt.Sprintf(`"Microsoft Edge";v="%d", "Chromium";v="%d", "Not/A)Brand";v="%d"`,
-		edgeVersion, chromiumVersion, notBrandVersion)
-}
 
 func getRandomAcceptLanguage() string {
 	languages := []string{
@@ -52,11 +35,9 @@ func getRandomAcceptLanguage() string {
 
 func GetRealisticHeaders(requestType string) []H {
 	headers := make([]H, 0)
-	ua := generateEdgeUserAgent()
-	secChUa := generateSecChUA()
 	acceptLanguage := getRandomAcceptLanguage()
 	dnt := strconv.Itoa(secureRandInt(2))
-	headers = append(headers, H{"user-agent", ua})
+	headers = append(headers, H{"user-agent", UA_Browser})
 	secFetchMode := "cors"
 	secFetchDest := "empty"
 	switch requestType {
@@ -71,7 +52,7 @@ func GetRealisticHeaders(requestType string) []H {
 	default:
 		headers = append(headers, H{"accept", "*/*"})
 	}
-	headers = append(headers, H{"sec-ch-ua", secChUa})
+	headers = append(headers, H{"sec-ch-ua", SecChUA_Browser})
 	headers = append(headers, H{"sec-ch-ua-mobile", "?0"})
 	headers = append(headers, H{"sec-ch-ua-platform", `"Windows"`})
 	headers = append(headers, H{"accept-language", acceptLanguage})
@@ -101,8 +82,8 @@ type SessionHeaders struct {
 
 func NewSessionHeaders() *SessionHeaders {
 	return &SessionHeaders{
-		UserAgent:      generateEdgeUserAgent(),
-		SecChUA:        generateSecChUA(),
+		UserAgent:      UA_Browser,
+		SecChUA:        SecChUA_Browser,
 		AcceptLanguage: getRandomAcceptLanguage(),
 		DNT:            strconv.Itoa(secureRandInt(2)),
 	}

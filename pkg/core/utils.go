@@ -4,7 +4,10 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"io"
+	"strings"
 	"time"
 )
 
@@ -65,4 +68,23 @@ func addRandomDelay() {
 		delay := time.Duration(secureRandInRange(50, 149)) * time.Millisecond
 		time.Sleep(delay)
 	}
+}
+
+func GetCloudflareTraceLoc(c HttpClient, url string, headers ...H) (string, error) {
+	resp, err := GET(c, url, headers...)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	s := string(b)
+	_, after, ok := strings.Cut(s, "loc=")
+	if !ok {
+		return "", errors.New("loc not found in cloudflare trace")
+	}
+	loc, _, _ := strings.Cut(after, "\n")
+	return strings.TrimSpace(loc), nil
 }
