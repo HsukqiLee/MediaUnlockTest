@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/glamour"
 	selfUpdate "github.com/inconshreveable/go-update"
 	"github.com/schollz/progressbar/v3"
 )
@@ -107,8 +108,7 @@ func CheckUpdate(cfg UpdateConfig) bool {
 			notesURL := "https://unlock.icmp.ing/api/release-notes"
 			if resp, err := http.Get(notesURL); err == nil {
 				if b, err := io.ReadAll(resp.Body); err == nil && len(b) > 0 {
-					fmt.Println("\n更新日志：\n" + string(b))
-					fmt.Println("--------------------------------")
+					printReleaseNotes(string(b))
 				}
 				resp.Body.Close()
 			}
@@ -189,7 +189,11 @@ func CheckUpdate(cfg UpdateConfig) bool {
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			log.Println("[ERR] 下载时出错: 非预期的状态码", resp.StatusCode)
+			if resp.StatusCode == http.StatusNotFound {
+				log.Println("[ERR] 下载失败: GitHub Actions 构建可能仍在运行中，请稍候再试")
+			} else {
+				log.Println("[ERR] 下载时出错: 非预期的状态码", resp.StatusCode)
+			}
 			return false
 		}
 
@@ -204,8 +208,7 @@ func CheckUpdate(cfg UpdateConfig) bool {
 		notesURL := "https://unlock.icmp.ing/api/release-notes"
 		if resp, err := http.Get(notesURL); err == nil {
 			if b, err := io.ReadAll(resp.Body); err == nil && len(b) > 0 {
-				fmt.Println("\n更新日志：\n" + string(b))
-				fmt.Println("--------------------------------")
+				printReleaseNotes(string(b))
 			}
 			resp.Body.Close()
 		}
@@ -213,4 +216,18 @@ func CheckUpdate(cfg UpdateConfig) bool {
 		log.Println("[OK]", cfg.AppName, "后台更新成功")
 	}
 	return true
+}
+
+func printReleaseNotes(md string) {
+	rendered, err := glamour.Render(md, "auto")
+	if err != nil {
+		// Fallback: strip common markdown syntax manually
+		md = strings.ReplaceAll(md, "**", "")
+		md = strings.ReplaceAll(md, "`", "")
+		fmt.Println("\n更新日志：\n" + strings.TrimSpace(md))
+	} else {
+		fmt.Println("\n更新日志：")
+		fmt.Print(rendered)
+	}
+	fmt.Println("--------------------------------")
 }
