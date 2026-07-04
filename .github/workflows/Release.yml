@@ -116,6 +116,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: Set up Go
         uses: actions/setup-go@v6
