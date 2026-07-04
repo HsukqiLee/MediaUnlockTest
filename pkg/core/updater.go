@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -64,6 +65,18 @@ func (bw *BarWriter) Write(p []byte) (n int, err error) {
 // CheckUpdate checks and applies an update based on the provided configuration.
 // Returns true if an update was successfully applied.
 func CheckUpdate(cfg UpdateConfig) bool {
+	// Detect `go run` by checking if the executable resides in the temp directory
+	exe, err := os.Executable()
+	if err == nil {
+		tmpDir := os.TempDir()
+		if strings.HasPrefix(filepath.ToSlash(exe), filepath.ToSlash(tmpDir)) {
+			if !cfg.JustCheck {
+				log.Println("[ERR] 检测到 go run 环境，不支持自动更新，请编译后再使用 -u")
+			}
+			return false
+		}
+	}
+
 	resp, err := http.Get(cfg.VersionURL)
 	if err != nil {
 		log.Println("[ERR] 获取版本信息时出错:", err)
