@@ -7,7 +7,7 @@ import (
 )
 
 func SetantaSports(c core.HttpClient) core.Result {
-	resp, err := core.GETWithTimeout(c, "https://dce-frontoffice.imggaming.com/api/v2/consent-prompt", 15,
+	resp, err := core.GETWithTimeout(c, "https://dce-frontoffice.imggaming.com/api/v2/consent-prompt", 30,
 		core.H{"Realm", "dce.adjara"},
 		core.H{"x-api-key", "857a1e5d-e35e-4fdf-805b-a87b6f8364bf"},
 	)

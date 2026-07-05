@@ -29,6 +29,7 @@ var GlobeTests = []TestItem{
 	{"Viu.com", ViuCom, false},
 	{"WeTV", WeTV, true},
 	{"Wikipedia Editability", WikipediaEditability, true},
+	{"X (formerly Twitter)", X, true},
 	{"Youtube CDN", YoutubeCDN, true},
 	{"Youtube Premium", YoutubeRegion, true},
 }

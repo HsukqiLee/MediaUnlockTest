@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-func SupportPerplexity(loc string) bool {
-	var PERPLEXITY_RESTRICTED_COUNTRY = []string{
-		"CN", "RU", "IR", "KP", "CU", "SY",
+func SupportX(loc string) bool {
+	var X_RESTRICTED_COUNTRY = []string{
+		"CN", "IR", "MM", "KP", "RU", "TM",
 	}
-	return !slices.Contains(PERPLEXITY_RESTRICTED_COUNTRY, loc)
+	return !slices.Contains(X_RESTRICTED_COUNTRY, loc)
 }
 
-func Perplexity(c core.HttpClient) core.Result {
-	loc, err := core.GetCloudflareTraceLoc(c, "https://www.perplexity.ai/cdn-cgi/trace")
+func X(c core.HttpClient) core.Result {
+	loc, err := core.GetCloudflareTraceLoc(c, "https://x.com/cdn-cgi/trace")
 	if err != nil {
 		return core.Result{Status: core.StatusErr, Err: err}
 	}
 
-	resp, err := core.GET(c, "https://www.perplexity.ai/")
+	resp, err := core.GET(c, "https://x.com/")
 	if err != nil {
 		if core.IsWAFBlockError(err) {
 			return core.Result{Status: core.StatusBanned}
@@ -32,7 +32,7 @@ func Perplexity(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusNo, Region: strings.ToLower(loc)}
 	}
 
-	if SupportPerplexity(loc) {
+	if SupportX(loc) {
 		return core.Result{Status: core.StatusOK, Region: strings.ToLower(loc)}
 	}
 	

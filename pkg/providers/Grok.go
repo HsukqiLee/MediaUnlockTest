@@ -1,8 +1,16 @@
 package providers
 
-import "MediaUnlockTest/pkg/core"
+import (
+	"MediaUnlockTest/pkg/core"
+	"strings"
+)
 
 func Grok(c core.HttpClient) core.Result {
+	loc, err := core.GetCloudflareTraceLoc(c, "https://grok.com/cdn-cgi/trace")
+	if err != nil {
+		return core.Result{Status: core.StatusErr, Err: err}
+	}
+
 	resp, err := core.GET(c, "https://grok.com/")
 	if err != nil {
 		if core.IsWAFBlockError(err) {
@@ -11,7 +19,8 @@ func Grok(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	return core.ResultFromMapping(
+	
+	res := core.ResultFromMapping(
 		resp.StatusCode,
 		core.ResultMap{
 			200: core.Result{Status: core.StatusOK},
@@ -19,4 +28,8 @@ func Grok(c core.HttpClient) core.Result {
 		},
 		core.Result{Status: core.StatusUnexpected},
 	)
+	if res.Status == core.StatusOK || res.Status == core.StatusNo {
+		res.Region = strings.ToLower(loc)
+	}
+	return res
 }

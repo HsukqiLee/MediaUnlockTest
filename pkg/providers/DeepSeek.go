@@ -1,6 +1,13 @@
 package providers
 
-import "MediaUnlockTest/pkg/core"
+import (
+	"MediaUnlockTest/pkg/core"
+	"io"
+	"regexp"
+	"strings"
+)
+
+var deepseekRegionRegex = regexp.MustCompile(`<meta\s+name="region"\s+content="([^"]+)"`)
 
 func DeepSeek(c core.HttpClient) core.Result {
 	resp, err := core.GET(c, "https://chat.deepseek.com/")
@@ -12,12 +19,18 @@ func DeepSeek(c core.HttpClient) core.Result {
 	}
 	defer resp.Body.Close()
 
-	return core.ResultFromMapping(
-		resp.StatusCode,
-		core.ResultMap{
-			200: core.Result{Status: core.StatusOK},
-			403: core.Result{Status: core.StatusNo},
-		},
-		core.Result{Status: core.StatusUnexpected},
-	)
+	if resp.StatusCode == 403 {
+		return core.Result{Status: core.StatusNo}
+	} else if resp.StatusCode == 200 {
+		b, err := io.ReadAll(resp.Body)
+		if err == nil {
+			matches := deepseekRegionRegex.FindStringSubmatch(string(b))
+			if len(matches) > 1 {
+				return core.Result{Status: core.StatusOK, Region: strings.ToLower(matches[1])}
+			}
+		}
+		return core.Result{Status: core.StatusOK}
+	}
+
+	return core.Result{Status: core.StatusUnexpected}
 }
