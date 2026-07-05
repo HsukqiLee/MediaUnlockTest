@@ -7,10 +7,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/term"
 
 	"github.com/charmbracelet/glamour"
 	selfUpdate "github.com/inconshreveable/go-update"
@@ -215,6 +218,11 @@ func CheckUpdate(cfg UpdateConfig) bool {
 			log.Println("[ERR] 更新时出错:", err)
 			return false
 		}
+		// Clean up the .old backup left by go-update
+		if exe, err := os.Executable(); err == nil {
+			oldPath := filepath.Join(filepath.Dir(exe), "."+filepath.Base(exe)+".old")
+			os.Remove(oldPath)
+		}
 	}
 	if !cfg.Silent {
 		fmt.Println("[OK]", cfg.AppName, "更新成功")
@@ -232,13 +240,29 @@ func CheckUpdate(cfg UpdateConfig) bool {
 }
 
 func printReleaseNotes(md string) {
-	rendered, err := glamour.Render(md, "auto")
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil || width < 40 {
+		width = 100 // Fallback to a reasonable width if we can't get terminal size or it's unreasonably small
+	}
+
+	r, err := glamour.NewTermRenderer(
+		glamour.WithAutoStyle(),
+		glamour.WithWordWrap(width),
+	)
+
+	var rendered string
+	if err == nil {
+		rendered, err = r.Render(md)
+	}
+
 	if err != nil {
 		// Fallback: strip common markdown syntax manually
 		md = strings.ReplaceAll(md, "**", "")
 		md = strings.ReplaceAll(md, "`", "")
 		fmt.Println("\n更新日志：\n" + strings.TrimSpace(md))
 	} else {
+		// Collapse 3+ consecutive newlines → 2 (avoids double blank lines between heading and list)
+		rendered = regexp.MustCompile(`\n{3,}`).ReplaceAllString(rendered, "\n\n")
 		fmt.Println("\n更新日志：")
 		fmt.Print(rendered)
 	}
