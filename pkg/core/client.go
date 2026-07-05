@@ -34,7 +34,7 @@ var (
 func buildClientOptions(disableIPv4, disableIPv6 bool) []tls_client.HttpClientOption {
 	options := []tls_client.HttpClientOption{
 		tls_client.WithTimeoutSeconds(30),
-		tls_client.WithClientProfile(profiles.Chrome_120),
+		tls_client.WithClientProfile(profiles.Chrome_146),
 		tls_client.WithCustomRedirectFunc(func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}),
@@ -117,9 +117,12 @@ func doRequest(c HttpClient, method, url string, reqType string, body string, us
 	switch reqType {
 	case "json":
 		req.Header.Set("content-type", "application/json")
+		req.Header[http.HeaderOrderKey] = append(req.Header[http.HeaderOrderKey], "content-type")
 	case "form":
 		req.Header.Set("content-type", "application/x-www-form-urlencoded")
+		req.Header[http.HeaderOrderKey] = append(req.Header[http.HeaderOrderKey], "content-type")
 	}
+
 
 	if useRealisticHeaders {
 		setRealisticHeaders(req, reqType)
@@ -127,6 +130,11 @@ func doRequest(c HttpClient, method, url string, reqType string, body string, us
 
 	for _, h := range headers {
 		req.Header.Set(h[0], h[1])
+		if existing, ok := req.Header[http.HeaderOrderKey]; ok {
+			req.Header[http.HeaderOrderKey] = append(existing, h[0])
+		} else {
+			req.Header[http.HeaderOrderKey] = []string{h[0]}
+		}
 	}
 
 	if GlobalLogLevel >= LevelInfo {

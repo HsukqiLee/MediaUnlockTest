@@ -16,6 +16,8 @@ func Mistral(c core.HttpClient) core.Result {
 		resp.StatusCode,
 		core.ResultMap{
 			200: core.Result{Status: core.StatusOK},
+			307: core.Result{Status: core.StatusOK},
+			308: core.Result{Status: core.StatusOK},
 			403: core.Result{Status: core.StatusNo},
 		},
 		core.Result{Status: core.StatusUnexpected},

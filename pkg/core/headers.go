@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	UA_Browser      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-	UA_Dalvik       = "Dalvik/2.1.0 (Linux; U; Android 11; M2006J10C Build/RP1A.200720.011)"
-	SecChUA_Browser = `"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"`
+	UA_Browser      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+	UA_Dalvik       = "Dalvik/2.1.0 (Linux; U; Android 14; M2006J10C Build/RP1A.200720.011)"
+	SecChUA_Browser = `"Not A(Brand";v="99", "Google Chrome";v="146", "Chromium";v="146"`
 
 	ClientSessionHeaders = &SessionHeaders{
 		UserAgent:      "",
@@ -68,8 +68,16 @@ func GetRealisticHeaders(requestType string) []H {
 func setRealisticHeaders(req *http.Request, requestType string) {
 	// Generate fresh headers for each request (default behavior)
 	headers := GetRealisticHeaders(requestType)
+	var order []string
 	for _, header := range headers {
 		req.Header.Set(header[0], header[1])
+		order = append(order, header[0])
+	}
+	// append to existing HeaderOrderKey if any
+	if existing, ok := req.Header[http.HeaderOrderKey]; ok {
+		req.Header[http.HeaderOrderKey] = append(existing, order...)
+	} else {
+		req.Header[http.HeaderOrderKey] = order
 	}
 }
 
