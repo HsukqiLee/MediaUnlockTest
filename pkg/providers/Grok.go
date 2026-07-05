@@ -2,8 +2,16 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
+	"slices"
 	"strings"
 )
+
+func SupportGrok(loc string) bool {
+	var GROK_RESTRICTED_COUNTRY = []string{
+		"CN", "RU", "IR", "KP", "CU", "SY",
+	}
+	return !slices.Contains(GROK_RESTRICTED_COUNTRY, loc)
+}
 
 func Grok(c core.HttpClient) core.Result {
 	loc, err := core.GetCloudflareTraceLoc(c, "https://grok.com/cdn-cgi/trace")
@@ -20,14 +28,18 @@ func Grok(c core.HttpClient) core.Result {
 	}
 	defer resp.Body.Close()
 	
-	res := core.ResultFromMapping(
-		resp.StatusCode,
-		core.ResultMap{
-			200: core.Result{Status: core.StatusOK},
-			403: core.Result{Status: core.StatusNo},
-		},
-		core.Result{Status: core.StatusUnexpected},
-	)
+	status := core.StatusUnexpected
+	if resp.StatusCode == 200 {
+		status = core.StatusOK
+	} else if resp.StatusCode == 403 {
+		if SupportGrok(loc) {
+			status = core.StatusBanned
+		} else {
+			status = core.StatusNo
+		}
+	}
+
+	res := core.Result{Status: status}
 	if res.Status == core.StatusOK || res.Status == core.StatusNo {
 		res.Region = strings.ToLower(loc)
 	}

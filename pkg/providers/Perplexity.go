@@ -29,6 +29,9 @@ func Perplexity(c core.HttpClient) core.Result {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 403 {
+		if SupportPerplexity(loc) {
+			return core.Result{Status: core.StatusBanned, Region: strings.ToLower(loc)}
+		}
 		return core.Result{Status: core.StatusNo, Region: strings.ToLower(loc)}
 	}
 
