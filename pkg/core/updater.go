@@ -20,6 +20,16 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
+func init() {
+	// Clean up any .old files left behind by go-update after a successful self-update.
+	// Windows locks the currently running executable, so go-update renames it to .old.
+	// We delete it upon the next startup.
+	if exe, err := os.Executable(); err == nil {
+		oldPath := filepath.Join(filepath.Dir(exe), "."+filepath.Base(exe)+".old")
+		_ = os.Remove(oldPath)
+	}
+}
+
 type UpdateConfig struct {
 	AppName         string
 	VersionURL      string
@@ -217,11 +227,6 @@ func CheckUpdate(cfg UpdateConfig) bool {
 		if err != nil {
 			log.Println("[ERR] 更新时出错:", err)
 			return false
-		}
-		// Clean up the .old backup left by go-update
-		if exe, err := os.Executable(); err == nil {
-			oldPath := filepath.Join(filepath.Dir(exe), "."+filepath.Base(exe)+".old")
-			os.Remove(oldPath)
 		}
 	}
 	if !cfg.Silent {
