@@ -2,15 +2,32 @@ package providers
 
 import (
 	"MediaUnlockTest/pkg/core"
+	"crypto/tls"
 	"io"
+	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var deepseekRegionRegex = regexp.MustCompile(`<meta\s+name="region"\s+content="([^"]+)"`)
 
 func DeepSeek(c core.HttpClient) core.Result {
-	resp, err := core.GET(c, "https://chat.deepseek.com/sign_in")
+	// Temporarily bypass DNS to hit CN IP directly
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+		Timeout: 10 * time.Second,
+	}
+
+	req, _ := http.NewRequest("GET", "https://116.205.40.114/sign_in", nil)
+	req.Header.Set("Host", "chat.deepseek.com")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		if core.IsWAFBlockError(err) {
 			return core.Result{Status: core.StatusBanned}

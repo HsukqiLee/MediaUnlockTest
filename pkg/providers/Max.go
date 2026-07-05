@@ -109,7 +109,7 @@ func Max(c core.HttpClient) core.Result {
 	if (resp4.StatusCode >= 300 && resp4.StatusCode < 400 && loc != "" && (strings.Contains(loc, "hbomax.com") || strings.Contains(loc, "geo-availability"))) || region == "" {
 		return core.Result{Status: core.StatusNo}
 	}
-	
+
 	resp5, err := core.GET(c, "https://default.any-any.prd.api.max.com/any/playback/v1/playbackInfo",
 		core.H{"Cookie", "st=" + token},
 		core.H{"x-device-info", h1},

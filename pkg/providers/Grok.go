@@ -27,7 +27,7 @@ func Grok(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	
+
 	status := core.StatusUnexpected
 	if resp.StatusCode == 200 {
 		status = core.StatusOK

@@ -123,7 +123,6 @@ func doRequest(c HttpClient, method, url string, reqType string, body string, us
 		req.Header[http.HeaderOrderKey] = append(req.Header[http.HeaderOrderKey], "content-type")
 	}
 
-
 	if useRealisticHeaders {
 		setRealisticHeaders(req, reqType)
 	}
@@ -252,11 +251,9 @@ func GETWithTimeout(c HttpClient, url string, timeout int, headers ...H) (*http.
 	return doRequest(c, "GET", url, "html", "", true, timeout, headers...)
 }
 
-
 func PostJsonWithTimeout(c HttpClient, url string, data string, timeout int, headers ...H) (*http.Response, error) {
 	return doRequest(c, "POST", url, "json", data, true, timeout, headers...)
 }
-
 
 type cancelTimerBody struct {
 	io.ReadCloser
@@ -267,4 +264,3 @@ func (b *cancelTimerBody) Close() error {
 	b.cancel()
 	return b.ReadCloser.Close()
 }
-

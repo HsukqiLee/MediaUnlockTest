@@ -25,4 +25,3 @@ func DMM(c core.HttpClient) core.Result {
 	}
 	return core.Result{Status: core.StatusUnexpected}
 }
-

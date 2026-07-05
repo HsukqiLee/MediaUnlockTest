@@ -38,6 +38,6 @@ func Perplexity(c core.HttpClient) core.Result {
 	if SupportPerplexity(loc) {
 		return core.Result{Status: core.StatusOK, Region: strings.ToLower(loc)}
 	}
-	
+
 	return core.Result{Status: core.StatusNo, Region: strings.ToLower(loc)}
 }

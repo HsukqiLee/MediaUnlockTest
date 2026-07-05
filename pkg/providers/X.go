@@ -35,6 +35,6 @@ func X(c core.HttpClient) core.Result {
 	if SupportX(loc) {
 		return core.Result{Status: core.StatusOK, Region: strings.ToLower(loc)}
 	}
-	
+
 	return core.Result{Status: core.StatusNo, Region: strings.ToLower(loc)}
 }

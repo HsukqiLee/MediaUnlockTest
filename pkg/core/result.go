@@ -118,4 +118,3 @@ func CheckStatusWithTimeout(c HttpClient, url string, mapping ResultMap, default
 	defer resp.Body.Close()
 	return ResultFromMapping(resp.StatusCode, mapping, defaultResult)
 }
-

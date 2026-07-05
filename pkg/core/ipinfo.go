@@ -46,15 +46,15 @@ func GetDetailedIPInfo(url string, ipType int) (*IPInfo, error) {
 	req.Header.Set("accept", "application/json")
 
 	LogInfo("Request: %s %s", req.Method, req.URL.String())
-	
+
 	resp, err := client.Do(req)
-	
+
 	if err != nil {
 		LogError("Response Error for %s: %v", req.URL.String(), err)
 	} else if resp != nil {
 		LogInfo("Response Status: %s (%d) for %s", resp.Status, resp.StatusCode, req.URL.String())
 	}
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -117,15 +117,15 @@ func GetIPInfo(url string, ipType int, formatType string) (string, error) {
 	req.Header.Set("sec-fetch-user", "?1")
 	req.Header.Set("upgrade-insecure-requests", "1")
 	LogInfo("Request: %s %s", req.Method, req.URL.String())
-	
+
 	resp, err := client.Do(req)
-	
+
 	if err != nil {
 		LogError("Response Error for %s: %v", req.URL.String(), err)
 	} else if resp != nil {
 		LogInfo("Response Status: %s (%d) for %s", resp.Status, resp.StatusCode, req.URL.String())
 	}
-	
+
 	if err != nil {
 		return "", err
 	}
