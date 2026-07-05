@@ -19,9 +19,10 @@ func Kimi(c core.HttpClient) core.Result {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 403 {
+	switch resp.StatusCode {
+	case 403:
 		return core.Result{Status: core.StatusNo}
-	} else if resp.StatusCode == 200 {
+	case 200:
 		b, err := io.ReadAll(resp.Body)
 		if err == nil {
 			matches := kimiRegionRegex.FindStringSubmatch(string(b))

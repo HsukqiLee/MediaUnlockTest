@@ -213,8 +213,8 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 		avgTime := totalDuration / time.Duration(len(allTests))
 		fmt.Printf("\n性能统计:\n")
 		fmt.Printf("总测试数量: %d\n", len(allTests))
-		fmt.Printf("总耗时: %v\n", totalDuration)
-		fmt.Printf("平均每个测试耗时: %v\n", avgTime)
+		fmt.Printf("总耗时: %.2fs\n", totalDuration.Seconds())
+		fmt.Printf("平均每个测试耗时: %.2fms\n", float64(avgTime.Microseconds())/1000.0)
 		fmt.Printf("测试速度: %.2f 测试/秒\n", float64(len(allTests))/totalDuration.Seconds())
 	}
 
@@ -445,8 +445,8 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 		avgTime := totalDuration / time.Duration(totalTests)
 		fmt.Printf("\n性能统计:\n")
 		fmt.Printf("总测试数量: %d\n", totalTests)
-		fmt.Printf("总耗时: %v\n", totalDuration)
-		fmt.Printf("平均每个测试耗时: %v\n", avgTime)
+		fmt.Printf("总耗时: %.2fs\n", totalDuration.Seconds())
+		fmt.Printf("平均每个测试耗时: %.2fms\n", float64(avgTime.Microseconds())/1000.0)
 		fmt.Printf("测试速度: %.2f 测试/秒\n", float64(totalTests)/totalDuration.Seconds())
 	}
 }

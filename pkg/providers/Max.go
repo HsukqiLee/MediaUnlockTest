@@ -110,5 +110,19 @@ func Max(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusNo}
 	}
 	
+	resp5, err := core.GET(c, "https://default.any-any.prd.api.max.com/any/playback/v1/playbackInfo",
+		core.H{"Cookie", "st=" + token},
+		core.H{"x-device-info", h1},
+		core.H{"x-disco-client", h2},
+		core.H{"x-disco-params", h3},
+	)
+	if err == nil {
+		defer resp5.Body.Close()
+		body5, _ := io.ReadAll(resp5.Body)
+		if strings.Contains(string(body5), "VPN") {
+			return core.Result{Status: core.StatusBanned}
+		}
+	}
+
 	return core.Result{Status: core.StatusOK, Region: strings.ToLower(region)}
 }
