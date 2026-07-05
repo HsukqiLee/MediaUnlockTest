@@ -13,7 +13,7 @@ func SlingTV(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
 	}
 	defer resp.Body.Close()
-	
+
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return core.Result{Status: core.StatusNetworkErr, Err: err}
@@ -27,8 +27,9 @@ func SlingTV(c core.HttpClient) core.Result {
 		return core.Result{Status: core.StatusErr, Err: err}
 	}
 
+	region := strings.ToLower(core.ThreeToTwoCode(res.Country))
 	if res.IpRestricted {
-		return core.Result{Status: core.StatusNo, Region: strings.ToLower(res.Country)}
+		return core.Result{Status: core.StatusNo, Region: region}
 	}
-	return core.Result{Status: core.StatusOK, Region: strings.ToLower(res.Country)}
+	return core.Result{Status: core.StatusOK, Region: region}
 }
