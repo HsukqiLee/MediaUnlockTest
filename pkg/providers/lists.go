@@ -245,4 +245,5 @@ var AITests = []TestItem{
 	{"ByteDance Coze", Coze, true},
 	{"DeepSeek", DeepSeek, true},
 	{"Moonshot Kimi", Kimi, true},
+	{"Dola AI", Dola, true},
 }

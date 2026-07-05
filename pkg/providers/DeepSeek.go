@@ -10,7 +10,7 @@ import (
 var deepseekRegionRegex = regexp.MustCompile(`<meta\s+name="region"\s+content="([^"]+)"`)
 
 func DeepSeek(c core.HttpClient) core.Result {
-	resp, err := core.GET(c, "https://chat.deepseek.com/")
+	resp, err := core.GET(c, "https://chat.deepseek.com/sign_in")
 	if err != nil {
 		if core.IsWAFBlockError(err) {
 			return core.Result{Status: core.StatusBanned}
