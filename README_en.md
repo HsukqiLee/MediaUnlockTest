@@ -97,7 +97,7 @@ Made with ❤️ By **Hsukqi Lee**.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=HsukqiLee/MediaUnlockTest&type=Date)](https://star-history.com/#HsukqiLee/MediaUnlockTest&Date)
+[![Star History Chart](https://star-history.tsinbei.com/svg?repos=HsukqiLee/MediaUnlockTest&type=Date)](https://star-history.tsinbei.com/#HsukqiLee/MediaUnlockTest&type=date)
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FMediaUnlockTest?ref=badge_large)
