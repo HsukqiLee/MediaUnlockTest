@@ -9,7 +9,7 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/kardianos/service v1.3.0
-	github.com/mattn/go-runewidth v0.0.27
+	github.com/mattn/go-runewidth v0.0.28
 	github.com/prometheus/client_golang v1.24.1
 	github.com/schollz/progressbar/v3 v3.19.1
 	golang.org/x/sys v0.47.0
