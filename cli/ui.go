@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -124,6 +125,140 @@ func ShowFinalResult() {
 	}
 }
 
+// ShowTableResult prints one six-column service/result table for each tested IP
+// version. Region and subgroup dividers are intentionally omitted.
+func ShowTableResult() {
+	for _, ipVersion := range []int{4, 6, 0} {
+		headings, values := tableRows(ResultLines, ipVersion)
+		if len(headings) == 0 {
+			continue
+		}
+
+		label := fmt.Sprintf("IPv%d", ipVersion)
+		if ipVersion == 0 {
+			label = "Auto"
+		}
+		fmt.Println(label + ":")
+		rows := serviceResultTable(headings, values)
+		widths := serviceResultWidths(rows)
+		fmt.Println(tableBorder(widths, "┌", "┬", "┐"))
+		for i, row := range rows {
+			fmt.Println(tableRow(row, widths))
+			if i == len(rows)-1 {
+				fmt.Println(tableBorder(widths, "└", "┴", "┘"))
+			} else {
+				fmt.Println(tableBorder(widths, "├", "┼", "┤"))
+			}
+		}
+	}
+}
+
+func tableRows(results []*result, ipVersion int) ([]string, []string) {
+	var headings []string
+	var values []string
+	for _, r := range results {
+		if r.Divider || r.IPVersion != ipVersion || r.Value.Status == 0 {
+			continue
+		}
+		headings = append(headings, tableCell(compactServiceName(r.Name)))
+		values = append(values, tableCell(tableResultValue(r.Value)))
+	}
+	return headings, values
+}
+
+func compactServiceName(name string) string {
+	if strings.EqualFold(name, "Amazon Prime Video") {
+		return "Amazon"
+	}
+	if fields := strings.Fields(name); len(fields) > 0 {
+		return fields[0]
+	}
+	return name
+}
+
+func serviceResultTable(services, results []string) [][]string {
+	const pairsPerRow = 3
+	rows := [][]string{{"Service", "Result", "Service", "Result", "Service", "Result"}}
+	for start := 0; start < len(services); start += pairsPerRow {
+		row := make([]string, pairsPerRow*2)
+		for pair := 0; pair < pairsPerRow; pair++ {
+			index := start + pair
+			if index >= len(services) {
+				break
+			}
+			row[pair*2] = services[index]
+			row[pair*2+1] = results[index]
+		}
+		rows = append(rows, row)
+	}
+	return rows
+}
+
+func serviceResultWidths(rows [][]string) []int {
+	const columnCount = 6
+	serviceWidth := tableCellWidth("Service")
+	resultWidth := tableCellWidth("Result")
+	for _, row := range rows {
+		for column, cell := range row {
+			if column%2 == 0 {
+				serviceWidth = max(serviceWidth, tableCellWidth(cell))
+			} else {
+				resultWidth = max(resultWidth, tableCellWidth(cell))
+			}
+		}
+	}
+	widths := make([]int, columnCount)
+	for column := range widths {
+		if column%2 == 0 {
+			widths[column] = serviceWidth
+		} else {
+			widths[column] = resultWidth
+		}
+	}
+	return widths
+}
+
+func tableRow(cells []string, widths []int) string {
+	padded := make([]string, len(cells))
+	for i, cell := range cells {
+		padding := widths[i] - tableCellWidth(cell)
+		leftPadding := padding / 2
+		rightPadding := padding - leftPadding
+		padded[i] = strings.Repeat(" ", leftPadding) + cell + strings.Repeat(" ", rightPadding)
+	}
+	return "│ " + strings.Join(padded, " │ ") + " │"
+}
+
+func tableBorder(widths []int, left, middle, right string) string {
+	sections := make([]string, len(widths))
+	for i, width := range widths {
+		sections[i] = strings.Repeat("─", width+2)
+	}
+	return left + strings.Join(sections, middle) + right
+}
+
+var ansiColorPattern = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+func tableCellWidth(value string) int {
+	return runewidth.StringWidth(ansiColorPattern.ReplaceAllString(value, ""))
+}
+
+func tableCell(value string) string {
+	value = strings.ReplaceAll(value, "|", "\\|")
+	value = strings.ReplaceAll(value, "\r", " ")
+	return strings.ReplaceAll(value, "\n", " ")
+}
+
+func tableResultValue(r core.Result) string {
+	if r.Status == core.StatusOK {
+		if r.Region != "" {
+			return core.Green(strings.ToUpper(r.Region))
+		}
+		return core.Green("YES")
+	}
+	return core.Red("NO")
+}
+
 func newProgressBar(count int64, desc string) *progressbar.ProgressBar {
 	width := 30
 	if w, _, err := term.GetSize(int(os.Stderr.Fd())); err == nil {
@@ -173,7 +308,7 @@ func updateProgressBarDescription() {
 
 	var newDesc string
 	if len(activeList) == 0 {
-		newDesc = "等待测试开始..."
+		newDesc = fmt.Sprintf("等待测试开始 (%s)...", progressIPLabel)
 	} else {
 
 		maxLen := 40
@@ -190,9 +325,9 @@ func updateProgressBarDescription() {
 		}
 
 		if len(displayNames) < len(activeList) {
-			newDesc = fmt.Sprintf("正在测试: %s 等 %d 个测试", strings.Join(displayNames, ", "), len(activeList))
+			newDesc = fmt.Sprintf("正在测试 (%s): %s 等 %d 个测试", progressIPLabel, strings.Join(displayNames, ", "), len(activeList))
 		} else {
-			newDesc = "正在测试: " + strings.Join(displayNames, ", ")
+			newDesc = fmt.Sprintf("正在测试 (%s): %s", progressIPLabel, strings.Join(displayNames, ", "))
 		}
 	}
 

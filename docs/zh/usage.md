@@ -25,6 +25,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |`-v`|显示版本信息并退出|`-v`|
 |`-u`|检查并更新到最新版本|`-u`|
 |`-f`|强制执行更新（即使已是最新版本，需配合 `-u`）|`-u -f`|
+|`--table`|显示紧凑的六列 IPv4 和 IPv6 表格|`--table`|
 
 ### 性能优化
 
@@ -49,6 +50,9 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 
 # 仅检测 IPv4 项目
 ./unlock-test -m 4
+
+# 显示适应终端宽度的紧凑 IPv4 和 IPv6 表格
+./unlock-test --table
 
 # 限制并发数量为 30 (适合低配机器)
 ./unlock-test -conc 30

@@ -9,9 +9,27 @@ import (
 	"time"
 )
 
+type executionStats struct {
+	TotalTests    int
+	TotalDuration time.Duration
+}
+
+func (stats *executionStats) add(other executionStats) {
+	stats.TotalTests += other.TotalTests
+	stats.TotalDuration += other.TotalDuration
+}
+
+func ipTypeLabel(ipType int) string {
+	if ipType == 0 {
+		return "Auto"
+	}
+	return fmt.Sprintf("IPv%d", ipType)
+}
+
 // ExecuteTestsParallel 并行执行所有测试（不按地区分组）
-func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType int) {
+func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType int) executionStats {
 	startTime := time.Now()
+	ipTypeStr := ipTypeLabel(ipType)
 
 	// 收集所有启用的测试，并记录地区信息
 	type testWithRegion struct {
@@ -47,10 +65,11 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 	}
 
 	if len(allTests) == 0 {
-		return
+		return executionStats{}
 	}
 
-	bar = newProgressBar(int64(len(allTests)), "正在测试...")
+	progressIPLabel = ipTypeStr
+	bar = newProgressBar(int64(len(allTests)), fmt.Sprintf("正在测试 (%s)...", ipTypeStr))
 	startProgressUpdater()
 
 	maxWorkers := 30
@@ -115,7 +134,7 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 
 			select {
 			case testResult := <-done:
-				r := &result{Name: test.Name, Value: testResult}
+				r := &result{Name: test.Name, IPVersion: ipType, Value: testResult}
 				select {
 				case resultChan <- r:
 				case <-time.After(1 * time.Second):
@@ -125,7 +144,7 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 					Status: core.StatusFailed,
 					Err:    fmt.Errorf("测试超时 (%v)", testTimeout),
 				}
-				r := &result{Name: test.Name, Value: timeoutResult}
+				r := &result{Name: test.Name, IPVersion: ipType, Value: timeoutResult}
 				select {
 				case resultChan <- r:
 				default:
@@ -168,11 +187,6 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 		}
 	}
 
-	ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-	if ipType == 0 {
-		ipTypeStr = "Auto"
-	}
-
 	for _, regionName := range regionOrder {
 		if regionItems, exists := regionSubGroups[regionName]; exists && len(regionItems) > 0 {
 
@@ -208,20 +222,13 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 	}
 	activeTestsMutex.Unlock()
 
-	totalDuration := time.Since(startTime)
-	if len(allTests) > 0 {
-		avgTime := totalDuration / time.Duration(len(allTests))
-		fmt.Printf("\n性能统计:\n")
-		fmt.Printf("总测试数量: %d\n", len(allTests))
-		fmt.Printf("总耗时: %.2fs\n", totalDuration.Seconds())
-		fmt.Printf("平均每个测试耗时: %.2fms\n", float64(avgTime.Microseconds())/1000.0)
-		fmt.Printf("测试速度: %.2f 测试/秒\n", float64(len(allTests))/totalDuration.Seconds())
-	}
-
+	return executionStats{TotalTests: len(allTests), TotalDuration: time.Since(startTime)}
 }
 
-func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
+func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) executionStats {
 	startTime := time.Now()
+	ipTypeStr := ipTypeLabel(ipType)
+	executedTests := 0
 
 	for _, region := range regions {
 		if !region.Enabled {
@@ -229,10 +236,6 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 		}
 		regionStartTime := time.Now()
 
-		ipTypeStr := fmt.Sprintf("IPv%d", ipType)
-		if ipType == 0 {
-			ipTypeStr = "Auto"
-		}
 		fmt.Printf("\n正在检测 %s (%s) ...\n", region.Name, ipTypeStr)
 
 		ResultLines = append(ResultLines, &result{Name: fmt.Sprintf("%s (%s)", region.Name, ipTypeStr), Divider: true})
@@ -255,8 +258,10 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 		if totalTests == 0 {
 			continue
 		}
+		executedTests += totalTests
 
-		bar = newProgressBar(int64(totalTests), "正在测试...")
+		progressIPLabel = ipTypeStr
+		bar = newProgressBar(int64(totalTests), fmt.Sprintf("正在测试 (%s)...", ipTypeStr))
 
 		startProgressUpdater()
 
@@ -304,7 +309,7 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 				cacheMutex.RLock()
 				if cachedResult, exists := resultCache[cacheKey]; exists {
 					cacheMutex.RUnlock()
-					r := &result{Name: test.Name, Value: cachedResult}
+					r := &result{Name: test.Name, IPVersion: ipType, Value: cachedResult}
 					select {
 					case resultChan <- r:
 					case <-testCtx.Done():
@@ -357,7 +362,7 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 				select {
 				case testResult := <-done:
 
-					r := &result{Name: test.Name, Value: testResult}
+					r := &result{Name: test.Name, IPVersion: ipType, Value: testResult}
 					select {
 					case resultChan <- r:
 					case <-testCtx.Done():
@@ -370,7 +375,7 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 						Status: core.StatusFailed,
 						Err:    fmt.Errorf("测试超时 (%v)", testTimeout),
 					}
-					r := &result{Name: test.Name, Value: timeoutResult}
+					r := &result{Name: test.Name, IPVersion: ipType, Value: timeoutResult}
 					select {
 					case resultChan <- r:
 					default:
@@ -429,24 +434,17 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) {
 		activeTestsMutex.Unlock()
 	}
 
-	totalDuration := time.Since(startTime)
-	totalTests := 0
-	for _, region := range regions {
-		if region.Enabled {
-			for _, test := range region.Tests {
-				if test.Func != nil {
-					totalTests++
-				}
-			}
-		}
-	}
+	return executionStats{TotalTests: executedTests, TotalDuration: time.Since(startTime)}
+}
 
-	if totalTests > 0 {
-		avgTime := totalDuration / time.Duration(totalTests)
-		fmt.Printf("\n性能统计:\n")
-		fmt.Printf("总测试数量: %d\n", totalTests)
-		fmt.Printf("总耗时: %.2fs\n", totalDuration.Seconds())
-		fmt.Printf("平均每个测试耗时: %.2fms\n", float64(avgTime.Microseconds())/1000.0)
-		fmt.Printf("测试速度: %.2f 测试/秒\n", float64(totalTests)/totalDuration.Seconds())
-	}
+func performanceStats(totalTests int, totalDuration time.Duration) string {
+	averageMilliseconds := float64(totalDuration) / float64(time.Millisecond) / float64(totalTests)
+	testsPerSecond := float64(totalTests) / totalDuration.Seconds()
+	return fmt.Sprintf(
+		"性能统计: 总测试数量: %d | 总耗时: %.2fs | 平均每个测试耗时: %.2fms | 测试速度: %.2f 测试/秒",
+		totalTests,
+		totalDuration.Seconds(),
+		averageMilliseconds,
+		testsPerSecond,
+	)
 }
