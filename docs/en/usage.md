@@ -26,6 +26,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |`-u`|Check and update to latest version|`-u`|
 |`-f`|Force update to the latest version (use with `-u`)|`-u -f`|
 |`--table`|Show compact six-column IPv4 and IPv6 tables|`--table`|
+|`-region`|Select regions by menu number or name; separate multiple values with commas|`-region 0,11` Test Globe and AI|
 
 ### Performance Optimization
 
@@ -47,6 +48,12 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 ```bash
 # Run all tests (Default)
 ./unlock-test
+
+# Run Globe and AI tests without the interactive menu
+./unlock-test -region 0,11
+
+# Region names are also supported
+./unlock-test -region Globe,AI
 
 # Run only IPv4 tests
 ./unlock-test -m 4

@@ -1,5 +1,7 @@
 param (
-    [string]$TargetDir = "$env:ProgramFiles\MediaUnlockTest"
+    [string]$TargetDir = "$env:ProgramFiles\MediaUnlockTest",
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Arguments
 )
 
 $targetDir = $TargetDir
@@ -59,5 +61,7 @@ else {
         Write-Host "如果报错，请尝试重新启动 PowerShell 或命令提示符以使更改生效"
     }
 }
+
+& $unlockTestPath @Arguments
 
 

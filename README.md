@@ -60,6 +60,8 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 - 确保已有测试项目考虑到各种返回结果
 - 修复已经存在/可能存在的问题
 
+命令行支持使用 `-region` 非交互式选择检测区域，例如 `./unlock-test -region 0,11` 检测跨国和 AI 平台；也可以使用 `./unlock-test -region Globe,AI`。
+
 欢迎提交你的 Pull Requests
 
 ## 二次开发

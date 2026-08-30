@@ -167,11 +167,19 @@ func tableRows(results []*result, ipVersion int) ([]string, []string) {
 }
 
 func compactServiceName(name string) string {
-	if strings.EqualFold(name, "Amazon Prime Video") {
+	switch {
+	case strings.EqualFold(name, "Amazon Prime Video"):
 		return "Amazon"
-	}
-	if fields := strings.Fields(name); len(fields) > 0 {
-		return fields[0]
+	case strings.EqualFold(name, "Google Play Store"):
+		return "Google Play"
+	case strings.EqualFold(name, "Spotify Registration"):
+		return "Spotify"
+	case strings.EqualFold(name, "Wikipedia Editability"):
+		return "Wikipedia"
+	case strings.EqualFold(name, "Youtube CDN"):
+		return "YouTube CDN"
+	case strings.EqualFold(name, "Youtube Premium"):
+		return "YouTube Premium"
 	}
 	return name
 }
@@ -244,19 +252,30 @@ func tableCellWidth(value string) int {
 }
 
 func tableCell(value string) string {
-	value = strings.ReplaceAll(value, "|", "\\|")
 	value = strings.ReplaceAll(value, "\r", " ")
 	return strings.ReplaceAll(value, "\n", " ")
 }
 
 func tableResultValue(r core.Result) string {
-	if r.Status == core.StatusOK {
+	switch r.Status {
+	case core.StatusOK:
 		if r.Region != "" {
 			return core.Green(strings.ToUpper(r.Region))
 		}
 		return core.Green("YES")
+	case core.StatusRestricted:
+		return core.Yellow("RESTRICTED")
+	case core.StatusNo:
+		return core.Red("NO")
+	case core.StatusBanned:
+		return core.Red("BANNED")
+	case core.StatusNetworkErr, core.StatusErr, core.StatusUnexpected:
+		return core.Red("ERR")
+	case core.StatusFailed:
+		return core.Blue("FAILED")
+	default:
+		return core.Purple("UNKNOWN")
 	}
-	return core.Red("NO")
 }
 
 func newProgressBar(count int64, desc string) *progressbar.ProgressBar {

@@ -30,24 +30,42 @@ func TestTableRowsSeparatesIPVersionsAndOmitsDividers(t *testing.T) {
 	if want := []string{"Netflix"}; !reflect.DeepEqual(headings, want) {
 		t.Fatalf("IPv6 headings = %#v, want %#v", headings, want)
 	}
-	if want := []string{"NO"}; !reflect.DeepEqual(values, want) {
+	if want := []string{"ERR"}; !reflect.DeepEqual(values, want) {
 		t.Fatalf("IPv6 values = %#v, want %#v", values, want)
 	}
 }
 
-func TestTableRowsEscapesCells(t *testing.T) {
+func TestTableRowsSanitizesCells(t *testing.T) {
 	results := []*result{{
-		Name:      "Service|Name Extra",
+		Name:      "Service Name Extra",
 		IPVersion: 4,
 		Value:     core.Result{Status: core.StatusRestricted, Info: "plan|only\nupgrade"},
 	}}
 
 	headings, values := tableRows(results, 4)
-	if want := []string{"Service\\|Name"}; !reflect.DeepEqual(headings, want) {
+	if want := []string{"Service Name Extra"}; !reflect.DeepEqual(headings, want) {
 		t.Fatalf("headings = %#v, want %#v", headings, want)
 	}
-	if want := []string{"NO"}; !reflect.DeepEqual(values, want) {
+	if want := []string{"RESTRICTED"}; !reflect.DeepEqual(values, want) {
 		t.Fatalf("values = %#v, want %#v", values, want)
+	}
+}
+
+func TestTableResultValuePreservesStatuses(t *testing.T) {
+	tests := map[int]string{
+		core.StatusOK:         "YES",
+		core.StatusRestricted: "RESTRICTED",
+		core.StatusNo:         "NO",
+		core.StatusBanned:     "BANNED",
+		core.StatusNetworkErr: "ERR",
+		core.StatusErr:        "ERR",
+		core.StatusUnexpected: "ERR",
+		core.StatusFailed:     "FAILED",
+	}
+	for status, want := range tests {
+		if got := tableResultValue(core.Result{Status: status}); got != want {
+			t.Errorf("tableResultValue(%d) = %q, want %q", status, got, want)
+		}
 	}
 }
 
@@ -95,8 +113,11 @@ func TestExecutionStatsCombinesIPRuns(t *testing.T) {
 func TestCompactServiceName(t *testing.T) {
 	tests := map[string]string{
 		"Amazon Prime Video": "Amazon",
-		"Google Play Store":  "Google",
+		"Google Play Store":  "Google Play",
 		"Netflix":            "Netflix",
+		"Netflix CDN":        "Netflix CDN",
+		"Youtube CDN":        "YouTube CDN",
+		"Youtube Premium":    "YouTube Premium",
 	}
 	for input, want := range tests {
 		if got := compactServiceName(input); got != want {

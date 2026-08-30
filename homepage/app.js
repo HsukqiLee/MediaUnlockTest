@@ -41,6 +41,7 @@ const COMMANDS = {
 
 const PARAMS = {
   ip: [
+    { flag: '-region [编号/名称]', title: '选择检测区域', desc: '非交互式选择检测区域，支持菜单编号或地区名称，多个值用逗号分隔，适合第三方脚本调用', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -region 0,11' },
     { flag: '-m 4', title: '仅 IPv4 测试', desc: '只使用 IPv4 连接进行所有项目测试，适用于只有 IPv4 环境', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -m 4' },
     { flag: '-m 6', title: '仅 IPv6 测试', desc: '只测试已知支持 IPv6 的项目，不会对不支持 IPv6 的服务进行测试', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -m 6' },
     { flag: '-I [IP/接口]', title: '绑定网络接口', desc: '使用特定 IP 或网络接口进行测试，适合多 IP 环境下指定出口 IP', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -I 192.168.1.100' },
@@ -57,6 +58,7 @@ const PARAMS = {
     { flag: '-f', title: '强制更新', desc: '配合 -u 使用，强制执行更新（即使已是最新版本）', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -u -f' },
     { flag: '-v', title: '显示版本', desc: '输出当前脚本的版本信息，便于判断是否需要更新', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -v' },
     { flag: '-test [名称]', title: '单个测试', desc: '运行单个测试项，支持使用显示名称（如 "Disney+"）或函数名（如 "DisneyPlus"）精确匹配', cmd: './unlock-test -test Disney+' },
+    { flag: '--table', title: '紧凑表格', desc: '将测试结果按 IPv4 和 IPv6 分组显示为紧凑表格，适合终端查看', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) --table' },
   ],
 };
 

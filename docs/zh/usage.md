@@ -26,6 +26,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |`-u`|检查并更新到最新版本|`-u`|
 |`-f`|强制执行更新（即使已是最新版本，需配合 `-u`）|`-u -f`|
 |`--table`|显示紧凑的六列 IPv4 和 IPv6 表格|`--table`|
+|`-region`|按菜单编号或地区名称选择检测区域，多个值用逗号分隔|`-region 0,11` 检测跨国和 AI 平台|
 
 ### 性能优化
 
@@ -47,6 +48,12 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 ```bash
 # 默认检测所有项目
 ./unlock-test
+
+# 非交互式检测跨国和 AI 平台
+./unlock-test -region 0,11
+
+# 也可以使用地区名称
+./unlock-test -region Globe,AI
 
 # 仅检测 IPv4 项目
 ./unlock-test -m 4
