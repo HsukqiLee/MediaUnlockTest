@@ -16,6 +16,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"unicode"
 
 	core "MediaUnlockTest/pkg/core"
 	m "MediaUnlockTest/pkg/providers"
@@ -156,6 +157,50 @@ func ReadSelect() {
 	}
 }
 
+func selectRegions(selection string) error {
+	M, TW, HK, JP, KR, NA, SA, EU, AFR, SEA, OCEA, AI = false, false, false, false, false, false, false, false, false, false, false, false
+	selected := false
+
+	for item := range strings.FieldsFuncSeq(selection, func(r rune) bool {
+		return r == ',' || unicode.IsSpace(r)
+	}) {
+		selected = true
+		switch strings.ToLower(item) {
+		case "0", "globe", "global":
+			M = true
+		case "1", "taiwan", "tw":
+			TW = true
+		case "2", "hongkong", "hong-kong", "hk":
+			HK = true
+		case "3", "japan", "jp":
+			JP = true
+		case "4", "korea", "kr":
+			KR = true
+		case "5", "northamerica", "north-america", "na":
+			NA = true
+		case "6", "southamerica", "south-america", "sa":
+			SA = true
+		case "7", "europe", "eu":
+			EU = true
+		case "8", "africa", "afr":
+			AFR = true
+		case "9", "southeastasia", "south-east-asia", "sea":
+			SEA = true
+		case "10", "oceania", "oce":
+			OCEA = true
+		case "11", "ai":
+			AI = true
+		default:
+			return fmt.Errorf("unknown region %q (use 0-11 or a region name)", item)
+		}
+	}
+	if !selected {
+		return fmt.Errorf("region selection cannot be empty")
+	}
+
+	return nil
+}
+
 func main() {
 	var (
 		Interface   string
@@ -176,6 +221,7 @@ func main() {
 		ForceUpdate bool
 		LogLevel    string
 		LogFile     string
+		RegionMode  string
 	)
 	flag.StringVar(&Interface, "I", "", "Source IP or network interface to use for connections")
 	flag.StringVar(&DNSServers, "dns-servers", "", "Custom DNS servers (format: ip:port)")
@@ -193,7 +239,15 @@ func main() {
 	flag.BoolVar(&Cache, "cache", false, "Enable caching and sequential region execution (default: false)")
 	flag.StringVar(&LogLevel, "loglevel", "", "Log level (debug, info, warning, error). Only valid if -debug is enabled.")
 	flag.StringVar(&LogFile, "logfile", "", "Output log to file. Only valid if -debug is enabled.")
+	flag.StringVar(&RegionMode, "region", "", "Select regions by number or name (comma-separated, e.g. -region 0,11)")
 	flag.Parse()
+	if RegionMode != "" {
+		selection := append([]string{RegionMode}, flag.Args()...)
+		if err := selectRegions(strings.Join(selection, ",")); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(2)
+		}
+	}
 
 	// -loglevel and -logfile are only effective when -debug is enabled
 	if !Debug {
@@ -445,7 +499,7 @@ func main() {
 	}
 	fmt.Println()
 
-	if IPV4 || IPV6 {
+	if (IPV4 || IPV6) && RegionMode == "" {
 		ReadSelect()
 	}
 	regions := []regionItem{

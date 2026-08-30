@@ -1,3 +1,8 @@
+param (
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Arguments
+)
+
 function Start-Script {
     $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
@@ -47,6 +52,6 @@ function Start-Script {
     Invoke-WebRequest -Uri $remoteScriptUrl -OutFile $localScriptPath
     
     # 执行下载的脚本文件 (传递 targetDir 给内部脚本)
-    & $localScriptPath -TargetDir $targetDir
+    & $localScriptPath -TargetDir $targetDir @Arguments
 }
 Start-Script

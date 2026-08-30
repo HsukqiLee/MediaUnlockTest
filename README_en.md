@@ -60,6 +60,8 @@ Use Prometheus and Grafana to build streaming media unlock monitoring, demo: [IC
 - Ensure that existing test items take into account various return results
 - Fix existing/potential problems
 
+Use `-region` to select test regions without the interactive menu, for example `./unlock-test -region 0,11` for Globe and AI. Region names are also supported: `./unlock-test -region Globe,AI`.
+
 Welcome to submit your Pull Requests.
 
 ## Secondary Development
