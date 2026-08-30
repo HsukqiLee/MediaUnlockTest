@@ -52,7 +52,9 @@ var (
 	activeTestsMutex         sync.RWMutex
 	activeTests                   = make(map[string]bool)
 	ShowActive               bool = true
+	TableOutput              bool
 	progressDescriptionCache string
+	progressIPLabel          string
 	progressDescMu           sync.Mutex
 	updaterStopChan          chan struct{}
 	updaterMutex             sync.Mutex
@@ -65,9 +67,10 @@ type TestItem struct {
 }
 
 type result struct {
-	Name    string
-	Divider bool
-	Value   core.Result
+	Name      string
+	Divider   bool
+	IPVersion int
+	Value     core.Result
 }
 
 type regionItem struct {
@@ -237,6 +240,7 @@ func main() {
 	flag.Uint64Var(&Conc, "conc", 0, "Max concurrent tests (0=unlimited)")
 	flag.BoolVar(&ShowActive, "show-active", true, "Show active tests in progress bar (default: true)")
 	flag.BoolVar(&Cache, "cache", false, "Enable caching and sequential region execution (default: false)")
+	flag.BoolVar(&TableOutput, "table", false, "Show final unlock results as separate tables for each IP version")
 	flag.StringVar(&LogLevel, "loglevel", "", "Log level (debug, info, warning, error). Only valid if -debug is enabled.")
 	flag.StringVar(&LogFile, "logfile", "", "Output log to file. Only valid if -debug is enabled.")
 	flag.StringVar(&RegionMode, "region", "", "Select regions by number or name (comma-separated, e.g. -region 0,11)")
@@ -516,30 +520,38 @@ func main() {
 		{Enabled: OCEA, Name: "Oceania", Tests: m.OceaniaTests},
 		{Enabled: AI, Name: "AI", Tests: m.AITests},
 	}
+	var combinedStats executionStats
 	if IsProxy {
 		if Cache {
-			ExecuteTests(regions, core.AutoHttpClient, 0)
+			combinedStats.add(ExecuteTests(regions, core.AutoHttpClient, 0))
 		} else {
-			ExecuteTestsParallel(regions, core.AutoHttpClient, 0)
+			combinedStats.add(ExecuteTestsParallel(regions, core.AutoHttpClient, 0))
 		}
 	} else {
 		if IPV4 {
 			if Cache {
-				ExecuteTests(regions, core.Ipv4HttpClient, 4)
+				combinedStats.add(ExecuteTests(regions, core.Ipv4HttpClient, 4))
 			} else {
-				ExecuteTestsParallel(regions, core.Ipv4HttpClient, 4)
+				combinedStats.add(ExecuteTestsParallel(regions, core.Ipv4HttpClient, 4))
 			}
 		}
 		if IPV6 {
 			if Cache {
-				ExecuteTests(regions, core.Ipv6HttpClient, 6)
+				combinedStats.add(ExecuteTests(regions, core.Ipv6HttpClient, 6))
 			} else {
-				ExecuteTestsParallel(regions, core.Ipv6HttpClient, 6)
+				combinedStats.add(ExecuteTestsParallel(regions, core.Ipv6HttpClient, 6))
 			}
 		}
 	}
+	if combinedStats.TotalTests > 0 {
+		fmt.Printf("\n%s\n", performanceStats(combinedStats.TotalTests, combinedStats.TotalDuration))
+	}
 	fmt.Println()
-	ShowFinalResult()
+	if TableOutput {
+		ShowTableResult()
+	} else {
+		ShowFinalResult()
+	}
 	fmt.Println()
 	fmt.Println("检测完毕，感谢您的使用！")
 	ShowCounts()

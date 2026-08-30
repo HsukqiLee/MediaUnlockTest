@@ -25,6 +25,7 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 |`-v`|Show version and exit|`-v`|
 |`-u`|Check and update to latest version|`-u`|
 |`-f`|Force update to the latest version (use with `-u`)|`-u -f`|
+|`--table`|Show compact six-column IPv4 and IPv6 tables|`--table`|
 |`-region`|Select regions by menu number or name; separate multiple values with commas|`-region 0,11` Test Globe and AI|
 
 ### Performance Optimization
@@ -56,6 +57,9 @@ irm https://unlock.icmp.ing/scripts/download_test.ps1 | iex
 
 # Run only IPv4 tests
 ./unlock-test -m 4
+
+# Show compact, terminal-width-aware IPv4 and IPv6 tables
+./unlock-test --table
 
 # Limit concurrency to 30 (Good for low-end devices)
 ./unlock-test -conc 30

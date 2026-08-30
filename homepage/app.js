@@ -58,6 +58,7 @@ const PARAMS = {
     { flag: '-f', title: '强制更新', desc: '配合 -u 使用，强制执行更新（即使已是最新版本）', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -u -f' },
     { flag: '-v', title: '显示版本', desc: '输出当前脚本的版本信息，便于判断是否需要更新', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) -v' },
     { flag: '-test [名称]', title: '单个测试', desc: '运行单个测试项，支持使用显示名称（如 "Disney+"）或函数名（如 "DisneyPlus"）精确匹配', cmd: './unlock-test -test Disney+' },
+    { flag: '--table', title: '紧凑表格', desc: '将测试结果按 IPv4 和 IPv6 分组显示为紧凑表格，适合终端查看', cmd: 'bash <(curl -Ls unlock.icmp.ing/scripts/test.sh) --table' },
   ],
 };
 
