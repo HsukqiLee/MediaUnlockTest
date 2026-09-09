@@ -108,13 +108,11 @@ echo "build windows arm64 ..."
 CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -trimpath -ldflags="$flags" -o build/unlock-monitor_windows_arm64.exe
 
 # Compress binaries with UPX (best compression)
-# Excluded: darwin (SIP/codesign), mips* (unsupported), riscv64 (unsupported),
-#           s390x (unsupported), loong64 (unsupported), ppc64/ppc64le (unsupported)
+# Excluded: android (W^X blocks UPX runtime unpacking), darwin (SIP/codesign),
+#           mips* (unsupported), riscv64 (unsupported), s390x (unsupported),
+#           loong64 (unsupported), ppc64/ppc64le (unsupported)
 echo "compressing binaries with UPX ..."
 upx --best \
-  build/unlock-monitor_android_386 build/unlock-monitor_android_amd64 \
-  build/unlock-monitor_android_arm5 build/unlock-monitor_android_arm6 \
-  build/unlock-monitor_android_arm7 build/unlock-monitor_android_arm64 \
   build/unlock-monitor_linux_386 build/unlock-monitor_linux_amd64 \
   build/unlock-monitor_linux_arm5 build/unlock-monitor_linux_arm6 \
   build/unlock-monitor_linux_arm7 build/unlock-monitor_linux_arm64 \
