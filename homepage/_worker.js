@@ -4,7 +4,7 @@ export default {
     const { pathname } = url;
 
     const repo = env.REPO || 'HsukqiLee/MediaUnlockTest';
-    const fallbackVer = env.FALLBACK_VERSION || 'v1.8.5-1770436107';
+    const fallbackVer = env.FALLBACK_VERSION || 'v1.9.10-1788951725';
     const token = env.GITHUB_TOKEN || '';
 
     if (pathname === '/api/ip-info') {
