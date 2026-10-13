@@ -14,6 +14,7 @@ var (
 	StatusBanned     = 4
 	StatusFailed     = 5
 	StatusUnexpected = 6
+	StatusIPv6Only   = 7
 )
 
 type Result struct {

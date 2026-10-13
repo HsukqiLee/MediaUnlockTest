@@ -29,6 +29,16 @@ func ShowSingleResult(r core.Result) (s string) {
 		}
 		return s
 
+	case core.StatusIPv6Only:
+		s = core.Yellow("IPv6 only")
+		if r.Region != "" {
+			s += core.Yellow(" (Region: " + strings.ToUpper(r.Region) + ")")
+		}
+		if Debug && r.CachedResult {
+			s += " (Cached)"
+		}
+		return s
+
 	case core.StatusNetworkErr:
 		s = core.Red("ERR")
 		if Debug {
@@ -102,7 +112,7 @@ func ShowFinalResult() {
 	for i, r := range sortedResultLines {
 		if r.Divider {
 
-			isRegionGroup := strings.Contains(r.Name, "IPv4") || strings.Contains(r.Name, "IPv6") || strings.Contains(r.Name, "Auto")
+			isRegionGroup := strings.Contains(r.Name, "IPv4") || strings.Contains(r.Name, "IPv6") || strings.Contains(r.Name, "Auto") || strings.Contains(r.Name, "DualStack")
 
 			if i > 0 && isRegionGroup {
 				fmt.Println()
@@ -128,6 +138,14 @@ func ShowFinalResult() {
 // ShowTableResult prints one six-column service/result table for each tested IP
 // version. Region and subgroup dividers are intentionally omitted.
 func ShowTableResult() {
+	hasV6Only := false
+	for _, r := range ResultLines {
+		if r.Value.Status == core.StatusIPv6Only {
+			hasV6Only = true
+			break
+		}
+	}
+
 	for _, ipVersion := range []int{4, 6, 0} {
 		headings, values := tableRows(ResultLines, ipVersion)
 		if len(headings) == 0 {
@@ -137,6 +155,8 @@ func ShowTableResult() {
 		label := fmt.Sprintf("IPv%d", ipVersion)
 		if ipVersion == 0 {
 			label = "Auto"
+		} else if ipVersion == 4 && hasV6Only {
+			label = "DualStack"
 		}
 		fmt.Println(label + ":")
 		rows := serviceResultTable(headings, values)
@@ -263,6 +283,8 @@ func tableResultValue(r core.Result) string {
 			return core.Green(strings.ToUpper(r.Region))
 		}
 		return core.Green("YES")
+	case core.StatusIPv6Only:
+		return core.Yellow("IPv6 only")
 	case core.StatusRestricted:
 		return core.Yellow("RESTRICTED")
 	case core.StatusNo:

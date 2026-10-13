@@ -26,10 +26,46 @@ func ipTypeLabel(ipType int) string {
 	return fmt.Sprintf("IPv%d", ipType)
 }
 
+func runTestWithFallback(test m.TestItem, ipType int, dualStack bool) core.Result {
+	core.ResetSessionHeaders()
+	client := core.NewHttpClient(ipType)
+
+	core.LogDebug("Calling test function: %s (ipType: %d)", test.Name, ipType)
+	result := test.Func(client)
+	core.LogDebug("Test function returned: %s -> Status: %d, Region: %s, Info: %s, Err: %v", test.Name, result.Status, result.Region, result.Info, result.Err)
+
+	if dualStack && result.Status != core.StatusOK {
+		if test.SupportsV6 {
+			v6Client := core.NewHttpClient(6)
+			core.LogDebug("Calling dualstack IPv6 fallback: %s", test.Name)
+			v6Result := test.Func(v6Client)
+			core.LogDebug("Dualstack fallback IPv6 test returned: %s -> Status: %d, Region: %s, Info: %s, Err: %v", test.Name, v6Result.Status, v6Result.Region, v6Result.Info, v6Result.Err)
+			if v6Result.Status == core.StatusOK {
+				return core.Result{
+					Status: core.StatusIPv6Only,
+					Region: v6Result.Region,
+					Info:   v6Result.Info,
+				}
+			}
+			return core.Result{
+				Status: core.StatusNo,
+			}
+		}
+		return core.Result{
+			Status: core.StatusNo,
+		}
+	}
+
+	return result
+}
+
 // ExecuteTestsParallel 并行执行所有测试（不按地区分组）
-func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType int) executionStats {
+func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType int, dualStack bool) executionStats {
 	startTime := time.Now()
 	ipTypeStr := ipTypeLabel(ipType)
+	if dualStack {
+		ipTypeStr = "DualStack"
+	}
 
 	// 收集所有启用的测试，并记录地区信息
 	type testWithRegion struct {
@@ -103,6 +139,11 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 			activeTests[test.Name] = true
 			activeTestsMutex.Unlock()
 
+			currentTestTimeout := testTimeout
+			if dualStack {
+				currentTestTimeout = testTimeout * 2
+			}
+
 			done := make(chan core.Result, 1)
 			go func() {
 				defer func() {
@@ -117,13 +158,7 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 					}
 				}()
 
-				core.ResetSessionHeaders()
-				client = core.NewHttpClient(ipType)
-
-				core.LogDebug("Calling test function: %s (ipType: %d)", test.Name, ipType)
-				result := test.Func(client)
-				core.LogDebug("Test function returned: %s -> Status: %d, Region: %s, Info: %s, Err: %v", test.Name, result.Status, result.Region, result.Info, result.Err)
-
+				result := runTestWithFallback(test, ipType, dualStack)
 				result.CachedResult = false
 
 				select {
@@ -139,10 +174,10 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 				case resultChan <- r:
 				case <-time.After(1 * time.Second):
 				}
-			case <-time.After(testTimeout):
+			case <-time.After(currentTestTimeout):
 				timeoutResult := core.Result{
 					Status: core.StatusFailed,
-					Err:    fmt.Errorf("测试超时 (%v)", testTimeout),
+					Err:    fmt.Errorf("测试超时 (%v)", currentTestTimeout),
 				}
 				r := &result{Name: test.Name, IPVersion: ipType, Value: timeoutResult}
 				select {
@@ -225,9 +260,12 @@ func ExecuteTestsParallel(regions []regionItem, client core.HttpClient, ipType i
 	return executionStats{TotalTests: len(allTests), TotalDuration: time.Since(startTime)}
 }
 
-func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) executionStats {
+func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int, dualStack bool) executionStats {
 	startTime := time.Now()
 	ipTypeStr := ipTypeLabel(ipType)
+	if dualStack {
+		ipTypeStr = "DualStack"
+	}
 	executedTests := 0
 
 	for _, region := range regions {
@@ -302,10 +340,17 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) exec
 				activeTests[test.Name] = true
 				activeTestsMutex.Unlock()
 
-				testCtx, testCancel := context.WithTimeout(ctx, testTimeout)
+				currentTestTimeout := testTimeout
+				if dualStack {
+					currentTestTimeout = testTimeout * 2
+				}
+				testCtx, testCancel := context.WithTimeout(ctx, currentTestTimeout)
 				defer testCancel()
 
 				cacheKey := fmt.Sprintf("%s_%d", test.Name, ipType)
+				if dualStack {
+					cacheKey = fmt.Sprintf("%s_dualstack", test.Name)
+				}
 				cacheMutex.RLock()
 				if cachedResult, exists := resultCache[cacheKey]; exists {
 					cacheMutex.RUnlock()
@@ -339,13 +384,7 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) exec
 						}
 					}()
 
-					core.ResetSessionHeaders()
-					client = core.NewHttpClient(ipType)
-
-					core.LogDebug("Calling test function: %s (ipType: %d)", test.Name, ipType)
-					result := test.Func(client)
-					core.LogDebug("Test function returned: %s -> Status: %d, Region: %s, Info: %s, Err: %v", test.Name, result.Status, result.Region, result.Info, result.Err)
-
+					result := runTestWithFallback(test, ipType, dualStack)
 					result.CachedResult = false
 
 					cacheMutex.Lock()
@@ -373,7 +412,7 @@ func ExecuteTests(regions []regionItem, client core.HttpClient, ipType int) exec
 
 					timeoutResult := core.Result{
 						Status: core.StatusFailed,
-						Err:    fmt.Errorf("测试超时 (%v)", testTimeout),
+						Err:    fmt.Errorf("测试超时 (%v)", currentTestTimeout),
 					}
 					r := &result{Name: test.Name, IPVersion: ipType, Value: timeoutResult}
 					select {

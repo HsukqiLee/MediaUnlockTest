@@ -61,11 +61,24 @@ func TestTableResultValuePreservesStatuses(t *testing.T) {
 		core.StatusErr:        "ERR",
 		core.StatusUnexpected: "ERR",
 		core.StatusFailed:     "FAILED",
+		core.StatusIPv6Only:   "IPv6 only",
 	}
 	for status, want := range tests {
 		if got := tableResultValue(core.Result{Status: status}); got != want {
 			t.Errorf("tableResultValue(%d) = %q, want %q", status, got, want)
 		}
+	}
+}
+
+func TestShowSingleResult(t *testing.T) {
+	if got := ShowSingleResult(core.Result{Status: core.StatusIPv6Only}); got != "IPv6 only" {
+		t.Errorf("ShowSingleResult(StatusIPv6Only) = %q, want %q", got, "IPv6 only")
+	}
+	if got := ShowSingleResult(core.Result{Status: core.StatusIPv6Only, Region: "us"}); got != "IPv6 only (Region: US)" {
+		t.Errorf("ShowSingleResult(StatusIPv6Only with region) = %q, want %q", got, "IPv6 only (Region: US)")
+	}
+	if got := ShowSingleResult(core.Result{Status: core.StatusNo}); got != "NO" {
+		t.Errorf("ShowSingleResult(StatusNo) = %q, want %q", got, "NO")
 	}
 }
 

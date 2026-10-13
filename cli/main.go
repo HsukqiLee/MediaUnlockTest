@@ -523,23 +523,29 @@ func main() {
 	var combinedStats executionStats
 	if IsProxy {
 		if Cache {
-			combinedStats.add(ExecuteTests(regions, core.AutoHttpClient, 0))
+			combinedStats.add(ExecuteTests(regions, core.AutoHttpClient, 0, false))
 		} else {
-			combinedStats.add(ExecuteTestsParallel(regions, core.AutoHttpClient, 0))
+			combinedStats.add(ExecuteTestsParallel(regions, core.AutoHttpClient, 0, false))
+		}
+	} else if IPV4 && IPV6 {
+		if Cache {
+			combinedStats.add(ExecuteTests(regions, core.Ipv4HttpClient, 4, true))
+		} else {
+			combinedStats.add(ExecuteTestsParallel(regions, core.Ipv4HttpClient, 4, true))
 		}
 	} else {
 		if IPV4 {
 			if Cache {
-				combinedStats.add(ExecuteTests(regions, core.Ipv4HttpClient, 4))
+				combinedStats.add(ExecuteTests(regions, core.Ipv4HttpClient, 4, false))
 			} else {
-				combinedStats.add(ExecuteTestsParallel(regions, core.Ipv4HttpClient, 4))
+				combinedStats.add(ExecuteTestsParallel(regions, core.Ipv4HttpClient, 4, false))
 			}
 		}
 		if IPV6 {
 			if Cache {
-				combinedStats.add(ExecuteTests(regions, core.Ipv6HttpClient, 6))
+				combinedStats.add(ExecuteTests(regions, core.Ipv6HttpClient, 6, false))
 			} else {
-				combinedStats.add(ExecuteTestsParallel(regions, core.Ipv6HttpClient, 6))
+				combinedStats.add(ExecuteTestsParallel(regions, core.Ipv6HttpClient, 6, false))
 			}
 		}
 	}
